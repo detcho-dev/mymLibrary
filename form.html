@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" href="icon.ico" type="image/x-icon">
+    <title>MYM Library</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        :root {
+            --scroll-behavior: smooth;
+        }
+
+        html {
+            scroll-behavior: var(--scroll-behavior);
+        }
+
+        header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            z-index: 9999;
+        }
+
+        main {
+            padding-top: 100px; /* ارتفاع المينيو */
+        }
+
+        /* Custom button styles */
+        .btn-primary {
+            background-color: #1d4ed8; /* Primary color */
+            color: white;
+            padding: 0.75rem 1.5rem;
+            border-radius: 9999px;
+            font-weight: 600;
+            transition: all 0.3s ease-in-out;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .btn-primary:hover {
+            background-color: #2563eb; /* Slightly darker shade for hover */
+            transform: translateY(-3px);
+            box-shadow: 0 8px 12px rgba(0, 0, 0, 0.15);
+        }
+
+        .btn-primary:active {
+            transform: translateY(1px);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .no-results {
+            color: #ff0000;
+            text-align: center;
+            font-size: 1.2rem;
+            margin-top: 20px;
+        }
+
+        #search-input {
+            margin: 0 auto;
+            display: block;
+            width: 80%;
+            max-width: 500px;
+        }
+    </style>
+</head>
+<body class="bg-background text-foreground font-inter">
+    <header class="fixed top-0 left-0 w-full bg-white shadow-md z-50">
+        <nav class="container mx-auto px-4 py-4 flex flex-col md:flex-row items-center justify-between">
+            <div class="flex items-center gap-4">
+                <img src="logo.png" alt="MYM Library Logo" class="w-12 h-12 object-cover">
+                <h1 class="text-2xl font-heading">MYM Library</h1>
+            </div>
+            <div class="my-4 md:my-0">
+                <input id="search-input" type="search" placeholder="Search for books..." class="w-full md:w-64 px-4 py-2 rounded-sm border border-input focus:outline-none focus:ring-2 focus:ring-ring" oninput="searchBooks()">
+                <ul class="flex gap-6">
+                    <li><a href="#home" class="hover:text-primary transition-colors">Home</a></li>
+                    <li><a href="#shop" class="hover:text-primary transition-colors">Shop Now</a></li>
+                    <li><a href="#about" class="hover:text-primary transition-colors">About Us</a></li>
+                    <li><a href="#contact" class="hover:text-primary transition-colors">Contact Us</a></li>
+                </ul>
+            </div>
+        </nav>
+    </header>
+    
+    <main>
+        <!-- Main Content Here -->
+
+        <!-- New Section for User Info (User name and email) -->
+        <section id="user-info" class="py-16 bg-secondary">
+            <div class="container mx-auto px-4">
+                <h2 class="text-3xl font-heading mb-8 text-center">Enter Your Details</h2>
+                <form id="user-form" class="max-w-lg mx-auto bg-card p-6 rounded-sm shadow-sm">
+                    <div class="mb-4">
+                        <label class="block text-sm font-body mb-2">Name</label>
+                        <input type="text" id="user-name" class="w-full px-4 py-2 rounded-sm border border-input focus:outline-none focus:ring-2 focus:ring-ring" required>
+                    </div>
+                    <div class="mb-4">
+                        <label class="block text-sm font-body mb-2">Email</label>
+                        <input type="email" id="user-email" class="w-full px-4 py-2 rounded-sm border border-input focus:outline-none focus:ring-2 focus:ring-ring" required>
+                    </div>
+                    <button type="button" onclick="submitUserInfo()" class="btn-primary w-full">Submit</button>
+                </form>
+                <p id="response-message" class="text-center mt-4 hidden"></p>
+            </div>
+        </section>
+    </main>
+
+    <footer class="bg-secondary py-6">
+        <div class="container mx-auto px-4 flex justify-between items-center">
+            <p class="text-center text-accent mx-auto">&copy; 2024 MYM Library. All rights reserved.</p>
+            <a href="https://wa.me/?text=Check%20out%20MYM%20Library%20at%20mym-library.vercel.app%0AIt%20has%20an%20amazing%20collection%20of%20books%0AVisit%20Now!"
+               target="_blank"
+               class="inline-block p-2 rounded-full hover:bg-green-600 transition-colors">
+                <img src="https://upload.wikimedia.org/wikipedia/commons/6/6b/WhatsApp.svg" alt="WhatsApp" class="w-10 h-10">
+            </a>
+        </div>
+    </footer>
+
+    <script>
+        function searchBooks() {
+            const input = document.getElementById("search-input");
+            const filter = input.value.toLowerCase();
+            const books = document.querySelectorAll(".book");
+            const noResultsMessage = document.getElementById("no-results");
+
+            let found = false;
+
+            books.forEach(book => {
+                const title = book.querySelector("h3").textContent.toLowerCase();
+                const author = book.querySelector("p.text-accent").textContent.toLowerCase();
+
+                if (title.includes(filter) || author.includes(filter)) {
+                    book.style.display = "";
+                    found = true;
+                } else {
+                    book.style.display = "none";
+                }
+            });
+
+            if (!found && filter) {
+                noResultsMessage.classList.remove("hidden");
+            } else {
+                noResultsMessage.classList.add("hidden");
+            }
+        }
+
+        function submitUserInfo() {
+            const name = document.getElementById("user-name").value;
+            const email = document.getElementById("user-email").value;
+            const responseMessage = document.getElementById("response-message");
+
+            // Basic validation
+            if (name && email) {
+                responseMessage.classList.remove("hidden");
+                responseMessage.textContent = `Thank you, ${name}! We will get in touch with you at ${email}.`;
+                document.getElementById("user-form").reset();
+            } else {
+                responseMessage.classList.remove("hidden");
+                responseMessage.textContent = "Please fill in all fields.";
+                responseMessage.style.color = "red";
+            }
+        }
+    </script>
+</body>
+</html>
