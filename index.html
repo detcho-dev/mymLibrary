@@ -58,8 +58,7 @@
                 <h1 class="text-2xl font-heading">MYM Library</h1>
             </div>
             <div class="my-4 md:my-0">
-                <input type="search" placeholder="Search for books..." class="w-full md:w-64 px-4 py-2 rounded-sm border border-input focus:outline-none focus:ring-2 focus:ring-ring">
-            </div>
+                <input id="search-input" type="search" placeholder="Search for books..." class="w-full md:w-64 px-4 py-2 rounded-sm border border-input focus:outline-none focus:ring-2 focus:ring-ring" oninput="searchBooks()">
             <ul class="flex gap-6">
                 <li><a href="#home" class="hover:text-primary transition-colors">Home</a></li>
                 <li><a href="#shop" class="hover:text-primary transition-colors">Shop Now</a></li>
@@ -170,5 +169,33 @@
             </a>
         </div>
     </footer>
+    <script>
+         function searchBooks() {
+            const input = document.getElementById("search-input");
+            const filter = input.value.toLowerCase();
+            const books = document.querySelectorAll(".book");
+            const noResultsMessage = document.getElementById("no-results");
+
+            let found = false;
+
+            books.forEach(book => {
+                const title = book.querySelector("h3").textContent.toLowerCase();
+                const author = book.querySelector("p.text-accent").textContent.toLowerCase();
+
+                if (title.includes(filter) || author.includes(filter)) {
+                    book.style.display = "";
+                    found = true;
+                } else {
+                    book.style.display = "none";
+                }
+            });
+
+            if (!found && filter) {
+                noResultsMessage.classList.remove("hidden");
+            } else {
+                noResultsMessage.classList.add("hidden");
+            }
+        }
+    </script>
 </body>
 </html>
