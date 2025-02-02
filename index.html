@@ -121,7 +121,81 @@
             </div>
         </section>
 
-        <!-- Other sections (Shop, About, etc.) -->
+       <section id="shop" class="py-16">
+            <div class="container mx-auto px-4">
+                <h2 class="text-3xl font-heading mb-8 text-center">Explore Books</h2>
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <div class="bg-card p-4 rounded-sm shadow-sm">
+                        <img src="https://res.cloudinary.com/dqyxzsnyq/image/upload/v1735652511/2text_f9ohsk.jpg" alt="Book 1" class="w-full h-64 object-cover rounded-sm mb-4">
+                        <h3 class="font-heading text-xl mb-2">Du - دو</h3>
+                        <p class="text-accent mb-2">By Youssef Ahmed</p>
+                        <p class="text-primary font-heading mb-4">9.99 L.E.</p>
+                        <button class="btn-primary w-full disabled:bg-gray-400 disabled:cursor-not-allowed" disabled>Buying Not Available</button>
+                    </div>
+                    <!--<div class="bg-card p-4 rounded-sm shadow-sm">
+                        <img src="https://images.unsplash.com/photo-1543002588-bfa74002ed7e?w=300&h=400&fit=crop" alt="Book 2" class="w-full h-64 object-cover rounded-sm mb-4">
+                        <h3 class="font-heading text-xl mb-2">Modern Poetry</h3>
+                        <p class="text-accent mb-2">By Sarah Johnson</p>
+                        <p class="text-primary font-heading mb-4">$19.99</p>
+                        <button class="btn-primary w-full">Buy Now!</button>
+                    </div>
+                    <div class="bg-card p-4 rounded-sm shadow-sm">
+                        <img src="https://images.unsplash.com/photo-1589998059171-988d887df646?w=300&h=400&fit=crop" alt="Book 3" class="w-full h-64 object-cover rounded-sm mb-4">
+                        <h3 class="font-heading text-xl mb-2">Science Fiction Tales</h3>
+                        <p class="text-accent mb-2">By Michael Brown</p>
+                        <p class="text-primary font-heading mb-4">$24.99</p>
+                        <button class="btn-primary w-full">Buy Now!</button>
+                    </div>-->
+                </div>
+            </div>
+        </section>
+
+        <section id="about" class="py-16 bg-secondary">
+            <div class="about-us flex flex-col md:flex-row justify-center items-center h-[60vh] mt-24">
+                <div class="column flex flex-col items-center mx-12 mb-8 md:mb-0">
+                    <div class="letter">
+                        <h1 class="text-8xl text-blue-600 transition-all duration-300">M</h1>
+                        <p class="text-lg text-gray-700 mt-2">Mohammed</p>
+                        <p class="text-gray-600 text-center mt-2">Mohammed plays the role of a fantasy writer. His imagination knows no bounds, creating worlds of magic, adventure, and the unknown.</p>
+                    </div>
+                </div>
+                <div class="column flex flex-col items-center mx-12 mb-8 md:mb-0">
+                    <div class="letter">
+                        <h1 class="text-8xl text-blue-600 transition-all duration-300">Y</h1>
+                        <p class="text-lg text-gray-700 mt-2">Youssef</p>
+                        <p class="text-gray-600 text-center mt-2">Youssef plays the role of both a fantasy and a mystery writer. He brings together the thrill of suspense and the wonder of fantasy in his stories.</p>
+                    </div>
+                </div>
+                <div class="column flex flex-col items-center mx-12 mb-8 md:mb-0">
+                    <div class="letter">
+                        <h1 class="text-8xl text-blue-600 transition-all duration-300">M</h1>
+                        <p class="text-lg text-gray-700 mt-2">Moaz</p>
+                        <p class="text-gray-600 text-center mt-2">Moaz plays the role of a mystery writer, delving into deep plots and complex characters that keep readers on the edge of their seats.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="contact" class="py-16">
+            <div class="container mx-auto px-4">
+                <h2 class="text-3xl font-heading mb-8 text-center">Contact Us</h2>
+                <form class="max-w-lg mx-auto bg-card p-6 rounded-sm shadow-sm">
+                    <div class="mb-4">
+                        <label class="block text-sm font-body mb-2">Name</label>
+                        <input type="text" class="w-full px-4 py-2 rounded-sm border border-input focus:outline-none focus:ring-2 focus:ring-ring" required>
+                    </div>
+                    <div class="mb-4">
+                        <label class="block text-sm font-body mb-2">Email</label>
+                        <input type="email" class="w-full px-4 py-2 rounded-sm border border-input focus:outline-none focus:ring-2 focus:ring-ring" required>
+                    </div>
+                    <div class="mb-4">
+                        <label class="block text-sm font-body mb-2">Message</label>
+                        <textarea rows="4" class="w-full px-4 py-2 rounded-sm border border-input focus:outline-none focus:ring-2 focus:ring-ring" required></textarea>
+                    </div>
+                    <button type="submit" class="btn-primary w-full">Send Message</button>
+                </form>
+            </div>
+        </section>
     </main>
 
     <footer class="footer">
