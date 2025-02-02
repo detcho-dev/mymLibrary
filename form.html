@@ -40,6 +40,11 @@
 
 
     <script type="module">
+        if (window.location.pathname === '/hi') {
+    window.location.pathname = '/hi.html';
+     }
+
+        
         // Firebase Configuration
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
         import { getAuth, createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
