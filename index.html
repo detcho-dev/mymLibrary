@@ -218,13 +218,13 @@
     <script>
         // Firebase Initialization
         const firebaseConfig = {
-            apiKey: "YOUR_API_KEY",
-            authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
-            projectId: "YOUR_PROJECT_ID",
-            storageBucket: "YOUR_PROJECT_ID.appspot.com",
-            messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
-            appId: "YOUR_APP_ID"
-        };
+            apiKey: "AIzaSyBl7L66HN3xn9d4REgdxrxXPrVdDw799Vg",
+            authDomain: "reader-s-club-b2164.firebaseapp.com",
+            projectId: "reader-s-club-b2164",
+            storageBucket: "reader-s-club-b2164.firebasestorage.app",
+            messagingSenderId: "951549046665",
+            appId: "1:951549046665:web:5fd67713cf08750870bb58",
+       };
 
         // Initialize Firebase
         const app = firebase.initializeApp(firebaseConfig);
@@ -241,10 +241,11 @@
             }
         });
 
-        // Redirect to User Page
-        function goToUserPage() {
-            window.location.href = 'user.html';
+       // Redirect to User Page (Popup)
+      function goToUserPage() {
+            window.open('user.html', 'UserPage', 'width=800,height=600,scrollbars=yes');
         }
+
 
         // Search Books Function
         function searchBooks() {
