@@ -176,15 +176,15 @@
                 <form class="max-w-lg mx-auto bg-card p-6 rounded-sm shadow-sm">
                     <div class="mb-4">
                         <label class="block text-sm font-body mb-2">Name</label>
-                        <input type="text" class="w-full px-4 py-2 rounded-sm border border-input focus:outline-none focus:ring-2 focus:ring-ring" required>
+                        <input type="text" id="name" class="w-full px-4 py-2 rounded-sm border border-input focus:outline-none focus:ring-2 focus:ring-ring" required>
                     </div>
                     <div class="mb-4">
                         <label class="block text-sm font-body mb-2">Email</label>
-                        <input type="email" class="w-full px-4 py-2 rounded-sm border border-input focus:outline-none focus:ring-2 focus:ring-ring" required>
+                        <input type="email" id="email" class="w-full px-4 py-2 rounded-sm border border-input focus:outline-none focus:ring-2 focus:ring-ring" required>
                     </div>
                     <div class="mb-4">
                         <label class="block text-sm font-body mb-2">Message</label>
-                        <textarea rows="4" class="w-full px-4 py-2 rounded-sm border border-input focus:outline-none focus:ring-2 focus:ring-ring" required></textarea>
+                        <textarea rows="4" id="message" class="w-full px-4 py-2 rounded-sm border border-input focus:outline-none focus:ring-2 focus:ring-ring" required></textarea>
                     </div>
                     <button type="submit" class="btn-primary w-full">Send Message</button>
                 </form>
@@ -271,6 +271,39 @@
                 noResultsMessage.classList.add("hidden");
             }
         }
+
+        <script src="https://cdn.jsdelivr.net/npm/emailjs-com@3/dist/email.min.js"></script>
+<script>
+    (function(){
+        emailjs.init("nnP-kvyjBP356LpcZ"); // استبدلها بـ User ID الفعلي من EmailJS
+    })();
+
+    document.getElementById("contact-form").addEventListener("submit", function(event) {
+        event.preventDefault();
+        
+        const serviceID = "service_wk5fzt9"; // استبدلها بـ Service ID الفعلي
+        const templateID = "template_e115yil"; // استبدلها بـ Template ID الفعلي
+        
+        const templateParams = {
+            name: document.getElementById("name").value,
+            email: document.getElementById("email").value,
+            message: document.getElementById("message").value
+        };
+        
+        emailjs.send(serviceID, templateID, templateParams)
+            .then(response => {
+                document.getElementById("status-message").textContent = "Message sent successfully!";
+                document.getElementById("status-message").classList.remove("hidden");
+                document.getElementById("status-message").classList.add("text-green-500");
+                document.getElementById("contact-form").reset();
+            }, error => {
+                document.getElementById("status-message").textContent = "Failed to send message. Please try again.";
+                document.getElementById("status-message").classList.remove("hidden");
+                document.getElementById("status-message").classList.add("text-red-500");
+            });
+    });
+</script>
+
     </script>
 </body>
 </html>
