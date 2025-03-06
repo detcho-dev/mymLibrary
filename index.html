@@ -221,68 +221,6 @@
     </footer>
 
     <script>
-        // Firebase Initialization
-        const firebaseConfig = {
-            apiKey: "AIzaSyBl7L66HN3xn9d4REgdxrxXPrVdDw799Vg",
-            authDomain: "reader-s-club-b2164.firebaseapp.com",
-            projectId: "reader-s-club-b2164",
-            storageBucket: "reader-s-club-b2164.firebasestorage.app",
-            messagingSenderId: "951549046665",
-            appId: "1:951549046665:web:5fd67713cf08750870bb58",
-       };
-
-        // Initialize Firebase
-        const app = firebase.initializeApp(firebaseConfig);
-        const auth = firebase.auth();
-
-        // Check if user is signed in
-        firebase.auth().onAuthStateChanged(function(user) {
-            if (user) {
-                document.getElementById("signupBtn").style.display = 'none';
-                document.getElementById("userBtn").style.display = 'block';
-            } else {
-                document.getElementById("signupBtn").style.display = 'block';
-                document.getElementById("userBtn").style.display = 'none';
-            }
-        });
-
-        
-
-
-       // Redirect to User Page (Popup)
-      function goToUserPage() {
-            window.open('user.html', 'UserPage', 'width=800,height=600,scrollbars=yes');
-        }
-
-
-        // Search Books Function
-        function searchBooks() {
-            const input = document.getElementById("search-input");
-            const filter = input.value.toLowerCase();
-            const books = document.querySelectorAll(".book");
-            const noResultsMessage = document.getElementById("no-results");
-
-            let found = false;
-
-            books.forEach(book => {
-                const title = book.querySelector("h3").textContent.toLowerCase();
-                const author = book.querySelector("p.text-accent").textContent.toLowerCase();
-
-                if (title.includes(filter) || author.includes(filter)) {
-                    book.style.display = "";
-                    found = true;
-                } else {
-                    book.style.display = "none";
-                }
-            });
-
-            if (!found && filter) {
-                noResultsMessage.classList.remove("hidden");
-            } else {
-                noResultsMessage.classList.add("hidden");
-            }
-        }
-
         document.getElementById("contact-form").addEventListener("submit", function(event) {
     event.preventDefault(); // منع إعادة تحميل الصفحة عند الإرسال
 
