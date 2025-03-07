@@ -78,8 +78,12 @@
 
         @media (max-width: 640px) {
     .container {
-        padding: 0 10px;
-    }
+    width: 100%;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 20px;
+}
+
 
     .book-card {
         text-align: center;
@@ -95,7 +99,7 @@
     }
 }
 
-@media (max-width: 1024px) {
+    @media (max-width: 1024px) {
     .grid {
         grid-template-columns: repeat(2, minmax(0, 1fr));
     }
@@ -137,8 +141,8 @@
             
 
         </nav>
-        <div class="flex justify-center my-6">
-          <input id="search-input" type="search" placeholder="Search for books..." class="w-full md:w-64 px-4 py-2 rounded-sm border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500" oninput="searchBooks()">
+        <div class="flex justify-center w-full my-6">
+    <input id="search-input" type="search" placeholder="Search for books..." class="w-full md:w-2/3 lg:w-1/2 px-4 py-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500">
         </div>
     </header>
     
@@ -160,7 +164,7 @@
        <section id="shop" class="py-16">
             <div class="container mx-auto px-4">
                 <h2 class="text-3xl font-heading mb-8 text-center">Explore Books</h2>
-                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 justify-center mx-auto">
                     <div class="bg-card p-4 rounded-sm shadow-sm book-card">
                       <img src="https://res.cloudinary.com/dqyxzsnyq/image/upload/v1735652511/2text_f9ohsk.jpg" alt="Book 1" class="w-full h-64 object-cover rounded-sm mb-4">
                       <h3 class="font-heading text-xl mb-2">Du - دو</h3>
