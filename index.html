@@ -108,9 +108,10 @@
              
             </div>
 
-            <input id="search-input" type="search" placeholder="Search for books..." class="w-full md:w-64 px-4 py-2 rounded-sm border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500" oninput="searchBooks()">
+            
 
         </nav>
+        <input id="search-input" type="search" placeholder="Search for books..." class="w-full md:w-64 px-4 py-2 rounded-sm border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500" oninput="searchBooks()">
     </header>
     
     <main>
@@ -132,21 +133,22 @@
             <div class="container mx-auto px-4">
                 <h2 class="text-3xl font-heading mb-8 text-center">Explore Books</h2>
                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                    <div class="bg-card p-4 rounded-sm shadow-sm">
-                        <img src="https://res.cloudinary.com/dqyxzsnyq/image/upload/v1735652511/2text_f9ohsk.jpg" alt="Book 1" class="w-full h-64 object-cover rounded-sm mb-4">
-                        <h3 class="font-heading text-xl mb-2">Du - دو</h3>
-                        <p class="text-accent mb-2">By Youssef Ahmed</p>
-                        <p class="text-primary font-heading mb-4">9.99 L.E.</p>
-                        <button class="btn-primary w-full" onclick="goToPurchasePage('Du - دو', '9.99 L.E.')">Buy Now</button>
-                    </div>
-                   
-                   <div class="bg-card p-4 rounded-sm shadow-sm">
-                        <img src="https://res.cloudinary.com/dqyxzsnyq/image/upload/v1738757292/8_title_e7esmh.jpg" alt="Book 3" class="w-full h-64 object-cover rounded-sm mb-4">
-                        <h3 class="font-heading text-xl mb-2">العوالم الثمانية - The Eight Worlds</h3>
-                        <p class="text-accent mb-2">By Mohammed Osama</p>
-                        <p class="text-primary font-heading mb-4">14.99 L.E.</p>
-                        <button class="btn-primary w-full" onclick="goToPurchasePage('The Eight Worlds - العوالم الثمانية', '14.99 L.E.')">Buy Now</button>
-                    </div>
+                    <div class="bg-card p-4 rounded-sm shadow-sm book-card">
+                      <img src="https://res.cloudinary.com/dqyxzsnyq/image/upload/v1735652511/2text_f9ohsk.jpg" alt="Book 1" class="w-full h-64 object-cover rounded-sm mb-4">
+                      <h3 class="font-heading text-xl mb-2">Du - دو</h3>
+                      <p class="text-accent mb-2">By Youssef Ahmed</p>
+                      <p class="text-primary font-heading mb-4">9.99 L.E.</p>
+                      <button class="btn-primary w-full" onclick="goToPurchasePage('Du - دو', '9.99 L.E.')">Buy Now</button>
+            </div>
+
+            <div class="bg-card p-4 rounded-sm shadow-sm book-card">
+                     <img src="https://res.cloudinary.com/dqyxzsnyq/image/upload/v1738757292/8_title_e7esmh.jpg" alt="Book 3" class="w-full h-64 object-cover rounded-sm mb-4">
+                     <h3 class="font-heading text-xl mb-2">العوالم الثمانية - The Eight Worlds</h3>
+                     <p class="text-accent mb-2">By Mohammed Osama</p>
+                     <p class="text-primary font-heading mb-4">14.99 L.E.</p>
+                    <button class="btn-primary w-full" onclick="goToPurchasePage('The Eight Worlds - العوالم الثمانية', '14.99 L.E.')">Buy Now</button>
+           </div>
+
                 </div>
             </div>
         </section>
