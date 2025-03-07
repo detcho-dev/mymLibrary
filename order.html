@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Order Book</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.emailjs.com/dist/email.min.js"></script>
+
+    <script>
+        (function() {
+            emailjs.init("nnP-kvyjBP356LpcZ"); // استبدل بـ User ID الخاص بك
+        })();
+
+        // دالة لجلب القيم من الرابط (URL Parameters)
+        function getQueryParams() {
+            const params = new URLSearchParams(window.location.search);
+            return {
+                name: params.get("name"),
+                price: params.get("price")
+            };
+        }
+
+        // تعيين القيم في النموذج عند تحميل الصفحة
+        window.onload = function() {
+            const { name, price } = getQueryParams();
+            if (name && price) {
+                document.getElementById("book-name").value = name;
+                document.getElementById("book-price").value = price;
+            }
+        };
+
+        function sendOrder(event) {
+            event.preventDefault();
+
+            const bookName = document.getElementById("book-name").value;
+            const bookPrice = document.getElementById("book-price").value;
+            const customerName = document.getElementById("customer-name").value;
+            const customerPhone = document.getElementById("customer-phone").value;
+            const customerEmail = document.getElementById("customer-email").value;
+
+            emailjs.send("service_6ewqm85", "template_2w9x0ot", {
+                book_name: bookName,
+                book_price: bookPrice,
+                customer_name: customerName,
+                customer_phone: customerPhone,
+                customer_email: customerEmail
+            })
+            .then(function(response) {
+                console.log("✅ Order Sent Successfully!", response);
+
+                document.getElementById("order-form").innerHTML = `
+                    <div class="text-center p-4 bg-green-100 border border-green-400 text-green-700 rounded-sm">
+                        ✅ Your order has been placed successfully! You will receive a confirmation email soon.
+                    </div>
+                `;
+            }, function(error) {
+                console.log("❌ Failed to send order:", error);
+
+                document.getElementById("order-form").innerHTML += `
+                    <div class="text-center p-4 mt-4 bg-red-100 border border-red-400 text-red-700 rounded-sm">
+                        ❌ An error occurred while placing your order. Please try again later.
+                    </div>
+                `;
+            });
+        }
+    </script>
+</head>
+<body class="bg-gray-100 flex items-center justify-center min-h-screen">
+
+    <div class="bg-white p-6 rounded-lg shadow-md w-full max-w-md">
+        <h2 class="text-2xl font-bold text-center mb-4">Complete Your Order</h2>
+
+        <form id="order-form" onsubmit="sendOrder(event)">
+            <!-- Book Name (Read-Only) -->
+            <div class="mb-4">
+                <label class="block text-sm font-semibold">Book Name</label>
+                <input type="text" id="book-name" class="w-full px-4 py-2 rounded-sm border" readonly>
+            </div>
+
+            <!-- Book Price (Read-Only) -->
+            <div class="mb-4">
+                <label class="block text-sm font-semibold">Book Price</label>
+                <input type="text" id="book-price" class="w-full px-4 py-2 rounded-sm border" readonly>
+            </div>
+
+            <!-- Customer Name -->
+            <div class="mb-4">
+                <label class="block text-sm font-semibold">Your Name</label>
+                <input type="text" id="customer-name" class="w-full px-4 py-2 rounded-sm border" required>
+            </div>
+
+            <!-- Customer Phone -->
+            <div class="mb-4">
+                <label class="block text-sm font-semibold">Phone Number</label>
+                <input type="tel" id="customer-phone" class="w-full px-4 py-2 rounded-sm border" required>
+            </div>
+
+            <!-- Customer Email -->
+            <div class="mb-4">
+                <label class="block text-sm font-semibold">Email Address</label>
+                <input type="email" id="customer-email" class="w-full px-4 py-2 rounded-sm border" required>
+            </div>
+
+            <button type="submit" class="btn-primary w-full">Confirm Order</button>
+        </form>
+    </div>
+
+</body>
+</html>
