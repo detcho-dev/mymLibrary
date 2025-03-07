@@ -3,108 +3,84 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Order Book</title>
+    <title>Purchase Book</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://cdn.emailjs.com/dist/email.min.js"></script>
-
-    <script>
-        (function() {
-            emailjs.init("h43f0gQjAVupGqnPd"); // استبدل بـ User ID الخاص بك
-        })();
-
-        // دالة لجلب القيم من الرابط (URL Parameters)
-        function getQueryParams() {
-            const params = new URLSearchParams(window.location.search);
-            return {
-                name: params.get("name"),
-                price: params.get("price")
-            };
-        }
-
-        // تعيين القيم في النموذج عند تحميل الصفحة
-        window.onload = function() {
-            const { name, price } = getQueryParams();
-            if (name && price) {
-                document.getElementById("book-name").value = name;
-                document.getElementById("book-price").value = price;
-            }
-        };
-
-        function sendOrder(event) {
-            event.preventDefault();
-
-            const bookName = document.getElementById("book-name").value;
-            const bookPrice = document.getElementById("book-price").value;
-            const customerName = document.getElementById("customer-name").value;
-            const customerPhone = document.getElementById("customer-phone").value;
-            const customerEmail = document.getElementById("customer-email").value;
-
-            emailjs.send("service_2j2mr61", "template_lqjv3pg", {
-                book_name: bookName,
-                book_price: bookPrice,
-                customer_name: customerName,
-                customer_phone: customerPhone,
-                customer_email: customerEmail
-            })
-            .then(function(response) {
-                console.log("✅ Order Sent Successfully!", response);
-
-                document.getElementById("order-form").innerHTML = `
-                    <div class="text-center p-4 bg-green-100 border border-green-400 text-green-700 rounded-sm">
-                        ✅ Your order has been placed successfully! You will receive a confirmation email soon.
-                    </div>
-                `;
-            }, function(error) {
-                console.log("❌ Failed to send order:", error);
-
-                document.getElementById("order-form").innerHTML += `
-                    <div class="text-center p-4 mt-4 bg-red-100 border border-red-400 text-red-700 rounded-sm">
-                        ❌ An error occurred while placing your order. Please try again later.
-                    </div>
-                `;
-            });
-        }
-    </script>
+    <script src="https://cdn.jsdelivr.net/npm/emailjs-com@3/dist/email.min.js"></script>
 </head>
 <body class="bg-gray-100 flex items-center justify-center min-h-screen">
 
-    <div class="bg-white p-6 rounded-lg shadow-md w-full max-w-md">
-        <h2 class="text-2xl font-bold text-center mb-4">Complete Your Order</h2>
+    <div class="max-w-lg w-full bg-white p-6 rounded-lg shadow-lg">
+        <h2 class="text-2xl font-bold mb-4 text-center text-gray-800">Complete Your Purchase</h2>
 
-        <form id="order-form" onsubmit="sendOrder(event)">
-            <!-- Book Name (Read-Only) -->
-            <div class="mb-4">
-                <label class="block text-sm font-semibold">Book Name</label>
-                <input type="text" id="book-name" class="w-full px-4 py-2 rounded-sm border" readonly>
-            </div>
+        <!-- فورم الطلب -->
+        <form id="order-form" class="space-y-4">
+            <!-- اسم الكتاب (غير قابل للتعديل) -->
+            <label class="block text-sm font-semibold text-gray-700">Book Name</label>
+            <input type="text" id="book-name" name="book_name" class="w-full px-4 py-2 border rounded bg-gray-100" readonly>
 
-            <!-- Book Price (Read-Only) -->
-            <div class="mb-4">
-                <label class="block text-sm font-semibold">Book Price</label>
-                <input type="text" id="book-price" class="w-full px-4 py-2 rounded-sm border" readonly>
-            </div>
+            <!-- السعر (غير قابل للتعديل) -->
+            <label class="block text-sm font-semibold text-gray-700">Price</label>
+            <input type="text" id="book-price" name="book_price" class="w-full px-4 py-2 border rounded bg-gray-100" readonly>
 
-            <!-- Customer Name -->
-            <div class="mb-4">
-                <label class="block text-sm font-semibold">Your Name</label>
-                <input type="text" id="customer-name" class="w-full px-4 py-2 rounded-sm border" required>
-            </div>
+            <!-- بيانات العميل -->
+            <label class="block text-sm font-semibold text-gray-700">Your Name</label>
+            <input type="text" id="customer-name" name="customer_name" class="w-full px-4 py-2 border rounded" required>
 
-            <!-- Customer Phone -->
-            <div class="mb-4">
-                <label class="block text-sm font-semibold">Phone Number</label>
-                <input type="tel" id="customer-phone" class="w-full px-4 py-2 rounded-sm border" required>
-            </div>
+            <label class="block text-sm font-semibold text-gray-700">Phone</label>
+            <input type="tel" id="customer-phone" name="customer_phone" class="w-full px-4 py-2 border rounded" required>
 
-            <!-- Customer Email -->
-            <div class="mb-4">
-                <label class="block text-sm font-semibold">Email Address</label>
-                <input type="email" id="customer-email" class="w-full px-4 py-2 rounded-sm border" required>
-            </div>
+            <label class="block text-sm font-semibold text-gray-700">Email</label>
+            <input type="email" id="customer-email" name="customer_email" class="w-full px-4 py-2 border rounded" required>
 
-            <button type="submit" class="btn-primary w-full">Confirm Order</button>
+            <!-- زر التأكيد -->
+            <button type="submit" class="w-full bg-blue-600 text-white py-2 px-4 rounded font-bold hover:bg-blue-700">Confirm Order</button>
         </form>
+        
+        <!-- رسالة نجاح الطلب -->
+        <p id="success-message" class="text-green-600 font-semibold text-center mt-4 hidden">Order placed successfully! ✅</p>
     </div>
+
+    <script>
+        // استخراج القيم من الـ URL
+        function getQueryParam(param) {
+            const urlParams = new URLSearchParams(window.location.search);
+            return urlParams.get(param);
+        }
+
+        // ملء البيانات تلقائيًا عند تحميل الصفحة
+        document.addEventListener("DOMContentLoaded", function() {
+            document.getElementById("book-name").value = getQueryParam("name") || "Unknown Book";
+            document.getElementById("book-price").value = getQueryParam("price") || "0.00 L.E.";
+        });
+
+        // إعداد EmailJS
+        (function(){
+            emailjs.init("YOUR_PUBLIC_KEY"); // استبدل YOUR_PUBLIC_KEY بالمفتاح الخاص بك من EmailJS
+        })();
+
+        // إرسال الطلب عند الضغط على "Confirm Order"
+        document.getElementById("order-form").addEventListener("submit", function(event) {
+            event.preventDefault();
+
+            const serviceID = "YOUR_SERVICE_ID"; // استبدل بـ Service ID الخاص بك
+            const templateID = "YOUR_TEMPLATE_ID"; // استبدل بـ Template ID الخاص بك
+
+            const formData = {
+                book_name: document.getElementById("book-name").value,
+                book_price: document.getElementById("book-price").value,
+                customer_name: document.getElementById("customer-name").value,
+                customer_phone: document.getElementById("customer-phone").value,
+                customer_email: document.getElementById("customer-email").value
+            };
+
+            emailjs.send(serviceID, templateID, formData)
+                .then(() => {
+                    document.getElementById("success-message").classList.remove("hidden");
+                    document.getElementById("order-form").reset();
+                })
+                .catch(error => console.error("EmailJS Error:", error));
+        });
+    </script>
 
 </body>
 </html>
