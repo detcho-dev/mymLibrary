@@ -221,6 +221,14 @@
     </footer>
 
     <script>
+        function redirectToOrder(bookName, bookPrice) {
+    // تحويل البيانات إلى رابط URL
+    const url = `order.html?name=${encodeURIComponent(bookName)}&price=${encodeURIComponent(bookPrice)}`;
+    
+    // الانتقال إلى صفحة الطلب
+    window.location.href = order.html;
+}
+        
         document.getElementById("contact-form").addEventListener("submit", function(event) {
     event.preventDefault(); // منع إعادة تحميل الصفحة عند الإرسال
 
@@ -258,13 +266,7 @@
     });
 });
 
-function redirectToOrder(bookName, bookPrice) {
-    // تحويل البيانات إلى رابط URL
-    const url = `order.html?name=${encodeURIComponent(bookName)}&price=${encodeURIComponent(bookPrice)}`;
-    
-    // الانتقال إلى صفحة الطلب
-    window.location.href = order.html;
-}
+
 </script>
 
 
