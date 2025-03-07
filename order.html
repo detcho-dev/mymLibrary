@@ -55,15 +55,15 @@
 
         // إعداد EmailJS
         (function(){
-            emailjs.init("YOUR_PUBLIC_KEY"); // استبدل YOUR_PUBLIC_KEY بالمفتاح الخاص بك من EmailJS
+            emailjs.init("h43f0gQjAVupGqnPd"); // استبدل YOUR_PUBLIC_KEY بالمفتاح الخاص بك من EmailJS
         })();
 
         // إرسال الطلب عند الضغط على "Confirm Order"
         document.getElementById("order-form").addEventListener("submit", function(event) {
             event.preventDefault();
 
-            const serviceID = "YOUR_SERVICE_ID"; // استبدل بـ Service ID الخاص بك
-            const templateID = "YOUR_TEMPLATE_ID"; // استبدل بـ Template ID الخاص بك
+            const serviceID = "service_2j2mr61"; // استبدل بـ Service ID الخاص بك
+            const templateID = "template_lqjv3pg"; // استبدل بـ Template ID الخاص بك
 
             const formData = {
                 book_name: document.getElementById("book-name").value,
