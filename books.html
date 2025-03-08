@@ -110,6 +110,10 @@
     </div>
 
     <script>
+       function goToPurchasePage(bookName, bookPrice) {
+            window.location.href = `order.html?name=${encodeURIComponent(bookName)}&price=${encodeURIComponent(bookPrice)}`;
+            }
+        
         function searchBooks() {
             let input = document.getElementById("search-input").value.toLowerCase();
             let books = document.querySelectorAll(".book-card");
