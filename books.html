@@ -6,6 +6,51 @@
     <link rel="icon" href="icon.ico" type="image/x-icon">
     <title>MYM Library - Explore Books</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Custom button styles */
+        .btn-primary {
+            background-color: #1d4ed8; /* Primary color */
+            color: white;
+            padding: 0.75rem 1.5rem;
+            border-radius: 9999px;
+            font-weight: 600;
+            transition: all 0.3s ease-in-out;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .btn-primary:hover {
+            background-color: #2563eb; /* Slightly darker shade for hover */
+            transform: translateY(-3px);
+            box-shadow: 0 8px 12px rgba(0, 0, 0, 0.15);
+        }
+
+        .btn-primary:active {
+            transform: translateY(1px);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+
+        .no-results {
+            color: #ff0000;
+            text-align: center;
+            font-size: 1.2rem;
+            margin-top: 20px;
+        }
+        #search-input {
+            margin: 0 auto;
+            display: block;
+            width: 80%;
+            max-width: 500px;
+        }
+
+ .book-card {
+        text-align: center;
+    }
+
+    .btn-primary {
+        width: 100%;
+    }
+    </style>
 </head>
 <body class="bg-gray-100 p-6">
     <div class="container mx-auto">
