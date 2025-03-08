@@ -141,9 +141,7 @@
             
 
         </nav>
-        <div class="flex justify-center w-full my-6">
-           <input id="search-input" type="search" placeholder="Search for books..." class="w-full md:w-2/3 lg:w-1/2 px-4 py-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500" onkeyup="searchBooks()">
-        </div>
+        
     </header>
     
     <main>
@@ -250,48 +248,7 @@
         </div>
     </footer>
 
-    <script>
-        
-
-
-    function searchBooks() {
-    let input = document.getElementById("search-input").value.toLowerCase();
-    let books = document.querySelectorAll(".book-card"); // جميع الكتب
-
-    let found = false; // متغير لمعرفة هل وُجدت نتائج أم لا
-
-    books.forEach(book => {
-        let title = book.querySelector("h3").innerText.toLowerCase();
-        let author = book.querySelector("p.text-accent").innerText.toLowerCase();
-
-        if (title.includes(input) || author.includes(input)) {
-            book.style.display = "block"; // إظهار الكتاب المطابق
-            found = true;
-        } else {
-            book.style.display = "none"; // إخفاء الكتاب غير المطابق
-        }
-    });
-
-    // إظهار أو إخفاء رسالة "لا توجد نتائج"
-    let noResultsMessage = document.getElementById("no-results");
-    if (!found) {
-        if (!noResultsMessage) {
-            noResultsMessage = document.createElement("p");
-            noResultsMessage.id = "no-results";
-            noResultsMessage.className = "no-results";
-            noResultsMessage.textContent = "❌ No books found.";
-            document.querySelector("#shop .container").appendChild(noResultsMessage);
-        }
-    } else {
-        if (noResultsMessage) {
-            noResultsMessage.remove();
-        }
-    }
-}
-
-
-
-</script>
+    <script src="index.js" ></script>
 
 
 
