@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" href="icon.ico" type="image/x-icon">
     <title>MYM Library - Explore Books</title>
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
@@ -33,7 +34,21 @@
     </div>
 
     <script>
-        
+        function searchBooks() {
+            let input = document.getElementById("search-input").value.toLowerCase();
+            let books = document.querySelectorAll(".book-card");
+            
+            books.forEach(book => {
+                let title = book.getAttribute("data-title").toLowerCase();
+                let author = book.getAttribute("data-author").toLowerCase();
+                
+                if (title.includes(input) || author.includes(input)) {
+                    book.style.display = "block";
+                } else {
+                    book.style.display = "none";
+                }
+            });
+        }
     </script>
 </body>
 </html>
