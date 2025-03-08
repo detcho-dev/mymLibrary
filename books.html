@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>All Books</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 p-6">
+    <div class="container mx-auto">
+        <h1 class="text-3xl font-bold mb-6">All Books</h1>
+        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+            <div class="bg-white p-4 rounded-sm shadow-sm book-card">
+                <img src="https://res.cloudinary.com/dqyxzsnyq/image/upload/v1735652511/2text_f9ohsk.jpg" alt="Book 1" class="w-full h-64 object-cover rounded-sm mb-4">
+                <h3 class="font-heading text-xl mb-2">Du - دو</h3>
+                <p class="text-accent mb-2">By Youssef Ahmed</p>
+                <p class="text-primary font-heading mb-4">9.99 L.E.</p>
+                <button class="bg-blue-500 text-white px-4 py-2 rounded w-full" onclick="goToPurchasePage('Du - دو', '9.99 L.E.')">Buy Now</button>
+            </div>
+            
+            <div class="bg-white p-4 rounded-sm shadow-sm book-card">
+                <img src="https://via.placeholder.com/150" alt="Book 2" class="w-full h-64 object-cover rounded-sm mb-4">
+                <h3 class="font-heading text-xl mb-2">Another Book</h3>
+                <p class="text-accent mb-2">By John Doe</p>
+                <p class="text-primary font-heading mb-4">12.99 L.E.</p>
+                <button class="bg-blue-500 text-white px-4 py-2 rounded w-full" onclick="goToPurchasePage('Another Book', '12.99 L.E.')">Buy Now</button>
+            </div>
+            
+            <div class="bg-white p-4 rounded-sm shadow-sm book-card">
+                <img src="https://via.placeholder.com/150" alt="Book 3" class="w-full h-64 object-cover rounded-sm mb-4">
+                <h3 class="font-heading text-xl mb-2">More Stories</h3>
+                <p class="text-accent mb-2">By Jane Smith</p>
+                <p class="text-primary font-heading mb-4">8.50 L.E.</p>
+                <button class="bg-blue-500 text-white px-4 py-2 rounded w-full" onclick="goToPurchasePage('More Stories', '8.50 L.E.')">Buy Now</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        
+    </script>
+</body>
+</html>
