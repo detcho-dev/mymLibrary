@@ -42,16 +42,16 @@ function goToPurchasePage(bookName, bookPrice) {
 });
 
 
-        function sidebar() {
-            const sidebar = document.getElementById("sidebar");
-            sidebar.classList.add("active");
-        }
+        //function sidebar() {
+            //const sidebar = document.getElementById("sidebar");
+            //sidebar.classList.add("active");
+        //}
 
-        function hide() {
-            setTimeout(() => {
-            document.getElementById("sidebar").classList.remove("active");
-          }, 10);
-        }
-       document.querySelectorAll(".closeSidebar").forEach(link => {
-        link.addEventListener("click", closeSidebar);
-    });
+        //function hide() {
+            //setTimeout(() => {
+            //document.getElementById("sidebar").classList.remove("active");
+          //}, 10);
+        //}
+       //document.querySelectorAll(".closeSidebar").forEach(link => {
+        //link.addEventListener("click", closeSidebar);
+    //});
