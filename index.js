@@ -48,8 +48,9 @@ function goToPurchasePage(bookName, bookPrice) {
         }
 
         function hide() {
-            const sidebar = document.getElementById("sidebar");
-            sidebar.classList.remove("active");
+            setTimeout(() => {
+            document.getElementById("sidebar").classList.remove("active");
+          }, 10);
         }
        document.querySelectorAll(".closeSidebar").forEach(link => {
         link.addEventListener("click", closeSidebar);
