@@ -42,12 +42,12 @@ function goToPurchasePage(bookName, bookPrice) {
 });
 
 
-function sidebar(){
-    const sidebar = document.querySelector('.sidebar')
-    sidebar.style.display = 'flex'
-}
+        function sidebar() {
+            const sidebar = document.getElementById("sidebar");
+            sidebar.classList.add("active");
+        }
 
-function hide(){
-    const sidebar = document.querySelector('.sidebar')
-    sidebar.style.display = 'none'
-}
+        function hide() {
+            const sidebar = document.getElementById("sidebar");
+            sidebar.classList.remove("active");
+        }
