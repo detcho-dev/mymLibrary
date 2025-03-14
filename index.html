@@ -104,7 +104,43 @@
         grid-template-columns: repeat(2, minmax(0, 1fr));
     }
 }
-
+    .sidebar{
+        position: fixed;
+        top: 0;
+        right: 0;
+        height: 100vh;
+        width: 250px;
+        z-index: 999;
+        background-color: rgba(255, 255, 255, 0.2);
+        backdrop-filter: blur(10px);
+        box-shadow: -10 0 10 rgba(0, 0, 0, 0.1);
+        display: none;
+        flex-direction: column;
+        align-items: flex-start;
+        justify-content: flex-start;
+    }
+   .sidebar li{
+       width: 100%;
+   }
+   .sidebar a{
+       width: 100%;
+   } 
+   .menu{
+       display: none;
+   }     
+   @media(max-width: 500px){
+       .hideOnMoblie{
+           display: none;
+       }
+       .menu{
+           display: block;
+       }
+   }
+   @media(max-width: 300px){
+       .sidebar{
+           width: 100%;
+       }
+   }     
     </style>
     <script src="https://cdn.jsdelivr.net/npm/emailjs-com@3/dist/email.min.js"></script>
      <script type="text/javascript">
@@ -121,20 +157,28 @@
         <nav class="container mx-auto px-4 py-4 flex items-center justify-between">
             <div class="flex items-center gap-4">
                 <img src="logo.png" alt="MYM Library Logo" class="w-12 h-12 object-cover">
-                <h1 class="text-2xl font-heading">MYM Library</h1>
+                <h1 class="text-2xl font-heading hideOnMoblie">MYM Library</h1>
             </div>
             
           
 
             <!-- Menu and Sign Up buttons on the right -->
             <div class="my-4 md:my-0 flex items-center gap-4">
-              <ul class="flex gap-6">
+              <ul class="flex gap-6 sidebar">
+                <li onclick="hide()"><a href="#home" class="hover:text-primary transition-colors"><svg xmlns="http://www.w3.org/2000/svg" height="26px" viewBox="0 -960 960 960" width="26px" fill="#e3e3e3"><path d="m256-200-56-56 224-224-224-224 56-56 224 224 224-224 56 56-224 224 224 224-56 56-224-224-224 224Z"/></svg></a></li>
                 <li><a href="#home" class="hover:text-primary transition-colors">Home</a></li>
                 <li><a href="#shop" class="hover:text-primary transition-colors">Shop Now</a></li>
                 <li><a href="#about" class="hover:text-primary transition-colors">About Us</a></li>
                 <li><a href="#contact" class="hover:text-primary transition-colors">Contact Us</a></li>
               </ul>
-
+                
+              <ul class="flex gap-6">
+                <li><a href="#home" class="hover:text-primary transition-colors hideOnMoblie">Home</a></li>
+                <li><a href="#shop" class="hover:text-primary transition-colors hideOnMoblie">Shop Now</a></li>
+                <li><a href="#about" class="hover:text-primary transition-colors hideOnMoblie">About Us</a></li>
+                <li><a href="#contact" class="hover:text-primary transition-colors hideOnMoblie">Contact Us</a></li>
+                <li onclick="sidebar()"><a href="#contact" class="hover:text-primary transition-colors menu"><svg xmlns="http://www.w3.org/2000/svg" height="26px" viewBox="0 -960 960 960" width="26px" fill="#e3e3e3"><path d="M120-240v-80h720v80H120Zm0-200v-80h720v80H120Zm0-200v-80h720v80H120Z"/></svg></a></li>  
+              </ul>
              
             </div>
 
