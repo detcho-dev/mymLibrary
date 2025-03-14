@@ -51,3 +51,6 @@ function goToPurchasePage(bookName, bookPrice) {
             const sidebar = document.getElementById("sidebar");
             sidebar.classList.remove("active");
         }
+       document.querySelectorAll(".closeSidebar").forEach(link => {
+        link.addEventListener("click", closeSidebar);
+    });
