@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://mylibrary-liard.vercel.app/sitemap.xml
