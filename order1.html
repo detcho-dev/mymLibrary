@@ -43,33 +43,47 @@
   </div>
 
   <script>
-    // EmailJS Init
-    (function(){
-      emailjs.init("h43f0gQjAVupGqnPd"); // ← استبدلها بـ ID بتاعك
-    })();
+    (function () {
+    emailjs.init("h43f0gQjAVupGqnPd"); // ← استبدلها بـ ID بتاعك
+  })();
 
-    // Get Book Name from URL
-    const params = new URLSearchParams(window.location.search);
-    const bookName = params.get("book") || "Unknown Book";
-    document.getElementById("book-name").value = bookName;
+  // Get book name from URL
+  const params = new URLSearchParams(window.location.search);
+  const bookName = params.get("book") || "Unknown Book";
+  const formattedName = decodeURIComponent(bookName);
+  document.getElementById("book-name").value = formattedName;
 
-    // Send Email on Submit
-    document.getElementById("download-form").addEventListener("submit", function(e) {
-      e.preventDefault();
+  // Send email & trigger download
+  document.getElementById("download-form").addEventListener("submit", function (e) {
+    e.preventDefault();
 
-      emailjs.send("service_2j2mr61", "template_lqjv3pg", {
-        book_name: bookName,
-        book_price: "0",
-        user_name: document.getElementById("user-name").value,
-        user_email: document.getElementById("user-email").value,
-      }).then(function() {
+    const templateParams = {
+      book_name: formattedName,
+      book_price: "0",
+      customer_name: document.getElementById("user-name").value,
+      customer_email: document.getElementById("user-email").value,
+    };
+
+    emailjs.send("service_2j2mr61", "template_lqjv3pg", templateParams).then(
+      function () {
         document.getElementById("success-message").classList.remove("hidden");
         document.getElementById("download-form").reset();
-      }, function(error) {
+
+        // تحميل الكتاب مباشرة بعد النجاح
+        const fileUrl = `/books/${bookName}.pdf`;
+        const a = document.createElement("a");
+        a.href = fileUrl;
+        a.download = `${bookName}.pdf`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+      },
+      function (error) {
         alert("Failed to send request. Please try again.");
         console.error(error);
-      });
-    });
+      }
+    );
+  });
   </script>
 
 </body>
