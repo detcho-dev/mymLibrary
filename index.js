@@ -5,8 +5,9 @@ function goToPurchasePage(bookName, bookPrice) {
 
 function goToPurchasePage1(bookName) {
     // تحويل المستخدم إلى صفحة الشراء مع تمرير البيانات في الرابط
-    window.location.href = `order1.html?name=${encodeURIComponent(bookName)}`;
-}
+    const encodedBookName = encodeURIComponent(bookName);
+    window.location.href = `order1.html?book=${encodedBookName}`;
+  }
 
         
         document.getElementById("contact-form").addEventListener("submit", function(event) {
