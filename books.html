@@ -59,6 +59,21 @@
         width: 100%;
         z-index: 9999;
     }
+
+    .i{
+        font-size: 40px;
+      font-weight: bold;
+      color: #fff; /* اللون الأساسي للنص */
+      text-shadow: 
+        0 0 5px #ff0000,   /* الظل الأحمر الأول */
+        0 0 10px #ff0000,  /* الظل الأحمر الثاني */
+        0 0 15px #ff0000,  /* الظل الأحمر الثالث */
+        0 0 20px #ff0000,  /* الظل الأحمر الرابع */
+        0 0 25px #ff0000,  /* الظل الأحمر الخامس */
+        0 0 30px #ff0000;  /* الظل الأحمر السادس */
+
+
+    }    
     </style>
     <header class="fixed top-0 left-0 w-full bg-white shadow-md z-50">
         <nav class="container mx-auto px-4 py-4 flex items-center justify-between">
@@ -106,6 +121,15 @@
                      <p class="text-primary font-heading mb-4">14.99 L.E.</p>
                     <button class="btn-primary w-full" onclick="goToPurchasePage('The Eight Worlds - العوالم الثمانية', '14.99 L.E.')">Buy Now</button>
            </div>
+
+            <div class="bg-card p-4 rounded-sm shadow-sm book-card">
+                     <img src="https://res.cloudinary.com/dqyxzsnyq/image/upload/v1744916535/cover1_ad2ttj.png" alt="Book 2" class="w-full h-64 object-cover rounded-sm mb-4">
+                     <h3 class="font-heading text-xl mb-2">Adam and the Secret of the Disappearance of the Al-Zaher Family - أدم وسر اختفاء عائلة الزاهر</h3>
+                     <p class="text-accent mb-2">By Roshdy Reda  <span class="i">New Guest!!</span></p>
+                     <p class="text-primary font-heading mb-4">14.99 L.E.</p>
+                    <button class="btn-primary w-full" onclick="goToPurchasePage1('Adam and the Secret of the Disappearance of the Al-Zaher Family - أدم وسر اختفاء عائلة الزاهر')">Download Now</button>
+           </div>
+
             
         </div>
     </div>
