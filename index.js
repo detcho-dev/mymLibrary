@@ -3,6 +3,11 @@ function goToPurchasePage(bookName, bookPrice) {
     window.location.href = `order.html?name=${encodeURIComponent(bookName)}&price=${encodeURIComponent(bookPrice)}`;
 }
 
+function goToPurchasePage1(bookName) {
+    // تحويل المستخدم إلى صفحة الشراء مع تمرير البيانات في الرابط
+    window.location.href = `order1.html?name=${encodeURIComponent(bookName)}`;
+}
+
         
         document.getElementById("contact-form").addEventListener("submit", function(event) {
     event.preventDefault(); // منع إعادة تحميل الصفحة عند الإرسال
