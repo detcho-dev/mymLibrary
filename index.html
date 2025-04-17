@@ -165,6 +165,11 @@
         margin: 0; /* شيل أي مسافات زائدة */
         padding: 0;
     }
+
+    .i{
+        color: red;
+        font: bold;
+    }    
    
     </style>
     <script src="https://cdn.jsdelivr.net/npm/emailjs-com@3/dist/email.min.js"></script>
@@ -191,10 +196,10 @@
             
                    
          <ul class="hidden md:flex gap-6">
-            <li><a href="#" class="hover:text-gray-300 transition-colors ">Home</a></li>
-            <li><a href="#" class="hover:text-gray-300 transition-colors ">Shop Now</a></li>
-            <li><a href="#" class="hover:text-gray-300 transition-colors ">About Us</a></li>
-            <li><a href="#" class="hover:text-gray-300 transition-colors ">Contact Us</a></li>
+            <li><a href="" class="hover:text-gray-300 transition-colors ">Home</a></li>
+            <li><a href="#shop" class="hover:text-gray-300 transition-colors ">Shop Now</a></li>
+            <li><a href="#about" class="hover:text-gray-300 transition-colors ">About Us</a></li>
+            <li><a href="#contact" class="hover:text-gray-300 transition-colors ">Contact Us</a></li>
         </ul>
              
             
@@ -239,6 +244,14 @@
                      <p class="text-primary font-heading mb-4">14.99 L.E.</p>
                     <button class="btn-primary w-full" onclick="goToPurchasePage('The Eight Worlds - العوالم الثمانية', '14.99 L.E.')">Buy Now</button>
            </div>
+
+           <div class="bg-card p-4 rounded-sm shadow-sm book-card">
+                     <img src="https://res.cloudinary.com/dqyxzsnyq/image/upload/v1744916535/cover1_ad2ttj.png" alt="Book 2" class="w-full h-64 object-cover rounded-sm mb-4">
+                     <h3 class="font-heading text-xl mb-2">Adam and the Secret of the Disappearance of the Al-Zaher Family - أدم وسر اختفاء عائلة الزاهر</h3>
+                     <p class="text-accent mb-2">By Roshdy Reda  <span class="i">New Guest!!</span></p>
+                     <p class="text-primary font-heading mb-4">14.99 L.E.</p>
+                    <button class="btn-primary w-full" onclick="goToPurchasePage1('Adam and the Secret of the Disappearance of the Al-Zaher Family - أدم وسر اختفاء عائلة الزاهر', '00.00 L.E.')">Buy Now</button>
+           </div>         
         <center>
            <div class="text-center mt-6">
                 <a href="books.html" class="btn-primary w-150">Explore More Books >></a>
