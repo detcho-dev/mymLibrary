@@ -131,6 +131,11 @@
        function goToPurchasePage(bookName, bookPrice) {
             window.location.href = `order.html?name=${encodeURIComponent(bookName)}&price=${encodeURIComponent(bookPrice)}`;
             }
+        function goToPurchasePage1(bookName) {
+            // تحويل المستخدم إلى صفحة الشراء مع تمرير البيانات في الرابط
+            const encodedBookName = encodeURIComponent(bookName);
+            window.location.href = `order1.html?book=${encodedBookName}`;
+          }
         
         function searchBooks() {
             let input = document.getElementById("search-input").value.toLowerCase();
