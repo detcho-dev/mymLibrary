@@ -48,46 +48,32 @@ function goToPurchasePage1(bookName) {
 });
 
 
+const body = document.body;
 const sunIcon = document.getElementById('sun-icon');
 const moonIcon = document.getElementById('moon-icon');
 
-function animateSwitch(fromIcon, toIcon) {
-  fromIcon.classList.add('spin-out');
-  toIcon.classList.remove('spin-out');
-  toIcon.classList.add('spin-in');
-  toIcon.style.display = 'block';
-
-  setTimeout(() => {
-    fromIcon.style.display = 'none';
-    fromIcon.classList.remove('spin-out');
-    toIcon.classList.remove('spin-in');
-  }, 500);
-}
-
-document.getElementById('theme-toggle').addEventListener('click', () => {
-  const isDark = body.classList.contains('dark-mode');
-  body.classList.toggle('dark-mode');
-  body.classList.toggle('light-mode');
-
-  localStorage.setItem('theme', isDark ? 'light' : 'dark');
-
-  if (isDark) {
-    animateSwitch(sunIcon, moonIcon);
-  } else {
-    animateSwitch(moonIcon, sunIcon);
-  }
-});
-
-window.addEventListener('DOMContentLoaded', () => {
-  const savedTheme = localStorage.getItem('theme') || 'light';
-  body.classList.add(savedTheme + '-mode');
-  if (savedTheme === 'dark') {
+function updateIcons(mode) {
+  if (mode === 'dark') {
     sunIcon.style.display = 'block';
     moonIcon.style.display = 'none';
   } else {
     sunIcon.style.display = 'none';
     moonIcon.style.display = 'block';
   }
+}
+
+document.getElementById('theme-toggle').addEventListener('click', () => {
+  body.classList.toggle('dark-mode');
+  body.classList.toggle('light-mode');
+
+  const currentMode = body.classList.contains('dark-mode') ? 'dark' : 'light';
+  localStorage.setItem('theme', currentMode);
+  updateIcons(currentMode);
 });
 
-
+window.addEventListener('DOMContentLoaded', () => {
+  const savedTheme = localStorage.getItem('theme') || 'light';
+  body.classList.remove('light-mode', 'dark-mode');
+  body.classList.add(savedTheme + '-mode');
+  updateIcons(savedTheme);
+});
