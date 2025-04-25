@@ -27,6 +27,7 @@
         body.dark-mode {
             background-color: #121212;
             color: #f1f1f1;
+            fill: #f1f1f1;
             background-image: radial-gradient(circle at top left, rgba(255, 255, 255, 0.05), transparent 40%),
                               radial-gradient(circle at bottom right, rgba(255, 255, 255, 0.03), transparent 40%);
             background-repeat: no-repeat;
@@ -54,10 +55,9 @@
 
         #theme-toggle {
             position: fixed;
-            top: 1rem;
-            right: 1rem;
-            cursor: pointer;
-            z-index: 1000;
+            top: 20px;  /* المسافة من أعلى الصفحة */
+            right: 20px;  /* المسافة من الجهة اليمنى */
+            z-index: 100;
         }
 
         .theme-icon {
