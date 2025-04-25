@@ -26,7 +26,7 @@
 
         body.dark-mode {
             background-color: #121212;
-            color: #ffffff;
+            color: #f1f1f1;
             background-image: radial-gradient(circle at top left, rgba(255, 255, 255, 0.05), transparent 40%),
                               radial-gradient(circle at bottom right, rgba(255, 255, 255, 0.03), transparent 40%);
             background-repeat: no-repeat;
@@ -225,6 +225,54 @@
           -webkit-background-clip: text;
           -webkit-text-fill-color: transparent;
     }    
+
+    body.dark-mode header {
+  background-color: #0e0e0e;
+  border-bottom: 1px solid rgba(255,255,255,0.1);
+}
+        form {
+  background-color: transparent;
+  padding: 1rem;
+  border-radius: 10px;
+}
+
+form input,
+form textarea {
+  background-color: #ffffff;
+  color: #000;
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  width: 100%;
+  margin-bottom: 1rem;
+  transition: all 0.3s ease;
+}
+
+form input:focus,
+form textarea:focus {
+  border-color: #3b82f6;
+  outline: none;
+}
+
+body.dark-mode form input,
+body.dark-mode form textarea {
+  background-color: #1a1a1a;
+  color: #f1f1f1;
+  border: 1px solid #444;
+}
+
+        footer {
+  background-color: #f1f1f1;
+  text-align: center;
+  padding: 1rem;
+  font-size: 14px;
+}
+
+body.dark-mode footer {
+  background-color: #121212;
+  color: #999;
+}
+
    
     </style>
     <script src="https://cdn.jsdelivr.net/npm/emailjs-com@3/dist/email.min.js"></script>
@@ -238,7 +286,7 @@
     </script>
 </head>
 <body class="bg-background text-foreground font-inter light-mode">
-    <header class="fixed top-0 left-0 w-full bg-white shadow-md z-50">
+    <header class="fixed top-0 left-0 w-full h-auto bg-transparent shadow-md z-50">
         <nav class="container mx-auto px-4 py-4 flex items-center justify-between">
             <div class="flex items-center gap-4">
                 <img src="logo.png" alt="MYM Library Logo" class="w-12 h-12 object-cover">
