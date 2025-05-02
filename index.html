@@ -299,6 +299,69 @@ body.dark-mode footer {
   color: #999;
 }
 
+    .search-box {
+     display: flex;
+     align-items: center;
+     background: white;
+     border: 1px solid #ccc;
+     border-radius: 30px;
+     padding: 6px 12px;
+     font-size: 16px;
+     color: #333;
+     width: 400px;
+     margin: auto;
+     box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
+}
+
+    .text-container {
+      display: flex;
+      align-items: center;
+      flex: 1;
+      overflow: hidden;
+    }
+
+    .static-text {
+      color: #333;
+      white-space: nowrap;
+    }
+
+    .typewriter-text {  
+      display: inline-block;
+      min-height: 1em;
+      white-space: nowrap;
+      margin-left: 6px; /* تحكم دقيق في المسافة */    
+    }
+
+
+    .cursor {
+      display: inline-block;
+      width: 2px;
+      height: 1em;
+      background-color: black;
+      margin-left: 2px;
+      animation: blink 0.7s steps(1) infinite;
+    }
+
+    @keyframes blink {
+      0%, 100% { opacity: 0; }
+      50% { opacity: 1; }
+    }
+
+    .search-btn {
+     background: transparent;
+     border: none;
+     cursor: pointer;
+     padding: 6px;
+     display: flex;
+     align-items: center;
+    }
+
+    .search-btn svg {
+     width: 18px;
+     height: 18px;
+     fill: #5985E1;
+    }        
+
    
     </style>
     <script src="https://cdn.jsdelivr.net/npm/emailjs-com@3/dist/email.min.js"></script>
@@ -339,6 +402,18 @@ body.dark-mode footer {
         <!-- Your main content -->
         <section id="home" class="min-h-screen pt-32 bg-gradient-to-b from-primary/10 to-background">
             <div class="container mx-auto px-4 py-12 flex flex-col md:flex-row items-center gap-8">
+                <div class="search-box">
+                    <div class="text-container">
+                      <span class="static-text">The Best Website at </span>
+                          <span class="typewriter-text" id="typewriter"> </span>
+                          <span class="cursor"></span>
+                        </div>
+                        <button class="search-btn">
+                          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 -960 960 960">
+                            <path d="M784-120 532-372q-30 24-69 38t-83 14q-109 0-184.5-75.5T120-580q0-109 75.5-184.5T380-840q109 0 184.5 75.5T640-580q0 44-14 83t-38 69l252 252-56 56ZM380-400q75 0 127.5-52.5T560-580q0-75-52.5-127.5T380-760q-75 0-127.5 52.5T200-580q0 75 52.5 127.5T380-400Z"/>
+                          </svg>
+                        </button>
+                      </div>
                 <div class="flex-1">
                     <h2 class="text-4xl font-heading mb-4">Welcome to MYM Library</h2>
                     <p class="text-accent text-lg mb-6">Discover a world of knowledge through our carefully curated collection of books.</p>
