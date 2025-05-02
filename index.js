@@ -77,5 +77,36 @@ function goToPurchasePage1(bookName) {
     });
 });
 
+const words = ["Books", "Stories", "Knowledge", "Games"];
+    let wordIndex = 0;
+    let charIndex = 0;
+    let isDeleting = false;
+    const textElement = document.getElementById("typewriter");
 
+    function type() {
+      const current = words[wordIndex];
+      if (isDeleting) {
+        charIndex--;
+      } else {
+        charIndex++;
+      }
 
+      textElement.textContent = current.substring(0, charIndex);
+
+      let delay = isDeleting ? 60 : Math.random() * (300 - 100) + 100;
+
+      if (!isDeleting && charIndex === current.length) {
+        delay = 1000;
+        isDeleting = true;
+      } else if (isDeleting && charIndex === 0) {
+        isDeleting = false;
+        wordIndex = (wordIndex + 1) % words.length;
+        delay = 600;
+      }
+
+      setTimeout(type, delay);
+    }
+
+    document.addEventListener("DOMContentLoaded", () => {
+      setTimeout(type, 800);
+    });
