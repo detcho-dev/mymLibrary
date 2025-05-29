@@ -105,8 +105,10 @@ form.addEventListener("submit", function(event) {
     name: form.name.value,
     email: form.email.value,
     message: form.message.value,
-    file_url: uploadedFileUrl || "No file attached"
+    request_type: requestTypeSelect.value === "contact-us" ? "Contact Us" : "Request Adding Book",
+    file_url: uploadedFileUrl ? `<a href="${uploadedFileUrl}" target="_blank">${uploadedFileUrl}</a>` : "No file attached"
   };
+
 
   // إرسال البيانات لـ EmailJS
   emailjs.send("service_6ewqm85", "template_2w9x0ot", templateParams, "nnP-kvyjBP356LpcZ")
