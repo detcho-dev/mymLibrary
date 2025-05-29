@@ -70,10 +70,10 @@
         document.getElementById("download-form").reset();
 
         // تحميل الكتاب مباشرة بعد النجاح
-        const fileUrl = `/${bookName}.pdf`;
+        const fileUrl = `/books/${bookName}.pdf`;
         const a = document.createElement("a");
         a.href = fileUrl;
-        a.download = `${bookName}.pdf`;
+        a.download = `books/${bookName}.pdf`;
         document.body.appendChild(a);
         a.click();
         document.body.removeChild(a);
