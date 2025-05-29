@@ -40,105 +40,89 @@ function goToPurchasePage1(bookName) {
   }
 
         
-        // ----------------------------------------------
-// 1. تعريف المتغيرات الأساسية من DOM
-// ----------------------------------------------
-const form = document.getElementById("contact-form");       // الفورم
-const requestType = document.getElementById("request-type"); // select لاختيار نوع الطلب
-let uploadedFileUrl = "";  // لتخزين رابط الملف بعد رفعه
+// المتغيرات الأساسية
+const form = document.getElementById("contact-form");
+const requestTypeSelect = document.getElementById("request-type");
+let uploadedFileUrl = "";
 
-// ----------------------------------------------
-// 2. إعداد Cloudinary Upload Widget
-// ----------------------------------------------
-const myWidget = cloudinary.createUploadWidget({
-  cloudName: 'dh328ytl3',          // غيرها باسم حسابك في Cloudinary
-  uploadPreset: 'MYM_Library',       // الـ upload preset اللي عملته unsigned
+// إنشاء Cloudinary Upload Widget
+const cloudinaryWidget = cloudinary.createUploadWidget({
+  cloudName: 'dh328ytl3',          // عوضها باسم حسابك في Cloudinary
+  uploadPreset: 'MYM_Library',  // عوضها باسم Upload Preset اللي عملته (Unsigned)
   multiple: false,
-  sources: ['local', 'url', 'camera'],
-  folder: 'meem_library_uploads'
+  sources: ['local'],
+  folder: 'MYM_Library_requests'
 }, (error, result) => {
   if (!error && result && result.event === "success") {
-    console.log('File Uploaded Sucessfully');
     uploadedFileUrl = result.info.secure_url;
-    alert("File Uploaded Sucessfully");
+    alert("File uploaded successfully!");
   }
 });
 
-// ----------------------------------------------
-// 3. دالة لتحديث محتوى الفورم بناءً على اختيار نوع الطلب
-// ----------------------------------------------
-function updateFormContent() {
-  // أولاً نحذف زر رفع الملف لو موجود (لتجنب تكرار الزر)
+// دالة لتحديث الفورم حسب اختيار المستخدم
+function updateForm() {
+  // إزالة زر رفع الملف إذا كان موجود
   const existingUploadBtn = document.getElementById("upload-widget-btn");
   if (existingUploadBtn) {
     existingUploadBtn.remove();
-    uploadedFileUrl = "";  // نفضي الرابط عند تغيير النوع
+    uploadedFileUrl = "";
   }
 
-  // لو اخترنا "طلب إضافة كتاب"
-  if (requestType.value === "book-request") {
-    // نضيف زر رفع ملف قبل زر الإرسال مباشرة
+  // إذا نوع الطلب 'book-request' نضيف زر رفع الملف
+  if (requestTypeSelect.value === "book-request") {
     const uploadBtn = document.createElement("button");
     uploadBtn.type = "button";
     uploadBtn.id = "upload-widget-btn";
     uploadBtn.className = "btn-primary w-full mb-4";
     uploadBtn.textContent = "Upload Book File";
     uploadBtn.addEventListener("click", () => {
-      myWidget.open();
+      cloudinaryWidget.open();
     });
 
+    // نضيف الزر قبل زر الإرسال
     form.insertBefore(uploadBtn, form.querySelector("button[type='submit']"));
   }
 }
 
-// ----------------------------------------------
-// 4. استدعاء الدالة فور تغيير اختيار الـ<select>
-// ----------------------------------------------
-requestType.addEventListener("change", updateFormContent);
+// تفعيل تحديث الفورم عند تغيير اختيار المستخدم
+requestTypeSelect.addEventListener("change", updateForm);
 
-// ----------------------------------------------
-// 5. التأكد من تحديث الفورم عند تحميل الصفحة
-// ----------------------------------------------
-window.addEventListener("DOMContentLoaded", () => {
-  updateFormContent();
-});
+// تفعيل تحديث الفورم عند تحميل الصفحة
+window.addEventListener("DOMContentLoaded", updateForm);
 
-// ----------------------------------------------
-// 6. التعامل مع إرسال الفورم
-// ----------------------------------------------
+// التعامل مع إرسال الفورم
 form.addEventListener("submit", function(event) {
   event.preventDefault();
 
-  // لو نوع الطلب "طلب إضافة كتاب" نتأكد من رفع الملف
-  if (requestType.value === "book-request" && !uploadedFileUrl) {
-    alert("يرجى رفع ملف الكتاب أولاً قبل الإرسال.");
+  // لو نوع الطلب 'book-request' بدون رفع ملف، نمنع الإرسال
+  if (requestTypeSelect.value === "book-request" && !uploadedFileUrl) {
+    alert("Please upload the book file before submitting.");
     return;
   }
 
-  // إعداد بيانات الإرسال مع رابط الملف (لو موجود)
+  // تحضير بيانات الإرسال
   const templateParams = {
     name: form.name.value,
     email: form.email.value,
     message: form.message.value,
-    file_url: uploadedFileUrl || "No File Uploaded"
+    file_url: uploadedFileUrl || "No file attached"
   };
 
+  // إرسال البيانات لـ EmailJS
   emailjs.send("service_6ewqm85", "template_2w9x0ot", templateParams, "nnP-kvyjBP356LpcZ")
-    .then(function(response) {
-      console.log("✅ Email sent successfully!", response);
-      form.innerHTML = `
-        <div class="text-center p-4 bg-green-100 border border-green-400 text-green-700 rounded-sm">
-          ✅ Your message has been sent successfully! We will get back to you soon.
-        </div>
-      `;
-    }, function(error) {
-      console.log("❌ Failed to send email:", error);
-      form.innerHTML += `
-        <div class="text-center p-4 mt-4 bg-red-100 border border-red-400 text-red-700 rounded-sm">
-          ❌ An error occurred while sending your message. Please try again later.
-        </div>
-      `;
-    });
+  .then(function(response) {
+    form.innerHTML = `
+      <div class="text-center p-4 bg-green-100 border border-green-400 text-green-700 rounded-sm">
+        ✅ Your message has been sent successfully! We will get back to you soon.
+      </div>
+    `;
+  }, function(error) {
+    form.innerHTML += `
+      <div class="text-center p-4 mt-4 bg-red-100 border border-red-400 text-red-700 rounded-sm">
+        ❌ An error occurred while sending your message. Please try again later.
+      </div>
+    `;
+  });
 });
 
 
