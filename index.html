@@ -364,7 +364,13 @@ body.dark-mode footer {
 
     .hello{
         margin-top: 100px;
-    }    
+    }
+
+    .btn-primary:disabled {
+        background-color: #ccc; /* لون رمادي */
+        cursor: not-allowed;    /* شكل المؤشر يدل على أنه غير قابل للنقر */
+        opacity: 0.6;           /* يجعل الزر باهت قليلاً */
+      }    
    
     </style>
     <script src="https://cdn.jsdelivr.net/npm/emailjs-com@3/dist/email.min.js"></script>
@@ -438,8 +444,7 @@ body.dark-mode footer {
                       <h3 class="font-heading text-xl mb-2">Du - دو</h3>
                       <p class="text-accent mb-2">By Youssef Ahmed</p>
                       <p class="text-accent mb-2">Adventure, Fantasy</p>
-                      <p class="text-primary font-heading mb-4">9.99 L.E.</p>
-                      <button class="btn-primary w-full" onclick="goToPurchasePage('Du - دو', '9.99 L.E.')">Buy Now</button>
+                      <button class="btn-primary w-full" onclick="goToPurchasePage1('Du - دو [FREE EDITION]')">Download Now</button>
             </div>
 
             <div class="bg-card p-4 rounded-sm shadow-sm book-card">
@@ -447,8 +452,7 @@ body.dark-mode footer {
                      <h3 class="font-heading text-xl mb-2">العوالم الثمانية - The Eight Worlds</h3>
                      <p class="text-accent mb-2">By Mohammed Osama</p>
                      <p class="text-accent mb-2">Mystery, Fantasy</p>
-                     <p class="text-primary font-heading mb-4">14.99 L.E.</p>
-                    <button class="btn-primary w-full" onclick="goToPurchasePage('The Eight Worlds - العوالم الثمانية', '14.99 L.E.')">Buy Now</button>
+                    <button class="btn-primary w-full" onclick="" disabled>Book Unaviliable</button>
            </div>
 
            <div class="bg-card p-4 rounded-sm shadow-sm book-card">
@@ -456,7 +460,6 @@ body.dark-mode footer {
                      <h3 class="font-heading text-xl mb-2">Adam and the Secret of the Disappearance of the Al-Zaher Family - أدم وسر اختفاء عائلة الزاهر</h3>
                      <p class="text-accent mb-2">By Roshdy Reda  <span class="i">New Guest!!</span></p>
                      <p class="text-accent mb-2">Mystery, Police</p>
-                     <p class="text-primary font-heading mb-4"><span style="font-size: 15px; font-weight: bold; background: linear-gradient(315deg,rgba(131, 58, 180, 1) 0%, rgba(253, 29, 29, 1) 50%, rgba(252, 176, 69, 1) 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">FREE!!</span></p>
                     <button class="btn-primary w-full" onclick="goToPurchasePage1('Adam and the Secret of the Disappearance of the Al-Zaher Family - أدم وسر اختفاء عائلة الزاهر')">Download Now</button>
            </div>         
         <center>
