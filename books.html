@@ -87,47 +87,53 @@
   </header>
 
   <!-- ✅ Content -->
-  <div class="container mx-auto pt-24">
+  <div class="container mx-auto">
     <h1 class="text-3xl font-bold mb-6 flex justify-center">All Books</h1>
     <div class="flex justify-center w-full my-6">
-      <input id="search-input" type="search" placeholder="Search for books..." class="w-1/2 md:w-1/3 lg:w-1/4 px-4 py-2 rounded-[34px] border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-300 ease-in-out focus:w-2/3 md:focus:w-1/2 lg:focus:w-1/3" onkeyup="searchBooks()" />
+       <input id="search-input" type="search" placeholder="Search for books..." class="w-1/2 md:w-1/3 lg:w-1/4 px-4 py-2 rounded-[34px] border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-300 ease-in-out focus:w-2/3 md:focus:w-1/2 lg:focus:w-1/3" onkeyup="searchBooks()">
     </div>
-
-    <h2 class="text-xl font-bold mb-2">Books written by <span class="text-blue-600">members</span> of the library</h2>
-    <hr class="mb-4" />
 
     <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-      <!-- Book 1 -->
-      <div class="bg-white p-4 rounded-sm shadow-sm book-card" data-title="Du - دو" data-author="Youssef Ahmed">
-        <img src="https://res.cloudinary.com/dqyxzsnyq/image/upload/v1735652511/2text_f9ohsk.jpg" alt="Book 1" class="w-full h-64 object-cover rounded-sm mb-4" />
-        <h3 class="font-heading text-xl mb-2">Du - دو</h3>
-        <p class="text-gray-700 mb-2">By Youssef Ahmed</p>
-        <p class="text-blue-700 font-semibold mb-4">9.99 L.E.</p>
-        <button class="btn-primary" onclick="goToPurchasePage('Du - دو', '9.99 L.E.')">Buy Now</button>
-      </div>
+        <!-- Title -->
+        <div class="col-span-full">
+            <h2 class="text-xl font-bold mb-2">Books written by <span class="text-blue-600">members</span> of the library</h2>
+            <hr class="mb-4">
+        </div>
 
-      <!-- Book 2 -->
-      <div class="bg-white p-4 rounded-sm shadow-sm book-card" data-title="The Eight Worlds - العوالم الثمانية" data-author="Mohammed Osama">
-        <img src="https://res.cloudinary.com/dqyxzsnyq/image/upload/v1738757292/8_title_e7esmh.jpg" alt="Book 2" class="w-full h-64 object-cover rounded-sm mb-4" />
-        <h3 class="font-heading text-xl mb-2">The Eight Worlds - العوالم الثمانية</h3>
-        <p class="text-gray-700 mb-2">By Mohammed Osama</p>
-        <p class="text-blue-700 font-semibold mb-4">14.99 L.E.</p>
-        <button class="btn-primary" onclick="goToPurchasePage('The Eight Worlds - العوالم الثمانية', '14.99 L.E.')">Buy Now</button>
-      </div>
+        <!-- Book 1 -->
+        <div class="bg-card p-4 rounded-sm shadow-sm book-card" data-title="Du - دو" data-author="Youssef Ahmed">
+            <img src="https://res.cloudinary.com/dqyxzsnyq/image/upload/v1735652511/2text_f9ohsk.jpg" alt="Book 1" class="w-full h-64 object-cover rounded-sm mb-4">
+            <h3 class="font-heading text-xl mb-2">Du - دو</h3>
+            <p class="text-accent mb-2">By Youssef Ahmed</p>
+            <p class="text-primary font-heading mb-4">9.99 L.E.</p>
+            <button class="btn-primary" onclick="goToPurchasePage('Du - دو', '9.99 L.E.')">Buy Now</button>
+        </div>
+
+        <!-- Book 2 -->
+        <div class="bg-card p-4 rounded-sm shadow-sm book-card" data-title="The Eight Worlds - العوالم الثمانية" data-author="Mohammed Osama">
+            <img src="https://res.cloudinary.com/dqyxzsnyq/image/upload/v1738757292/8_title_e7esmh.jpg" alt="Book 3" class="w-full h-64 object-cover rounded-sm mb-4">
+            <h3 class="font-heading text-xl mb-2">The Eight Worlds - العوالم الثمانية</h3>
+            <p class="text-accent mb-2">By Mohammed Osama</p>
+            <p class="text-primary font-heading mb-4">14.99 L.E.</p>
+            <button class="btn-primary" onclick="goToPurchasePage('The Eight Worlds - العوالم الثمانية', '14.99 L.E.')">Buy Now</button>
+        </div>
+
+        <!-- Title for Guests -->
+        <div class="col-span-full mt-6">
+            <h2 class="text-xl font-bold mb-2">Books written by <span class="text-purple-600">library guests</span></h2>
+            <hr class="mb-4">
+        </div>
+
+        <!-- Guest Book -->
+        <div class="bg-card p-4 rounded-sm shadow-sm book-card" data-title="Adam and the Secret of the Disappearance of the Al-Zaher Family - أدم وسر اختفاء عائلة الزاهر" data-author="Roshdy Reda">
+            <img src="https://res.cloudinary.com/dqyxzsnyq/image/upload/v1744916535/cover1_ad2ttj.png" alt="Book 2" class="w-full h-64 object-cover rounded-sm mb-4">
+            <h3 class="font-heading text-xl mb-2">Adam and the Secret of the Disappearance of the Al-Zaher Family - أدم وسر اختفاء عائلة الزاهر</h3>
+            <p class="text-accent mb-2">By Roshdy Reda <span class="i">New Guest!!</span></p>
+            <p class="text-primary font-heading mb-4"><span class="t">FREE!!</span></p>
+            <button class="btn-primary" onclick="goToPurchasePage1('Adam and the Secret of the Disappearance of the Al-Zaher Family - أدم وسر اختفاء عائلة الزاهر')">Download Now</button>
+        </div>
     </div>
-
-    <h2 class="text-xl font-bold mb-2 x">Books written by <span class="text-purple-600">library guests</span></h2>
-    <hr class="mb-4" />
-
-    <!-- Guest Book -->
-    <div class="bg-white p-4 rounded-sm shadow-sm book-card" data-title="Adam and the Secret of the Disappearance of the Al-Zaher Family - أدم وسر اختفاء عائلة الزاهر" data-author="Roshdy Reda">
-      <img src="https://res.cloudinary.com/dqyxzsnyq/image/upload/v1744916535/cover1_ad2ttj.png" alt="Book 3" class="w-full h-64 object-cover rounded-sm mb-4" />
-      <h3 class="font-heading text-xl mb-2">Adam and the Secret of the Disappearance of the Al-Zaher Family - أدم وسر اختفاء عائلة الزاهر</h3>
-      <p class="text-gray-700 mb-2">By Roshdy Reda <span class="i">New Guest!!</span></p>
-      <p class="text-primary font-heading mb-4"><span class="t">FREE!!</span></p>
-      <button class="btn-primary" onclick="goToPurchasePage1('Adam and the Secret of the Disappearance of the Al-Zaher Family - أدم وسر اختفاء عائلة الزاهر')">Download Now</button>
-    </div>
-  </div>
+</div>
 
   <!-- ✅ Scripts -->
   <script>
