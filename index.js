@@ -30,13 +30,13 @@ window.addEventListener('DOMContentLoaded', () => {
 
 function goToPurchasePage(bookName, bookPrice) {
     // تحويل المستخدم إلى صفحة الشراء مع تمرير البيانات في الرابط
-    window.location.href = `order.html?name=${encodeURIComponent(bookName)}&price=${encodeURIComponent(bookPrice)}`;
+    window.location.href = `/order?name=${encodeURIComponent(bookName)}&price=${encodeURIComponent(bookPrice)}`;
 }
 
 function goToPurchasePage1(bookName) {
     // تحويل المستخدم إلى صفحة الشراء مع تمرير البيانات في الرابط
     const encodedBookName = encodeURIComponent(bookName);
-    window.location.href = `order1.html?book=${encodedBookName}`;
+    window.location.href = `/order1?book=${encodedBookName}`;
   }
 
         
