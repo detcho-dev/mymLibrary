@@ -37,7 +37,7 @@ document.getElementById("order-form").addEventListener("submit", function(event)
 
             // بعد 3 ثواني يعمل ريديركت
             setTimeout(() => {
-                window.location.href = "https://mymlibrary-liard.vercel.app"; // استبدل بالصفحة اللي عايزهم يروحوا ليها
+                window.location.href = "https://mymlibrary.vercel.app"; // استبدل بالصفحة اللي عايزهم يروحوا ليها
             }, 3000);
         })
         .catch(error => console.error("EmailJS Error:", error));
