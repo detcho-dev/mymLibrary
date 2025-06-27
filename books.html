@@ -135,12 +135,12 @@
   <!-- ✅ Scripts -->
   <script>
     function goToPurchasePage(bookName, bookPrice) {
-      window.location.href = `order.html?name=${encodeURIComponent(bookName)}&price=${encodeURIComponent(bookPrice)}`;
+      window.location.href = `/order?name=${encodeURIComponent(bookName)}&price=${encodeURIComponent(bookPrice)}`;
     }
 
     function goToPurchasePage1(bookName) {
       const encodedBookName = encodeURIComponent(bookName);
-      window.location.href = `order1.html?book=${encodedBookName}`;
+      window.location.href = `/order1?book=${encodedBookName}`;
     }
 
     function searchBooks() {
