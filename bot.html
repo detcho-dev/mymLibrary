@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+  <meta charset="UTF-8">
+  <title>بوت مكتبة ميم</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: #f1f1f1;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      direction: rtl;
+      transition: background 0.3s ease;
+    }
+
+    .dark-mode {
+      background: #1e1e1e;
+      color: white;
+    }
+
+    .chat-container {
+      background: #ffffff;
+      width: 370px;
+      border-radius: 15px;
+      box-shadow: 0 0 20px rgba(0,0,0,0.1);
+      padding: 20px;
+      position: relative;
+      transition: background 0.3s ease;
+    }
+
+    .dark-mode .chat-container {
+      background: #2c2c2c;
+    }
+
+    .logo {
+      text-align: center;
+      margin-bottom: 10px;
+    }
+
+    .logo img {
+      width: 80px;
+      height: auto;
+      border-radius: 50%;
+    }
+
+    .chat-box {
+      height: 300px;
+      overflow-y: auto;
+      padding: 10px;
+      border: 1px solid #ccc;
+      border-radius: 10px;
+      background: #fafafa;
+      margin-bottom: 10px;
+      transition: background 0.3s ease;
+    }
+
+    .dark-mode .chat-box {
+      background: #3a3a3a;
+      border-color: #555;
+    }
+
+    .message {
+      padding: 10px 14px;
+      margin: 8px 0;
+      max-width: 80%;
+      border-radius: 12px;
+      line-height: 1.6;
+      opacity: 0;
+      transform: translateY(10px);
+      animation: fadeInUp 0.4s ease forwards;
+      word-wrap: break-word;
+      transition: background 0.3s ease, color 0.3s ease;
+    }
+
+    .bot {
+      background: #e0e0e0;
+      text-align: left;
+    }
+
+    .user {
+      background: #25D366;
+      color: white;
+      text-align: right;
+      margin-left: auto;
+    }
+
+    .dark-mode .bot {
+      background: #555;
+      color: white;
+    }
+
+    @keyframes fadeInUp {
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .buttons button {
+      background: #25D366;
+      color: white;
+      border: none;
+      padding: 10px;
+      border-radius: 8px;
+      margin: 5px 3px;
+      cursor: pointer;
+      transition: background 0.3s ease;
+    }
+
+    .buttons {
+      text-align: center;
+    }
+
+    .whatsapp {
+      background: #128C7E;
+    }
+
+    .link-button {
+      display: inline-block;
+      background: #25D366;
+      color: white;
+      padding: 6px 12px;
+      border-radius: 6px;
+      text-decoration: none;
+      font-size: 14px;
+      margin-top: 5px;
+    }
+
+    .link-button:hover {
+      background: #1ebf5c;
+    }
+
+    .typing-dots::after {
+      content: '';
+      display: inline-block;
+      width: 1em;
+      animation: dots 1.2s steps(3, end) infinite;
+    }
+
+    @keyframes dots {
+      0% { content: ''; }
+      33% { content: '.'; }
+      66% { content: '..'; }
+      100% { content: '...'; }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="chat-container">
+    <div class="logo">
+      <img src="https://mymlibrary.vercel.app/logo.png" alt="لوجو مكتبة ميم">
+      <h3>مكتبة ميم 📚</h3>
+    </div>
+
+    <div class="chat-box" id="chatBox">
+      <div class="message bot">👋 أهلاً بيك في مكتبة ميم! ازاي أقدر أساعدك؟</div>
+    </div>
+
+    <div class="buttons">
+      <button onclick="userAsk('إزاي أضيف كتاب؟')">📘 إزاي أضيف كتاب؟</button>
+      <button onclick="userAsk('الأسعار كام؟')">💰 الأسعار</button>
+      <button onclick="userAsk('عايز اتواصل مع حد')">☎️ تواصل معنا</button>
+    </div>
+
+    <div class="buttons">
+      <button onclick="userAsk('إزاي أشارك في فريق المكتبة؟')">🤝 فريق المكتبة</button>
+      <button onclick="userAsk('فين حساباتكم على السوشيال ميديا؟')">📱 السوشيال ميديا</button>
+      <button onclick="userAsk('هل الموقع مجاني دايمًا؟')">💸 مجاني دايمًا؟</button>
+      <button onclick="userAsk('فيه تطبيق على الموبايل؟')">📲 التطبيق</button>
+    </div>
+
+    <div class="buttons">
+      <button class="whatsapp" onclick="openWhatsApp()">💬 كلّمني على واتساب</button>
+    </div>
+
+    <div class="buttons">
+      <button onclick="clearChat()" style="background:#dc3545;">🗑️ امسح المحادثة</button>
+      <button onclick="toggleDarkMode()" style="background:#343a40;">🌙 الوضع الليلي</button>
+    </div>
+  </div>
+
+  <script>
+    function addMessage(content, sender, isHTML = false) {
+      const msg = document.createElement('div');
+      msg.className = `message ${sender}`;
+      msg.innerHTML = isHTML ? content : content;
+      document.getElementById('chatBox').appendChild(msg);
+      document.getElementById('chatBox').scrollTop = document.getElementById('chatBox').scrollHeight;
+    }
+
+    function userAsk(q) {
+      addMessage(q, 'user');
+
+      const typing = document.createElement('div');
+      typing.className = 'message bot typing-dots';
+      document.getElementById('chatBox').appendChild(typing);
+      document.getElementById('chatBox').scrollTop = document.getElementById('chatBox').scrollHeight;
+
+      setTimeout(() => {
+        typing.remove();
+
+        let answer = '';
+        let isHTML = false;
+
+        if (q.includes('أضيف')) {
+          answer = `دلوقتي تقدر تضيف كتابك المفضل بكل سهولة... <br><a class="link-button" href="https://mymlibrary.vercel.app/" target="_blank">📥 اضف كتابك</a>`;
+          isHTML = true;
+        } else if (q.includes('السعر') || q.includes('الأسعار')) {
+          answer = `بعد اجتماع خاص... كل الكتب مجانية! 📚💥 <br><a class="link-button" href="https://mymlibrary.vercel.app/books" target="_blank">📖 تصفح الكتب</a>`;
+          isHTML = true;
+        } else if (q.includes('تواصل')) {
+          answer = `📞 تقدر تتواصل معانا على واتساب في أي وقت!<br><a class="link-button" href="https://wa.me/+201021859331" target="_blank">💬 افتح واتساب</a>`;
+          isHTML = true;
+        } else if (q.includes('أشارك') || q.includes('فريق')) {
+          answer = `لو حابب تنضم لفريق مكتبة ميم وتشاركنا الشغف، قدّم من خلال موقعنا:  
+          <br><a class="link-button" href="https://mymlibrary.vercel.app/" target="_blank">📥 قدّم من هنا</a>`;
+          isHTML = true;
+        } else if (q.includes('السوشيال')) {
+          answer = `تابعنا على السوشيال ميديا عشان توصلك كل جديد:  
+          <br><a class="link-button" href="https://t.me/mymlibrary" target="_blank">📢 تيليجرام</a>  
+          <br><a class="link-button" href="https://whatsapp.com/channel/0029Vb5zAn31Hsq2h2LLts1v" target="_blank">💬 قناة واتساب</a>`;
+          isHTML = true;
+        } else if (q.includes('مجاني')) {
+          answer = `الموقع مجاني تمامًا لكل الزوار، دايمًا وبدون أي اشتراكات 🌍`;
+        } else if (q.includes('تطبيق')) {
+          answer = `حاليًا مفيش تطبيق، بس الموقع شغال بكفاءة على الموبايل، وقريب جدًا هيكون فيه أبلكيشن رسمي 💡`;
+        } else {
+          answer = 'معرفتش أفهم سؤالك، جرب تختار من الزرائر فوق 💡';
+        }
+
+        addMessage(answer, 'bot', isHTML);
+      }, 1000);
+    }
+
+    function openWhatsApp() {
+      const phone = "+201021859331";
+      const text = "أهلاً، كنت عايز استفسر عن الكتب على موقع مكتبة ميم 📚";
+      window.open(`https://wa.me/${phone}?text=${encodeURIComponent(text)}`, "_blank");
+    }
+
+    function clearChat() {
+      const chatBox = document.getElementById('chatBox');
+      chatBox.innerHTML = '';
+      addMessage('👋 أهلاً بيك في مكتبة ميم! ازاي أقدر أساعدك؟', 'bot');
+    }
+
+    function toggleDarkMode() {
+      document.body.classList.toggle('dark-mode');
+    }
+  </script>
+
+</body>
+</html>
