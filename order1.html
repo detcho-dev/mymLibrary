@@ -10,20 +10,20 @@
   <style>
   @keyframes drop-swing {
     0% {
-      transform: translateY(-120px) rotate(0deg);
+      transform: translateY(-100px) rotate(0deg);
       opacity: 0;
     }
     20% {
       opacity: 1;
     }
-    40% {
-      transform: translateY(40px) rotate(5deg);
+    30% {
+      transform: translateY(30px) rotate(8deg);
     }
-    60% {
-      transform: translateY(80px) rotate(-5deg);
+    50% {
+      transform: translateY(60px) rotate(-8deg);
     }
-    80% {
-      transform: translateY(100px) rotate(3deg);
+    70% {
+      transform: translateY(90px) rotate(5deg);
     }
     100% {
       transform: translateY(120px) rotate(0deg);
@@ -64,20 +64,20 @@
     </form>
 
     <!-- أنيميشن التحميل -->
-      <div id="download-animation" class="relative h-52 mt-6 hidden flex justify-center items-start">
-        <div class="absolute top-0 animate-drop-swing">
-          <svg class="w-16 h-16" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <!-- الباراشوت -->
-            <path d="M50 5C30 5 15 20 15 35H85C85 20 70 5 50 5Z" fill="#4ade80"/>
-            <line x1="35" y1="35" x2="45" y2="65" stroke="#555" stroke-width="2"/>
-            <line x1="65" y1="35" x2="55" y2="65" stroke="#555" stroke-width="2"/>
-      
-            <!-- الصندوق -->
-            <rect x="45" y="65" width="10" height="10" fill="#a16207" stroke="#000" stroke-width="1"/>
-          </svg>
-        </div>
-        <p id="downloaded-text" class="text-green-700 font-semibold mt-36 hidden">Book Downloaded! 📚</p>
+    <div id="download-animation" class="relative h-52 mt-6 hidden flex flex-col items-center justify-start">
+      <div id="parachute-container" class="absolute top-0 animate-drop-swing">
+        <svg class="w-20 h-20" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <!-- الباراشوت -->
+          <path d="M50 5C30 5 15 20 15 35H85C85 20 70 5 50 5Z" fill="#4ade80"/>
+          <line x1="35" y1="35" x2="45" y2="65" stroke="#555" stroke-width="2"/>
+          <line x1="65" y1="35" x2="55" y2="65" stroke="#555" stroke-width="2"/>
+          <!-- الصندوق -->
+          <rect x="45" y="65" width="10" height="10" fill="#a16207" stroke="#000" stroke-width="1"/>
+        </svg>
       </div>
+      <p id="downloaded-text" class="text-green-700 font-semibold mt-40 hidden text-lg">Book Downloaded! 📚</p>
+    </div>
+
 </div>
 
   </div>
