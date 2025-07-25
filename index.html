@@ -422,6 +422,26 @@ body.dark-mode footer {
                   </svg>
                 </button>
               </div>
+            <!-- Chat Bot Widget -->
+            <div id="chat-toggle" class="fixed bottom-6 right-6 z-50">
+              <button onclick="openChatBot()" class="bg-green-500 text-white p-3 rounded-full shadow-lg hover:bg-green-600">
+                💬
+              </button>
+            </div>
+
+            <div id="chat-bot-container" class="fixed z-[9999] bottom-4 right-4 md:bottom-6 md:right-6 w-[90%] max-w-sm md:max-w-xs bg-white rounded-lg shadow-lg overflow-hidden hidden md:block">
+              <iframe src="/bot.html" class="w-full h-[500px] rounded-lg border" frameborder="0"></iframe>
+            </div>
+
+            <!-- شاشة كاملة في الموبايل -->
+            <div id="chat-bot-full" class="fixed inset-0 z-[9999] bg-white hidden md:hidden">
+              <div class="flex justify-between items-center p-4 bg-green-500 text-white">
+                <h2 class="text-lg font-bold">Chat Bot</h2>
+                <button onclick="closeChatBot()" class="text-white text-xl font-bold">×</button>
+              </div>
+              <iframe src="/bot.html" class="w-full h-[calc(100%-56px)]" frameborder="0"></iframe>
+            </div>
+
             <div class="container mx-auto px-4 py-12 flex flex-col md:flex-row items-center gap-8">
                 
                     <div class="flex-1 hello">
