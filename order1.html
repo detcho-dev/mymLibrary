@@ -8,21 +8,30 @@
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://cdn.jsdelivr.net/npm/emailjs-com@3/dist/email.min.js"></script>
   <style>
-  @keyframes drop {
+  @keyframes drop-swing {
     0% {
-      top: -80px;
+      transform: translateY(-120px) rotate(0deg);
       opacity: 0;
     }
     20% {
       opacity: 1;
     }
+    40% {
+      transform: translateY(40px) rotate(5deg);
+    }
+    60% {
+      transform: translateY(80px) rotate(-5deg);
+    }
+    80% {
+      transform: translateY(100px) rotate(3deg);
+    }
     100% {
-      top: 80px;
+      transform: translateY(120px) rotate(0deg);
     }
   }
 
-  .animate-drop {
-    animation: drop 2.2s ease forwards;
+  .animate-drop-swing {
+    animation: drop-swing 2.5s ease forwards;
   }
 </style>
 </head>
@@ -54,15 +63,21 @@
       </button>
     </form>
 
-    <!-- رسالة نجاح -->
     <!-- أنيميشن التحميل -->
-      <div id="download-animation" class="relative h-40 mt-4 hidden flex justify-center items-start">
-        <svg id="parachute" class="w-12 absolute top-0 animate-drop" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <path d="M32 2C18 2 6 14 6 28H58C58 14 46 2 32 2Z" fill="#4ade80"/>
-          <path d="M32 2V28" stroke="#333" stroke-width="2"/>
-          <path d="M20 28L28 44H36L44 28" stroke="#333" stroke-width="2"/>
-        </svg>
-        <p id="downloaded-text" class="text-green-600 font-semibold mt-32 hidden">Book Downloaded! 📚</p>
+      <div id="download-animation" class="relative h-52 mt-6 hidden flex justify-center items-start">
+        <div class="absolute top-0 animate-drop-swing">
+          <svg class="w-16 h-16" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <!-- الباراشوت -->
+            <path d="M50 5C30 5 15 20 15 35H85C85 20 70 5 50 5Z" fill="#4ade80"/>
+            <line x1="35" y1="35" x2="45" y2="65" stroke="#555" stroke-width="2"/>
+            <line x1="65" y1="35" x2="55" y2="65" stroke="#555" stroke-width="2"/>
+      
+            <!-- الصندوق -->
+            <rect x="45" y="65" width="10" height="10" fill="#a16207" stroke="#000" stroke-width="1"/>
+          </svg>
+        </div>
+        <p id="downloaded-text" class="text-green-700 font-semibold mt-36 hidden">Book Downloaded! 📚</p>
+      </div>
 </div>
 
   </div>
@@ -97,10 +112,10 @@
         animationContainer.classList.remove("hidden");
         downloadedText.classList.add("hidden");
 
-          // نعرض الرسالة بعد ما الباراشوت ينزل
         setTimeout(() => {
           downloadedText.classList.remove("hidden");
-        }, 2400);
+        }, 2600);
+
 
         document.getElementById("download-form").reset();
 
