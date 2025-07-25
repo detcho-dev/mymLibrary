@@ -161,3 +161,16 @@ const words = ["Books", "Stories", "Knowledge", "Games"];
     document.addEventListener("DOMContentLoaded", () => {
       setTimeout(type, 800);
     });
+
+    function openChatBot() {
+    if (window.innerWidth < 768) {
+      document.getElementById("chat-bot-full").classList.remove("hidden");
+    } else {
+      const container = document.getElementById("chat-bot-container");
+      container.classList.toggle("hidden");
+    }
+  }
+
+  function closeChatBot() {
+    document.getElementById("chat-bot-full").classList.add("hidden");
+  }
