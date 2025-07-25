@@ -7,6 +7,24 @@
   <title>Download Free Book</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://cdn.jsdelivr.net/npm/emailjs-com@3/dist/email.min.js"></script>
+  <style>
+  @keyframes drop {
+    0% {
+      top: -80px;
+      opacity: 0;
+    }
+    20% {
+      opacity: 1;
+    }
+    100% {
+      top: 80px;
+    }
+  }
+
+  .animate-drop {
+    animation: drop 2.2s ease forwards;
+  }
+</style>
 </head>
 <body class="bg-gray-100 flex items-center justify-center min-h-screen">
 
@@ -37,9 +55,16 @@
     </form>
 
     <!-- رسالة نجاح -->
-    <p id="success-message" class="text-green-600 font-semibold text-center mt-4 hidden">
-      Book Downloaded ! 📩
-    </p>
+    <!-- أنيميشن التحميل -->
+      <div id="download-animation" class="relative h-40 mt-4 hidden flex justify-center items-start">
+        <svg id="parachute" class="w-12 absolute top-0 animate-drop" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M32 2C18 2 6 14 6 28H58C58 14 46 2 32 2Z" fill="#4ade80"/>
+          <path d="M32 2V28" stroke="#333" stroke-width="2"/>
+          <path d="M20 28L28 44H36L44 28" stroke="#333" stroke-width="2"/>
+        </svg>
+        <p id="downloaded-text" class="text-green-600 font-semibold mt-32 hidden">Book Downloaded! 📚</p>
+</div>
+
   </div>
 
   <script>
@@ -66,7 +91,17 @@
 
     emailjs.send("service_2j2mr61", "template_lqjv3pg", templateParams).then(
       function () {
-        document.getElementById("success-message").classList.remove("hidden");
+        const animationContainer = document.getElementById("download-animation");
+        const downloadedText = document.getElementById("downloaded-text");
+
+        animationContainer.classList.remove("hidden");
+        downloadedText.classList.add("hidden");
+
+          // نعرض الرسالة بعد ما الباراشوت ينزل
+        setTimeout(() => {
+          downloadedText.classList.remove("hidden");
+        }, 2400);
+
         document.getElementById("download-form").reset();
 
         // تحميل الكتاب مباشرة بعد النجاح
