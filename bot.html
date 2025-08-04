@@ -22,6 +22,38 @@
       transition: background 0.3s ease;
     }
 
+    .back-btn {
+  position: fixed;
+  top: 16px;
+  left: 16px;
+  background-color: #2d2d2d; /* لون غامق أنيق */
+  color: white;
+  padding: 10px 16px;
+  border-radius: 999px;
+  font-family: 'Segoe UI', sans-serif;
+  font-size: 14px;
+  font-weight: 500;
+  text-decoration: none;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+  transition: background-color 0.3s ease;
+  z-index: 9999;
+}
+
+.back-btn:hover {
+  background-color: #444;
+}
+
+/* Responsive tweak للموبايل */
+@media (max-width: 600px) {
+  .back-btn {
+    font-size: 13px;
+    padding: 8px 14px;
+    top: 12px;
+    left: 12px;
+  }
+}
+
+
     .dark-mode {
       background: #1e1e1e;
       color: white;
@@ -161,7 +193,7 @@
   </style>
 </head>
 <body>
-
+  <a class="back-btn" href="https://mymlibrary.vercel.app">← Back</a>
   <div class="chat-container">
     <div class="logo">
       <img src="https://mymlibrary.vercel.app/logo.png" alt="لوجو مكتبة ميم">
