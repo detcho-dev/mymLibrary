@@ -2,7 +2,7 @@
 <html lang="ar">
 <head>
   <meta charset="UTF-8">
-  <title>بوت مكتبة ميم</title>
+  <title>MYM Assistant</title>
   <style>
     html, body {
       margin: 0;
@@ -180,13 +180,9 @@
     <div class="buttons">
       <button onclick="userAsk('إزاي أشارك في فريق المكتبة؟')">🤝 فريق المكتبة</button>
       <button onclick="userAsk('فين حساباتكم على السوشيال ميديا؟')">📱 السوشيال ميديا</button>
-      <button onclick="userAsk('هل الموقع مجاني دايمًا؟')">💸 مجاني دايمًا؟</button>
       <button onclick="userAsk('فيه تطبيق على الموبايل؟')">📲 التطبيق</button>
     </div>
 
-    <div class="buttons">
-      <button class="whatsapp" onclick="openWhatsApp()">💬 كلّمني على واتساب</button>
-    </div>
 
     <div class="buttons">
       <button onclick="clearChat()" style="background:#dc3545;">🗑️ امسح المحادثة</button>
@@ -218,13 +214,11 @@
         let isHTML = false;
 
         if (q.includes('أضيف')) {
-          answer = `دلوقتي تقدر تضيف كتابك المفضل بكل سهولة... <br><a class="link-button" href="https://mymlibrary.vercel.app/" target="_blank">📥 اضف كتابك</a>`;
+          answer = `دلوقتي تقدر تضيف كتابك المفضل بكل سهولة. اتبع الخطوات: <br> 1️⃣ ادخل الموقع <br> 2️⃣ انزل لآخر الصفحة ووصّل للنموذج واختار "طلب إضافة كتاب" 📥 <br> 3️⃣ حمّل كتابك بصيغة PDF ✍️ واكتب اسمه <br> 4️⃣ اضغط إرسال عشان نراجعه ونضيفه للمكتبة ✅ <br> ساهم معانا في نشر المعرفة! 🌍❤️ <br><a class="link-button" href="https://mymlibrary.vercel.app/" target="_blank">ادخل دلوقتي وضيف كتابك 📚👇🏻</a>`;
           isHTML = true;
         } else if (q.includes('السعر') || q.includes('الأسعار')) {
-          answer = `بعد اجتماع خاص... كل الكتب مجانية! 📚💥 <br><a class="link-button" href="https://mymlibrary.vercel.app/books" target="_blank">📖 تصفح الكتب</a>`;
-          isHTML = true;
-        } else if (q.includes('تواصل')) {
-          answer = `📞 تقدر تتواصل معانا على واتساب في أي وقت!<br><a class="link-button" href="https://wa.me/+201021859331" target="_blank">💬 افتح واتساب</a>`;
+          answer = `بعد اجتماع خاص لأعضاء مكتبة ميم واتخاذ بعض القرارات المهمة... قررنا نخلي الكتب كلها مجانية! 📚💥 <br> يعني تقدر تقرأ براحتك ومن غير أي قيود، لأن هدفنا الحقيقي هو نشر المعرفة للجميع 🌍✨
+ <br><a class="link-button" href="https://mymlibrary.vercel.app/books" target="_blank">ادخل حالا واستمتع بالكتب📚👇🏻</a>`;
           isHTML = true;
         } else if (q.includes('أشارك') || q.includes('فريق')) {
           answer = `لو حابب تنضم لفريق مكتبة ميم وتشاركنا الشغف، قدّم من خلال موقعنا:  
@@ -247,11 +241,6 @@
       }, 1000);
     }
 
-    function openWhatsApp() {
-      const phone = "+201021859331";
-      const text = "أهلاً، كنت عايز استفسر عن الكتب على موقع مكتبة ميم 📚";
-      window.open(`https://wa.me/${phone}?text=${encodeURIComponent(text)}`, "_blank");
-    }
 
     function clearChat() {
       const chatBox = document.getElementById('chatBox');
