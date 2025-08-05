@@ -8,6 +8,7 @@
     html, body {
       margin: 0;
       padding: 0;
+      height: 100%;
       overflow: hidden;
     }
 
@@ -62,7 +63,8 @@
       background: #ffffff;
       width: 90%;
       max-width: 370px;
-      height: 95vh;
+      max-height: 95vh;
+      height: auto
       border-radius: 15px;
       box-shadow: 0 0 20px rgba(0,0,0,0.1);
       padding: 20px 10px;
@@ -189,6 +191,27 @@
       66% { content: '..'; }
       100% { content: '...'; }
     }
+
+    @media (max-width: 600px) {
+      .chat-container {
+      width: 100vw;
+      height: 100vh;
+      max-width: none;
+      max-height: none;
+      border-radius: 0;
+      padding: 10px 6px;
+    }
+
+    .chat-box {
+      height: 45vh;
+    }
+
+    .buttons {
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+  }
+
   </style>
 </head>
 <body>
