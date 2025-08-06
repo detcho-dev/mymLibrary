@@ -235,4 +235,28 @@ const challengeBooks = ['du', 'eight', 'adam'];
     return topBookId;
   }
 
-  // Call these functions as neede
+  // استدعاء زيادة عدد القراءات عند الضغط على زر القراءة
+document.querySelectorAll(".read-btn").forEach(btn => {
+  btn.addEventListener("click", async () => {
+    const bookId = btn.dataset.bookId;
+    await incrementRead(bookId);
+    highlightMostReadBook();
+  });
+});
+
+// تحديد التاج للكتاب الأكثر قراءة
+async function highlightMostReadBook() {
+  const topBookId = await getMostReadBookId();
+  document.querySelectorAll(".book").forEach(book => {
+    const badge = book.querySelector(".most-read-badge");
+    if (book.dataset.bookId === topBookId) {
+      badge.classList.remove("hidden");
+    } else {
+      badge.classList.add("hidden");
+    }
+  });
+}
+
+// أول ما الصفحة تفتح، نحدد الكتاب الأكثر قراءة
+highlightMostReadBook();
+
