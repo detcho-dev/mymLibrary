@@ -194,3 +194,45 @@ const challengeBooks = ['du', 'eight', 'adam'];
 
   // أول ما الصفحة تفتح نحسب التحديات اللي دخلها
   document.addEventListener('DOMContentLoaded', updateChallengeCount);
+
+  
+  // Import Firebase SDK
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+  import { getFirestore, doc, updateDoc, increment, getDoc, collection, getDocs } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyBlOVx-YSmPFeq3lp-gAGe576yG1RhMLYs",
+    authDomain: "mymlibraryreads.firebaseapp.com",
+    projectId: "mymlibraryreads",
+    storageBucket: "mymlibraryreads.firebasestorage.app",
+    messagingSenderId: "11947740896",
+    appId: "1:11947740896:web:87482eb72210acdba50a85"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const db = getFirestore(app);
+
+  // Example: Increase reads count
+  async function incrementRead(bookId) {
+    const bookRef = doc(db, "books", bookId);
+    await updateDoc(bookRef, {
+      reads: increment(1)
+    });
+  }
+
+  // Example: Get Most Read Book
+  async function getMostReadBookId() {
+    const snapshot = await getDocs(collection(db, "books"));
+    let maxReads = 0;
+    let topBookId = "";
+    snapshot.forEach(doc => {
+      const data = doc.data();
+      if (data.reads > maxReads) {
+        maxReads = data.reads;
+        topBookId = doc.id;
+      }
+    });
+    return topBookId;
+  }
+
+  // Call these functions as neede
