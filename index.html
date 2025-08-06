@@ -1,4 +1,4 @@
-+<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en" class="scroll-smooth">
 <head>
     <meta charset="UTF-8">
@@ -479,36 +479,65 @@ body.dark-mode footer {
     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 justify-center mx-auto">
 
       <!-- Book 1 -->
-      <div class="relative bg-card p-4 rounded-sm shadow-sm book-card">
-        <img src="https://res.cloudinary.com/dqyxzsnyq/image/upload/v1735652511/2text_f9ohsk.jpg" alt="Book 1" class="w-full h-64 object-cover rounded-sm mb-4">
+      <div class="relative bg-card p-4 rounded-sm shadow-sm book" data-book-id="du">
+        <!-- Most Read badge مخفي افتراضيًا -->
+        <span
+          class="most-read-badge absolute top-4 left-4 text-black text-sm font-semibold px-2 py-1 rounded shadow hidden"
+          style="background: linear-gradient(135deg, white, #fcd34d, #fbbf24);">
+          Most Read
+        </span>
+
+        <img src="https://res.cloudinary.com/dqyxzsnyq/image/upload/v1735652511/2text_f9ohsk.jpg"
+          alt="Book 1" class="w-full h-64 object-cover rounded-sm mb-4" />
         <h3 class="font-heading text-xl mb-2">Du - دو</h3>
         <p class="text-accent mb-2">By Youssef Ahmed</p>
         <p class="text-accent mb-2">Adventure, Fantasy</p>
-        <button class="btn-primary w-full mb-2" onclick="goToPurchasePage1('Du - دو [FREE EDITION]')">Download Now</button>
-        <button class="btn-secondary w-full" onclick="enterChallenge('du')">✅ I’ve Read This Book</button>
+        <button class="btn-primary w-full mb-2"
+          onclick="goToPurchasePage1('Du - دو [FREE EDITION]')">Download Now</button>
+        <!-- زر القراءة كمثال على زيادة القراءة في Firebase -->
+        <button class="btn-secondary w-full read-btn" data-book-id="du">
+          ✅ I’ve Read This Book
+        </button>
       </div>
 
       <!-- Book 2 -->
-      <div class="relative bg-card p-4 rounded-sm shadow-sm book-card">
-        <img src="https://res.cloudinary.com/dqyxzsnyq/image/upload/v1738757292/8_title_e7esmh.jpg" alt="Book 2" class="w-full h-64 object-cover rounded-sm mb-4">
+      <div class="relative bg-card p-4 rounded-sm shadow-sm book" data-book-id="eight">
+        <span
+          class="most-read-badge absolute top-4 left-4 text-black text-sm font-semibold px-2 py-1 rounded shadow hidden"
+          style="background: linear-gradient(135deg, white, #fcd34d, #fbbf24);">
+          Most Read
+        </span>
+
+        <img src="https://res.cloudinary.com/dqyxzsnyq/image/upload/v1738757292/8_title_e7esmh.jpg"
+          alt="Book 2" class="w-full h-64 object-cover rounded-sm mb-4" />
         <h3 class="font-heading text-xl mb-2">العوالم الثمانية - The Eight Worlds</h3>
         <p class="text-accent mb-2">By Mohammed Osama</p>
         <p class="text-accent mb-2">Mystery, Fantasy</p>
-        <button class="btn-primary w-full mb-2" onclick="goToPurchasePage1('العوالم الثمانية - The Eight Worlds (FREE EDITION)')">Download Now</button>
-        <button class="btn-secondary w-full" onclick="enterChallenge('eight')">✅ I’ve Read This Book</button>
+        <button class="btn-primary w-full mb-2"
+          onclick="goToPurchasePage1('العوالم الثمانية - The Eight Worlds (FREE EDITION)')">Download Now</button>
+        <button class="btn-secondary w-full read-btn" data-book-id="eight">
+          ✅ I’ve Read This Book
+        </button>
       </div>
 
-      <!-- Book 3 [Most Read] -->
-      <div class="relative bg-card p-4 rounded-sm shadow-sm book-card">
-        <span class="absolute top-4 left-2 translate-x-3 text-black text-sm font-semibold px-2 py-1 rounded shadow" style="background: linear-gradient(135deg, white, #fcd34d, #fbbf24);">
+      <!-- Book 3 -->
+      <div class="relative bg-card p-4 rounded-sm shadow-sm book" data-book-id="adam">
+        <span
+          class="most-read-badge absolute top-4 left-4 text-black text-sm font-semibold px-2 py-1 rounded shadow hidden"
+          style="background: linear-gradient(135deg, white, #fcd34d, #fbbf24);">
           Most Read
         </span>
-        <img src="https://res.cloudinary.com/dqyxzsnyq/image/upload/v1744916535/cover1_ad2ttj.png" alt="Book 3" class="w-full h-64 object-cover rounded-sm mb-4">
+
+        <img src="https://res.cloudinary.com/dqyxzsnyq/image/upload/v1744916535/cover1_ad2ttj.png"
+          alt="Book 3" class="w-full h-64 object-cover rounded-sm mb-4" />
         <h3 class="font-heading text-xl mb-2">Adam and the Secret of the Disappearance of the Al-Zaher Family - أدم وسر اختفاء عائلة الزاهر</h3>
         <p class="text-accent mb-2">By Roshdy Reda <span class="i">New Guest!!</span></p>
         <p class="text-accent mb-2">Mystery, Police</p>
-        <button class="btn-primary w-full mb-2" onclick="goToPurchasePage1('Adam and the Secret of the Disappearance of the Al-Zaher Family - أدم وسر اختفاء عائلة الزاهر')">Download Now</button>
-        <button class="btn-secondary w-full" onclick="enterChallenge('adam')">✅ I’ve Read This Book</button>
+        <button class="btn-primary w-full mb-2"
+          onclick="goToPurchasePage1('Adam and the Secret of the Disappearance of the Al-Zaher Family - أدم وسر اختفاء عائلة الزاهر')">Download Now</button>
+        <button class="btn-secondary w-full read-btn" data-book-id="adam">
+          ✅ I’ve Read This Book
+        </button>
       </div>
 
     </div>
@@ -605,31 +634,8 @@ body.dark-mode footer {
             </a>
      </div>
     </footer>
-
-    <script src="index.js" ></script>
-
-
-
     
+    <script type="module" src="scripts/index.js"></script>
+   
 </body>
 </html>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
