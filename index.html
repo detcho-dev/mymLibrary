@@ -475,7 +475,8 @@ body.dark-mode footer {
     <h2 class="text-3xl font-heading mb-8 text-center">Explore Books</h2>
     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 justify-center mx-auto">
 
-      <div class="bg-card p-4 rounded-sm shadow-sm book-card">
+      <div class="relative bg-card p-4 rounded-sm shadow-sm book-card">
+        <span class="absolute top-0 left-0 bg-primary text-white text-xs font-bold px-2 py-1 rounded-br-sm z-10">Most Read</span>
         <img src="https://res.cloudinary.com/dqyxzsnyq/image/upload/v1735652511/2text_f9ohsk.jpg" alt="Book 1" class="w-full h-64 object-cover rounded-sm mb-4">
         <h3 class="font-heading text-xl mb-2">Du - دو</h3>
         <p class="text-accent mb-2">By Youssef Ahmed</p>
@@ -484,7 +485,8 @@ body.dark-mode footer {
         <button class="btn-secondary w-full" onclick="enterChallenge('du')">✅ I’ve Read This Book</button>
       </div>
 
-      <div class="bg-card p-4 rounded-sm shadow-sm book-card">
+      <div class="relative bg-card p-4 rounded-sm shadow-sm book-card">
+        <span class="absolute top-0 left-0 bg-primary text-white text-xs font-bold px-2 py-1 rounded-br-sm z-10">Most Read</span>
         <img src="https://res.cloudinary.com/dqyxzsnyq/image/upload/v1738757292/8_title_e7esmh.jpg" alt="Book 2" class="w-full h-64 object-cover rounded-sm mb-4">
         <h3 class="font-heading text-xl mb-2">العوالم الثمانية - The Eight Worlds</h3>
         <p class="text-accent mb-2">By Mohammed Osama</p>
@@ -493,7 +495,8 @@ body.dark-mode footer {
         <button class="btn-secondary w-full" onclick="enterChallenge('eight')">✅ I’ve Read This Book</button>
       </div>
 
-      <div class="bg-card p-4 rounded-sm shadow-sm book-card">
+      <div class="relative bg-card p-4 rounded-sm shadow-sm book-card">
+        <span class="absolute top-0 left-0 bg-primary text-white text-xs font-bold px-2 py-1 rounded-br-sm z-10">Most Read</span>
         <img src="https://res.cloudinary.com/dqyxzsnyq/image/upload/v1744916535/cover1_ad2ttj.png" alt="Book 3" class="w-full h-64 object-cover rounded-sm mb-4">
         <h3 class="font-heading text-xl mb-2">Adam and the Secret of the Disappearance of the Al-Zaher Family - أدم وسر اختفاء عائلة الزاهر</h3>
         <p class="text-accent mb-2">By Roshdy Reda <span class="i">New Guest!!</span></p>
@@ -504,13 +507,12 @@ body.dark-mode footer {
 
     </div>
 
-    
-
     <center class="mt-6">
       <a href="/books" class="btn-primary w-150">Explore More Books --></a>
     </center>
   </div>
 </section>
+
 
         <section id="about" class="py-16 bg-secondary">
             <div class="about-us flex flex-col md:flex-row justify-center items-center h-[60vh] mt-24">
@@ -604,6 +606,7 @@ body.dark-mode footer {
     
 </body>
 </html>
+
 
 
 
