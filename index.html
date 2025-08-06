@@ -499,7 +499,7 @@ body.dark-mode footer {
         <button class="btn-primary w-full mb-2"
           onclick="goToPurchasePage1('Du - دو [FREE EDITION]')">Download Now</button>
         <!-- زر القراءة كمثال على زيادة القراءة في Firebase -->
-        <button class="btn-secondary w-full read-btn" data-book-id="du">
+        <button class="btn-secondary w-full read-btn" data-book-id="du" onclick="markAsRead('BOOK_ID')">
           ✅ I’ve Read This Book
         </button>
       </div>
@@ -519,7 +519,7 @@ body.dark-mode footer {
         <p class="text-accent mb-2">Mystery, Fantasy</p>
         <button class="btn-primary w-full mb-2"
           onclick="goToPurchasePage1('العوالم الثمانية - The Eight Worlds (FREE EDITION)')">Download Now</button>
-        <button class="btn-secondary w-full read-btn" data-book-id="eight">
+        <button class="btn-secondary w-full read-btn" data-book-id="eight" onclick="markAsRead('BOOK_ID')">
           ✅ I’ve Read This Book
         </button>
       </div>
@@ -539,7 +539,7 @@ body.dark-mode footer {
         <p class="text-accent mb-2">Mystery, Police</p>
         <button class="btn-primary w-full mb-2"
           onclick="goToPurchasePage1('Adam and the Secret of the Disappearance of the Al-Zaher Family - أدم وسر اختفاء عائلة الزاهر')">Download Now</button>
-        <button class="btn-secondary w-full read-btn" data-book-id="adam">
+        <button class="btn-secondary w-full read-btn" data-book-id="adam" onclick="markAsRead('BOOK_ID')">
           ✅ I’ve Read This Book
         </button>
       </div>
@@ -643,5 +643,6 @@ body.dark-mode footer {
    
 </body>
 </html>
+
 
 
