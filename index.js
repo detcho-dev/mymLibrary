@@ -1,262 +1,85 @@
-const body = document.body;
-const sunIcon = document.getElementById('sun-icon');
-const moonIcon = document.getElementById('moon-icon');
-
-function updateIcons(mode) {
-  if (mode === 'dark') {
-    sunIcon.style.display = 'block';
-    moonIcon.style.display = 'none';
-  } else {
-    sunIcon.style.display = 'none';
-    moonIcon.style.display = 'block';
-  }
+// =========== Theme Handler ===========
+const darkModeMediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
+function applyTheme(darkMode) {
+  document.body.classList.toggle('dark', darkMode);
+  localStorage.setItem('theme', darkMode ? 'dark' : 'light');
+}
+function updateThemeFromSystem() {
+  applyTheme(darkModeMediaQuery.matches);
+}
+darkModeMediaQuery.addEventListener('change', updateThemeFromSystem);
+const savedTheme = localStorage.getItem('theme');
+if (savedTheme) {
+  applyTheme(savedTheme === 'dark');
+} else {
+  updateThemeFromSystem();
 }
 
-document.getElementById('theme-toggle').addEventListener('click', () => {
-  body.classList.toggle('dark-mode');
-  body.classList.toggle('light-mode');
+// =========== Firebase Setup ===========
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import { getFirestore, doc, updateDoc, increment, getDoc, getDocs, collection } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
-  const currentMode = body.classList.contains('dark-mode') ? 'dark' : 'light';
-  localStorage.setItem('theme', currentMode);
-  updateIcons(currentMode);
-});
+const firebaseConfig = {
+  apiKey: "AIzaSyBKOBUtjR7AE00VKibQdB7Sy6I6Aj_WMoo",
+  authDomain: "mym-library.firebaseapp.com",
+  projectId: "mym-library",
+  storageBucket: "mym-library.appspot.com",
+  messagingSenderId: "81380727019",
+  appId: "1:81380727019:web:b622d1f038e8f9ee6de13b"
+};
 
-window.addEventListener('DOMContentLoaded', () => {
-  const savedTheme = localStorage.getItem('theme') || 'light';
-  body.classList.remove('light-mode', 'dark-mode');
-  body.classList.add(savedTheme + '-mode');
-  updateIcons(savedTheme);
-});
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
 
-function goToPurchasePage(bookName, bookPrice) {
-    // تحويل المستخدم إلى صفحة الشراء مع تمرير البيانات في الرابط
-    window.location.href = `/order?name=${encodeURIComponent(bookName)}&price=${encodeURIComponent(bookPrice)}`;
-}
-
-function goToPurchasePage1(bookName) {
-    // تحويل المستخدم إلى صفحة الشراء مع تمرير البيانات في الرابط
-    const encodedBookName = encodeURIComponent(bookName);
-    window.location.href = `/order1?book=${encodedBookName}`;
-  }
-
-        
-// المتغيرات الأساسية
-const form = document.getElementById("contact-form");
-const requestTypeSelect = document.getElementById("request-type");
-let uploadedFileUrl = "";
-
-// إنشاء Cloudinary Upload Widget
-const cloudinaryWidget = cloudinary.createUploadWidget({
-  cloudName: 'dh328ytl3',          // عوضها باسم حسابك في Cloudinary
-  uploadPreset: 'MYM_Library',  // عوضها باسم Upload Preset اللي عملته (Unsigned)
-  multiple: false,
-  sources: ['local'],
-  folder: 'MYM_Library_requests'
-}, (error, result) => {
-  if (!error && result && result.event === "success") {
-    uploadedFileUrl = result.info.secure_url;
-    alert("File uploaded successfully!");
-  }
-});
-
-// دالة لتحديث الفورم حسب اختيار المستخدم
-function updateForm() {
-  // إزالة زر رفع الملف إذا كان موجود
-  const existingUploadBtn = document.getElementById("upload-widget-btn");
-  if (existingUploadBtn) {
-    existingUploadBtn.remove();
-    uploadedFileUrl = "";
-  }
-
-  // إذا نوع الطلب 'book-request' نضيف زر رفع الملف
-  if (requestTypeSelect.value === "book-request") {
-    const uploadBtn = document.createElement("button");
-    uploadBtn.type = "button";
-    uploadBtn.id = "upload-widget-btn";
-    uploadBtn.className = "btn-primary w-full mb-4";
-    uploadBtn.textContent = "Upload Book File";
-    uploadBtn.addEventListener("click", () => {
-      cloudinaryWidget.open();
-    });
-
-    // نضيف الزر قبل زر الإرسال
-    form.insertBefore(uploadBtn, form.querySelector("button[type='submit']"));
-  }
-}
-
-// تفعيل تحديث الفورم عند تغيير اختيار المستخدم
-requestTypeSelect.addEventListener("change", updateForm);
-
-// تفعيل تحديث الفورم عند تحميل الصفحة
-window.addEventListener("DOMContentLoaded", updateForm);
-
-// التعامل مع إرسال الفورم
-form.addEventListener("submit", function(event) {
-  event.preventDefault();
-
-  // لو نوع الطلب 'book-request' بدون رفع ملف، نمنع الإرسال
-  if (requestTypeSelect.value === "book-request" && !uploadedFileUrl) {
-    alert("Please upload the book file before submitting.");
-    return;
-  }
-
-  // تحضير بيانات الإرسال
-  const templateParams = {
-    name: form.name.value,
-    email: form.email.value,
-    message: form.message.value,
-    request_type: requestTypeSelect.value === "contact-us" ? "Contact Us" : "Request Adding Book",
-    file_url: uploadedFileUrl ? `<a href="${uploadedFileUrl}" target="_blank">${uploadedFileUrl}</a>` : "No file attached"
-  };
-
-
-  // إرسال البيانات لـ EmailJS
-  emailjs.send("service_6ewqm85", "template_2w9x0ot", templateParams, "nnP-kvyjBP356LpcZ")
-  .then(function(response) {
-    form.innerHTML = `
-      <div class="text-center p-4 bg-green-100 border border-green-400 text-green-700 rounded-sm">
-        ✅ Your message has been sent successfully! We will get back to you soon.
-      </div>
-    `;
-  }, function(error) {
-    form.innerHTML += `
-      <div class="text-center p-4 mt-4 bg-red-100 border border-red-400 text-red-700 rounded-sm">
-        ❌ An error occurred while sending your message. Please try again later.
-      </div>
-    `;
-  });
-});
-
-
-const words = ["Books", "Stories", "Knowledge", "Games"];
-    let wordIndex = 0;
-    let charIndex = 0;
-    let isDeleting = false;
-    const textElement = document.getElementById("typewriter");
-
-    function type() {
-      const current = words[wordIndex];
-      if (isDeleting) {
-        charIndex--;
-      } else {
-        charIndex++;
-      }
-
-      textElement.textContent = current.substring(0, charIndex);
-
-      let delay = isDeleting ? 60 : Math.random() * (300 - 100) + 100;
-
-      if (!isDeleting && charIndex === current.length) {
-        delay = 1000;
-        isDeleting = true;
-      } else if (isDeleting && charIndex === 0) {
-        isDeleting = false;
-        wordIndex = (wordIndex + 1) % words.length;
-        delay = 600;
-      }
-
-      setTimeout(type, delay);
-    }
-
-    document.addEventListener("DOMContentLoaded", () => {
-      setTimeout(type, 800);
-    });
-
-    function openChatBot() {
-    if (window.innerWidth < 768) {
-      document.getElementById("chat-bot-full").classList.remove("hidden");
-    } else {
-      const container = document.getElementById("chat-bot-container");
-      container.classList.toggle("hidden");
-    }
-  }
-
-  function closeChatBot() {
-    document.getElementById("chat-bot-full").classList.add("hidden");
-  }
-
-const challengeBooks = ['du', 'eight', 'adam'];
-
-  function enterChallenge(bookId) {
-    localStorage.setItem(`challenge_${bookId}`, 'true');
-    updateChallengeCount();
-  }
-
-  function updateChallengeCount() {
-    let count = 0;
-    challengeBooks.forEach(id => {
-      if (localStorage.getItem(`challenge_${id}`) === 'true') {
-        count++;
-      }
-    });
-    document.getElementById('challengeCount').textContent = count;
-  }
-
-  // أول ما الصفحة تفتح نحسب التحديات اللي دخلها
-  document.addEventListener('DOMContentLoaded', updateChallengeCount);
-
-  
-  // Import Firebase SDK
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-  import { getFirestore, doc, updateDoc, increment, getDoc, collection, getDocs } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
-
-  const firebaseConfig = {
-    apiKey: "AIzaSyBlOVx-YSmPFeq3lp-gAGe576yG1RhMLYs",
-    authDomain: "mymlibraryreads.firebaseapp.com",
-    projectId: "mymlibraryreads",
-    storageBucket: "mymlibraryreads.firebasestorage.app",
-    messagingSenderId: "11947740896",
-    appId: "1:11947740896:web:87482eb72210acdba50a85"
-  };
-
-  const app = initializeApp(firebaseConfig);
-  const db = getFirestore(app);
-
-  // Example: Increase reads count
-  async function incrementRead(bookId) {
+// =========== Book Reads Handling ===========
+async function incrementRead(bookId) {
+  try {
     const bookRef = doc(db, "books", bookId);
     await updateDoc(bookRef, {
       reads: increment(1)
     });
+    // Local count
+    const current = parseInt(localStorage.getItem(`read_${bookId}`)) || 0;
+    localStorage.setItem(`read_${bookId}`, current + 1);
+  } catch (e) {
+    console.error("Error incrementing read count:", e);
   }
-
-  // Example: Get Most Read Book
-  async function getMostReadBookId() {
-    const snapshot = await getDocs(collection(db, "books"));
-    let maxReads = 0;
-    let topBookId = "";
-    snapshot.forEach(doc => {
-      const data = doc.data();
-      if (data.reads > maxReads) {
-        maxReads = data.reads;
-        topBookId = doc.id;
-      }
-    });
-    return topBookId;
-  }
-
-  // استدعاء زيادة عدد القراءات عند الضغط على زر القراءة
-document.querySelectorAll(".read-btn").forEach(btn => {
-  btn.addEventListener("click", async () => {
-    const bookId = btn.dataset.bookId;
-    await incrementRead(bookId);
-    highlightMostReadBook();
-  });
-});
-
-// تحديد التاج للكتاب الأكثر قراءة
-async function highlightMostReadBook() {
-  const topBookId = await getMostReadBookId();
-  document.querySelectorAll(".book").forEach(book => {
-    const badge = book.querySelector(".most-read-badge");
-    if (book.dataset.bookId === topBookId) {
-      badge.classList.remove("hidden");
-    } else {
-      badge.classList.add("hidden");
-    }
-  });
 }
 
-// أول ما الصفحة تفتح، نحدد الكتاب الأكثر قراءة
-highlightMostReadBook();
+window.markAsRead = async function(bookId) {
+  await incrementRead(bookId);
+  highlightMostReadBook();
+};
 
+async function highlightMostReadBook() {
+  const booksSnapshot = await getDocs(collection(db, "books"));
+  let maxReads = -1;
+  let mostReadBookId = null;
+
+  booksSnapshot.forEach((docSnap) => {
+    const data = docSnap.data();
+    if (data.reads > maxReads) {
+      maxReads = data.reads;
+      mostReadBookId = docSnap.id;
+    }
+  });
+
+  document.querySelectorAll('.book').forEach(book => {
+    book.classList.remove('most-read');
+  });
+  const mostReadElem = document.querySelector(`[data-book-id="${mostReadBookId}"]`);
+  if (mostReadElem) {
+    mostReadElem.classList.add('most-read');
+  }
+}
+
+window.addEventListener("DOMContentLoaded", () => {
+  document.querySelectorAll(".read-btn").forEach(btn => {
+    btn.addEventListener("click", async () => {
+      const bookId = btn.dataset.bookId;
+      await incrementRead(bookId);
+      highlightMostReadBook();
+    });
+  });
+  highlightMostReadBook();
+});
