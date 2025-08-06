@@ -370,7 +370,27 @@ body.dark-mode footer {
         background-color: #ccc; /* لون رمادي */
         cursor: not-allowed;    /* شكل المؤشر يدل على أنه غير قابل للنقر */         /* يجعل الزر باهت قليلاً */
       }    
-   
+
+        .btn-secondary {
+            background-color: #4CAF50; /* Primary color */
+            color: white;
+            padding: 0.75rem 1.5rem;
+            border-radius: 9999px;
+            font-weight: 600;
+            transition: all 0.3s ease-in-out;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .btn-secondary:hover {
+            background-color: #45a049; /* Slightly darker shade for hover */
+            transform: translateY(-3px);
+            box-shadow: 0 8px 12px rgba(0, 0, 0, 0.15);
+        }
+
+        .btn-secondary:active {
+            transform: translateY(1px);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }    
     </style>
     <script src="https://cdn.jsdelivr.net/npm/emailjs-com@3/dist/email.min.js"></script>
     <script src="https://widget.cloudinary.com/v2.0/global/all.js" type="text/javascript"></script>
@@ -392,6 +412,9 @@ body.dark-mode footer {
         </div>
         
         <!-- Right Side (Theme + Button) -->
+     <div class="text-center mt-8">
+      <p >Books You've Read: <span id="challengeCount">0</span></p>
+    </div>    
     <div class="flex items-center gap-3">
       <!-- Theme Toggle -->
       <button id="theme-toggle" class="flex items-center p-2 rounded-full hover:bg-gray-100 transition">
@@ -411,10 +434,8 @@ body.dark-mode footer {
         MYM Assistant
       </a>
 
-      <!-- عدّاد التحدي -->
-    <div class="text-center mt-8">
-      <p class="text-lg font-bold">Books You've Read: <span id="challengeCount">0</span></p>
-    </div>  
+      
+     
     </div>
     </nav>
 </header>
@@ -583,6 +604,7 @@ body.dark-mode footer {
     
 </body>
 </html>
+
 
 
 
