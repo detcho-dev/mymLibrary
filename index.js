@@ -174,3 +174,23 @@ const words = ["Books", "Stories", "Knowledge", "Games"];
   function closeChatBot() {
     document.getElementById("chat-bot-full").classList.add("hidden");
   }
+
+const challengeBooks = ['du', 'eight', 'adam'];
+
+  function enterChallenge(bookId) {
+    localStorage.setItem(`challenge_${bookId}`, 'true');
+    updateChallengeCount();
+  }
+
+  function updateChallengeCount() {
+    let count = 0;
+    challengeBooks.forEach(id => {
+      if (localStorage.getItem(`challenge_${id}`) === 'true') {
+        count++;
+      }
+    });
+    document.getElementById('challengeCount').textContent = count;
+  }
+
+  // أول ما الصفحة تفتح نحسب التحديات اللي دخلها
+  document.addEventListener('DOMContentLoaded', updateChallengeCount);
