@@ -4,11 +4,11 @@ const moonIcon = document.getElementById('moon-icon');
 
 function updateIcons(mode) {
   if (mode === 'dark') {
-    sunIcon.style.display = 'block';
-    moonIcon.style.display = 'none';
+    sunIcon.classList.remove('hidden');
+    moonIcon.classList.add('hidden');
   } else {
-    sunIcon.style.display = 'none';
-    moonIcon.style.display = 'block';
+    sunIcon.classList.add('hidden');
+    moonIcon.classList.remove('hidden');
   }
 }
 
@@ -260,7 +260,7 @@ async function highlightMostReadBook() {
 // أول ما الصفحة تفتح، نحدد الكتاب الأكثر قراءة
 highlightMostReadBook();
 
-import { doc, updateDoc, increment } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
 
 window.markAsRead = async function(bookId) {
   // 1. احفظ في LocalStorage
