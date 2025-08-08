@@ -192,39 +192,44 @@ const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
 // ================= Local Storage Functions =================
-function getLocalReads() {
-  return parseInt(localStorage.getItem("booksRead") || "0");
+function getReadBooks() {
+  return JSON.parse(localStorage.getItem("readBooks") || "[]");
 }
 
-function setLocalReads(count) {
-  localStorage.setItem("booksRead", count);
+function setReadBooks(books) {
+  localStorage.setItem("readBooks", JSON.stringify(books));
 }
 
-// ================= Update Header Count =================
 function updateReadCounterUI() {
   const counterEl = document.getElementById("read-count");
   if (counterEl) {
-    counterEl.textContent = getLocalReads();
+    counterEl.textContent = getReadBooks().length;
   }
 }
 
 // ================= Mark Book as Read =================
 async function markAsRead(bookId) {
-  try {
-    // 1. LocalStorage update
-    let currentCount = getLocalReads() + 1;
-    setLocalReads(currentCount);
+  let readBooks = getReadBooks();
+
+  // لو الكتاب لسه ما اتقرأش
+  if (!readBooks.includes(bookId)) {
+    // 1. أضفه للـ localStorage
+    readBooks.push(bookId);
+    setReadBooks(readBooks);
     updateReadCounterUI();
 
-    // 2. Firestore update
-    const bookRef = doc(db, "Books", bookId);
-    await updateDoc(bookRef, {
-      Reads: increment(1)
-    });
-
-    console.log(`Book ${bookId} read count updated in Firestore & LocalStorage.`);
-  } catch (error) {
-    console.error("Error updating read count:", error);
+    // 2. زوّد في Firestore
+    try {
+      const bookRef = doc(db, "Books", bookId);
+      await updateDoc(bookRef, {
+        Reads: increment(1)
+      });
+      console.log(`Book ${bookId} read count updated.`);
+    } catch (error) {
+      console.error("Error updating Firestore:", error);
+    }
+  } else {
+    console.log(`Book ${bookId} already read before.`);
   }
 }
 
