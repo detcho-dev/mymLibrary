@@ -175,106 +175,69 @@ const words = ["Books", "Stories", "Knowledge", "Games"];
     document.getElementById("chat-bot-full").classList.add("hidden");
   }
 
-const challengeBooks = ['du', 'eight', 'adam'];
+// ================= Firebase Config =================
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import { getFirestore, doc, updateDoc, increment } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
-  function enterChallenge(bookId) {
-    localStorage.setItem(`challenge_${bookId}`, 'true');
-    updateChallengeCount();
+const firebaseConfig = {
+  apiKey: "AIzaSyBlOVx-YSmPFeq3lp-gAGe576yG1RhMLYs",
+  authDomain: "mymlibraryreads.firebaseapp.com",
+  projectId: "mymlibraryreads",
+  storageBucket: "mymlibraryreads.firebasestorage.app",
+  messagingSenderId: "11947740896",
+  appId: "1:11947740896:web:87482eb72210acdba50a85"
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+
+// ================= Local Storage Functions =================
+function getLocalReads() {
+  return parseInt(localStorage.getItem("booksRead") || "0");
+}
+
+function setLocalReads(count) {
+  localStorage.setItem("booksRead", count);
+}
+
+// ================= Update Header Count =================
+function updateReadCounterUI() {
+  const counterEl = document.getElementById("read-count");
+  if (counterEl) {
+    counterEl.textContent = getLocalReads();
   }
+}
 
-  function updateChallengeCount() {
-    let count = 0;
-    challengeBooks.forEach(id => {
-      if (localStorage.getItem(`challenge_${id}`) === 'true') {
-        count++;
-      }
-    });
-    document.getElementById('challengeCount').textContent = count;
-  }
+// ================= Mark Book as Read =================
+async function markAsRead(bookId) {
+  try {
+    // 1. LocalStorage update
+    let currentCount = getLocalReads() + 1;
+    setLocalReads(currentCount);
+    updateReadCounterUI();
 
-  // أول ما الصفحة تفتح نحسب التحديات اللي دخلها
-  document.addEventListener('DOMContentLoaded', updateChallengeCount);
-
-  
-  // Import Firebase SDK
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-  import { getFirestore, doc, updateDoc, increment, getDoc, collection, getDocs } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
-
-  const firebaseConfig = {
-    apiKey: "AIzaSyBlOVx-YSmPFeq3lp-gAGe576yG1RhMLYs",
-    authDomain: "mymlibraryreads.firebaseapp.com",
-    projectId: "mymlibraryreads",
-    storageBucket: "mymlibraryreads.firebasestorage.app",
-    messagingSenderId: "11947740896",
-    appId: "1:11947740896:web:87482eb72210acdba50a85"
-  };
-
-  const app = initializeApp(firebaseConfig);
-  const db = getFirestore(app);
-
-  // Example: Increase reads count
-  async function incrementRead(bookId) {
-    const bookRef = doc(db, "books", bookId);
+    // 2. Firestore update
+    const bookRef = doc(db, "Books", bookId);
     await updateDoc(bookRef, {
-      reads: increment(1)
+      Reads: increment(1)
     });
-  }
 
-  // Example: Get Most Read Book
-  async function getMostReadBookId() {
-    const snapshot = await getDocs(collection(db, "books"));
-    let maxReads = 0;
-    let topBookId = "";
-    snapshot.forEach(doc => {
-      const data = doc.data();
-      if (data.reads > maxReads) {
-        maxReads = data.reads;
-        topBookId = doc.id;
+    console.log(`Book ${bookId} read count updated in Firestore & LocalStorage.`);
+  } catch (error) {
+    console.error("Error updating read count:", error);
+  }
+}
+
+// ================= Event Binding =================
+document.addEventListener("DOMContentLoaded", () => {
+  updateReadCounterUI();
+
+  document.querySelectorAll(".read-btn").forEach(btn => {
+    btn.addEventListener("click", () => {
+      const bookId = btn.dataset.bookId;
+      if (bookId) {
+        markAsRead(bookId);
       }
     });
-    return topBookId;
-  }
-
-  // استدعاء زيادة عدد القراءات عند الضغط على زر القراءة
-document.querySelectorAll(".read-btn").forEach(btn => {
-  btn.addEventListener("click", async () => {
-    const bookId = btn.dataset.bookId;
-    await incrementRead(bookId);
-    highlightMostReadBook();
   });
 });
-
-// تحديد التاج للكتاب الأكثر قراءة
-async function highlightMostReadBook() {
-  const topBookId = await getMostReadBookId();
-  document.querySelectorAll(".book").forEach(book => {
-    const badge = book.querySelector(".most-read-badge");
-    if (book.dataset.bookId === topBookId) {
-      badge.classList.remove("hidden");
-    } else {
-      badge.classList.add("hidden");
-    }
-  });
-}
-
-// أول ما الصفحة تفتح، نحدد الكتاب الأكثر قراءة
-highlightMostReadBook();
-
-
-
-window.markAsRead = async function(bookId) {
-  // 1. احفظ في LocalStorage
-  let readBooks = JSON.parse(localStorage.getItem("readBooks")) || [];
-  if (!readBooks.includes(bookId)) {
-    readBooks.push(bookId);
-    localStorage.setItem("readBooks", JSON.stringify(readBooks));
-  }
-
-  // 2. زود العداد في فايربيز
-  const bookRef = doc(db, "books", bookId);
-  await updateDoc(bookRef, {
-    views: increment(1)
-  });
-
-  alert("Book Read Recorded");
-}
