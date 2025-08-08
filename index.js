@@ -278,5 +278,3 @@ window.markAsRead = async function(bookId) {
 
   alert("Book Read Recorded");
 }
-
-الكود ده تمام؟
