@@ -203,9 +203,11 @@ function setReadBooks(books) {
 function updateReadCounterUI() {
   const counterEl = document.getElementById("read-count");
   if (counterEl) {
-    counterEl.textContent = getReadBooks().length;
+    const count = getReadBooks().length || 0; // يتأكد انها 0 لو مفيش حاجة
+    counterEl.textContent = count;
   }
 }
+
 
 // ================= Mark Book as Read =================
 async function markAsRead(bookId) {
