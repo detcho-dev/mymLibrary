@@ -223,9 +223,11 @@
       });
     }
 
+
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 import { getFirestore, doc, updateDoc, increment } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
+// ================= Firebase Config =================
 const firebaseConfig = {
   apiKey: "AIzaSyBlOVx-YSmPFeq3lp-gAGe576yG1RhMLYs",
   authDomain: "mymlibraryreads.firebaseapp.com",
@@ -263,7 +265,7 @@ function updateReadCounterUI() {
 }
 
 // ================= Mark Book as Read =================
-window.markAsRead = async function (bookId) {  // ✅ تعريف على window
+window.markAsRead = async function (bookId) {
   let readBooks = getReadBooks();
 
   if (!readBooks.includes(bookId)) {
@@ -306,6 +308,11 @@ window.searchBooks = function () {
 
 // ================= Event Binding =================
 document.addEventListener("DOMContentLoaded", () => {
+  // 🔹 تهيئة localStorage لأول مرة عشان يبدأ من 0
+  if (!localStorage.getItem("readBooks")) {
+    localStorage.setItem("readBooks", JSON.stringify([]));
+  }
+
   updateReadCounterUI();
 
   document.querySelectorAll(".read-btn").forEach(btn => {
@@ -317,6 +324,8 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   });
 });
+
+
   </script>
 </body>
 </html>
