@@ -121,28 +121,47 @@
         </div>
 
         <!-- Book 1 -->
-        <div class="bg-card p-4 rounded-sm shadow-sm book-card" data-title="Du - دو" data-author="Youssef Ahmed" data-book-id="du">
-          <span
+      <div class="relative bg-card p-4 rounded-sm shadow-sm book-card" data-book-id="du" data-title="Du - دو" data-author="Youssef Ahmed">
+        <!-- Most Read badge مخفي افتراضيًا -->
+        <span
           class="most-read-badge absolute top-4 left-4 text-black text-sm font-semibold px-2 py-1 rounded shadow hidden"
           style="background: linear-gradient(135deg, white, #fcd34d, #fbbf24);">
           Most Read
         </span>
-            <img src="https://res.cloudinary.com/dqyxzsnyq/image/upload/v1735652511/2text_f9ohsk.jpg" alt="Book 1" class="w-full h-64 object-cover rounded-sm mb-4">
-            <h3 class="font-heading text-xl mb-2">Du - دو</h3>
-            <p class="text-accent mb-2">By Youssef Ahmed</p>
-            <button class="btn-primary w-full" onclick="goToPurchasePage1('Du - دو [FREE EDITION]')">Download Now</button>
-            <button class="btn-secondary w-full read-btn" data-book-id="001" onclick="markAsRead('BOOK_ID')">
-          ✅ I’ve Read This Book
-          </button>
-        </div>
 
-        <!-- Book 2 -->
-        <div class="bg-card p-4 rounded-sm shadow-sm book-card" data-title="The Eight Worlds - العوالم الثمانية" data-author="Mohammed Osama">
-            <img src="https://res.cloudinary.com/dqyxzsnyq/image/upload/v1738757292/8_title_e7esmh.jpg" alt="Book 3" class="w-full h-64 object-cover rounded-sm mb-4">
-            <h3 class="font-heading text-xl mb-2">The Eight Worlds - العوالم الثمانية</h3>
-            <p class="text-accent mb-2">By Mohammed Osama</p>
-            <button class="btn-primary w-full" onclick="goToPurchasePage1('العوالم الثمانية - The Eight Worlds (FREE EDITION)')">Download Now</button>
-        </div>
+        <img src="https://res.cloudinary.com/dqyxzsnyq/image/upload/v1735652511/2text_f9ohsk.jpg"
+          alt="Book 1" class="w-full h-64 object-cover rounded-sm mb-4" />
+        <h3 class="font-heading text-xl mb-2">Du - دو</h3>
+        <p class="text-accent mb-2">By Youssef Ahmed</p>
+        <p class="text-accent mb-2">Adventure, Fantasy</p>
+        <button class="btn-primary w-full mb-2"
+          onclick="goToPurchasePage1('Du - دو [FREE EDITION]')">Download Now</button>
+        <!-- زر القراءة كمثال على زيادة القراءة في Firebase -->
+        <button class="btn-secondary w-full read-btn" data-book-id="001" onclick="markAsRead('BOOK_ID')">
+          ✅ I’ve Read This Book
+        </button>
+      </div>
+
+      <!-- Book 2 -->
+      <div class="relative bg-card p-4 rounded-sm shadow-sm book-card" data-book-id="eight" data-title="The Eight Worlds - العوالم الثمانية" data-author="Mohammed Osama">
+        <span
+          class="most-read-badge absolute top-4 left-4 text-black text-sm font-semibold px-2 py-1 rounded shadow hidden"
+          style="background: linear-gradient(135deg, white, #fcd34d, #fbbf24);">
+          Most Read
+        </span>
+
+        <img src="https://res.cloudinary.com/dqyxzsnyq/image/upload/v1738757292/8_title_e7esmh.jpg"
+          alt="Book 2" class="w-full h-64 object-cover rounded-sm mb-4" />
+        <h3 class="font-heading text-xl mb-2">العوالم الثمانية - The Eight Worlds</h3>
+        <p class="text-accent mb-2">By Mohammed Osama</p>
+        <p class="text-accent mb-2">Mystery, Fantasy</p>
+        <button class="btn-primary w-full mb-2"
+          onclick="goToPurchasePage1('العوالم الثمانية - The Eight Worlds (FREE EDITION)')">Download Now</button>
+        <button class="btn-secondary w-full read-btn" data-book-id="002" onclick="markAsRead('BOOK_ID')">
+          ✅ I’ve Read This Book
+        </button>
+      </div>
+
 
         <!-- Title for Guests -->
         <div class="col-span-full mt-6">
@@ -151,12 +170,26 @@
         </div>
 
         <!-- Guest Book -->
-        <div class="bg-card p-4 rounded-sm shadow-sm book-card" data-title="Adam and the Secret of the Disappearance of the Al-Zaher Family - أدم وسر اختفاء عائلة الزاهر" data-author="Roshdy Reda">
-            <img src="https://res.cloudinary.com/dqyxzsnyq/image/upload/v1744916535/cover1_ad2ttj.png" alt="Book 2" class="w-full h-64 object-cover rounded-sm mb-4">
-            <h3 class="font-heading text-xl mb-2">Adam and the Secret of the Disappearance of the Al-Zaher Family - أدم وسر اختفاء عائلة الزاهر</h3>
-            <p class="text-accent mb-2">By Roshdy Reda <span class="i">New Guest!!</span></p>
-            <button class="btn-primary" onclick="goToPurchasePage1('Adam and the Secret of the Disappearance of the Al-Zaher Family - أدم وسر اختفاء عائلة الزاهر')">Download Now</button>
-        </div>
+        <!-- Book 3 -->
+      <div class="relative bg-card p-4 rounded-sm shadow-sm book-card" data-book-id="adam" data-title="Adam and the Secret of the Disappearance of the Al-Zaher Family - أدم وسر اختفاء عائلة الزاهر" data-author="Roshdy Reda">
+        <span
+          class="most-read-badge absolute top-4 left-4 text-black text-sm font-semibold px-2 py-1 rounded shadow hidden"
+          style="background: linear-gradient(135deg, white, #fcd34d, #fbbf24);">
+          Most Read
+        </span>
+
+        <img src="https://res.cloudinary.com/dqyxzsnyq/image/upload/v1744916535/cover1_ad2ttj.png"
+          alt="Book 3" class="w-full h-64 object-cover rounded-sm mb-4" />
+        <h3 class="font-heading text-xl mb-2">Adam and the Secret of the Disappearance of the Al-Zaher Family - أدم وسر اختفاء عائلة الزاهر</h3>
+        <p class="text-accent mb-2">By Roshdy Reda <span class="i">New Guest!!</span></p>
+        <p class="text-accent mb-2">Mystery, Police</p>
+        <button class="btn-primary w-full mb-2"
+          onclick="goToPurchasePage1('Adam and the Secret of the Disappearance of the Al-Zaher Family - أدم وسر اختفاء عائلة الزاهر')">Download Now</button>
+        <button class="btn-secondary w-full read-btn" data-book-id="003" onclick="markAsRead('BOOK_ID')">
+          ✅ I’ve Read This Book
+        </button>
+      </div>
+
     </div>
 </div>
 
