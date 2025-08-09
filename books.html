@@ -223,7 +223,6 @@
       });
     }
 
-    // ================= Firebase Config =================
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 import { getFirestore, doc, updateDoc, increment } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
@@ -241,7 +240,14 @@ const db = getFirestore(app);
 
 // ================= Local Storage Functions =================
 function getReadBooks() {
-  return JSON.parse(localStorage.getItem("readBooks") || "[]");
+  let books;
+  try {
+    books = JSON.parse(localStorage.getItem("readBooks") || "[]");
+  } catch (e) {
+    books = [];
+  }
+  if (!Array.isArray(books)) books = [];
+  return books;
 }
 
 function setReadBooks(books) {
@@ -251,17 +257,15 @@ function setReadBooks(books) {
 function updateReadCounterUI() {
   const counterEl = document.getElementById("read-count");
   if (counterEl) {
-    const count = getReadBooks().length || 0; // يتأكد انها 0 لو مفيش حاجة
+    const count = getReadBooks().length || 0;
     counterEl.textContent = count;
   }
 }
 
-
 // ================= Mark Book as Read =================
-async function markAsRead(bookId) {
+window.markAsRead = async function (bookId) {  // ✅ تعريف على window
   let readBooks = getReadBooks();
 
-  // لو الكتاب لسه ما اتقرأش
   if (!readBooks.includes(bookId)) {
     // 1. أضفه للـ localStorage
     readBooks.push(bookId);
@@ -281,7 +285,24 @@ async function markAsRead(bookId) {
   } else {
     console.log(`Book ${bookId} already read before.`);
   }
-}
+};
+
+// ================= Search Books =================
+window.searchBooks = function () {
+  let input = document.getElementById("search-input").value.toLowerCase();
+  let books = document.querySelectorAll(".book");
+
+  books.forEach(book => {
+    let title = book.getAttribute("data-title").toLowerCase();
+    let author = book.getAttribute("data-author").toLowerCase();
+
+    if (title.includes(input) || author.includes(input)) {
+      book.style.display = "block";
+    } else {
+      book.style.display = "none";
+    }
+  });
+};
 
 // ================= Event Binding =================
 document.addEventListener("DOMContentLoaded", () => {
@@ -296,7 +317,6 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   });
 });
-
   </script>
 </body>
 </html>
