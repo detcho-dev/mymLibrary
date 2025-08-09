@@ -7,6 +7,9 @@
   <link rel="icon" href="icon.ico" type="image/x-icon" />
   <title>MYM Library - Explore Books</title>
   <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js"></script>
+
   <style>
     .btn-primary {
       background-color: #1d4ed8;
@@ -99,6 +102,9 @@
       <div class="flex items-center gap-4">
         <img src="logo.png" alt="MYM Library Logo" class="w-12 h-12 object-cover" />
         <h1 class="text-2xl font-heading">MYM Library</h1>
+      </div>
+      <div class="text-center mt-8">
+        <p>Books You've Read: <span id="read-count">0</span></p>
       </div>
       <ul class="flex gap-6">
         <li><a href="https://mymlibrary.vercel.app" class="hover:text-blue-500 transition-colors">Home</a></li>
@@ -216,6 +222,81 @@
         }
       });
     }
+
+    // ================= Firebase Config =================
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import { getFirestore, doc, updateDoc, increment } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyBlOVx-YSmPFeq3lp-gAGe576yG1RhMLYs",
+  authDomain: "mymlibraryreads.firebaseapp.com",
+  projectId: "mymlibraryreads",
+  storageBucket: "mymlibraryreads.firebasestorage.app",
+  messagingSenderId: "11947740896",
+  appId: "1:11947740896:web:87482eb72210acdba50a85"
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+
+// ================= Local Storage Functions =================
+function getReadBooks() {
+  return JSON.parse(localStorage.getItem("readBooks") || "[]");
+}
+
+function setReadBooks(books) {
+  localStorage.setItem("readBooks", JSON.stringify(books));
+}
+
+function updateReadCounterUI() {
+  const counterEl = document.getElementById("read-count");
+  if (counterEl) {
+    const count = getReadBooks().length || 0; // يتأكد انها 0 لو مفيش حاجة
+    counterEl.textContent = count;
+  }
+}
+
+
+// ================= Mark Book as Read =================
+async function markAsRead(bookId) {
+  let readBooks = getReadBooks();
+
+  // لو الكتاب لسه ما اتقرأش
+  if (!readBooks.includes(bookId)) {
+    // 1. أضفه للـ localStorage
+    readBooks.push(bookId);
+    setReadBooks(readBooks);
+    updateReadCounterUI();
+
+    // 2. زوّد في Firestore
+    try {
+      const bookRef = doc(db, "Books", bookId);
+      await updateDoc(bookRef, {
+        Reads: increment(1)
+      });
+      console.log(`Book ${bookId} read count updated.`);
+    } catch (error) {
+      console.error("Error updating Firestore:", error);
+    }
+  } else {
+    console.log(`Book ${bookId} already read before.`);
+  }
+}
+
+// ================= Event Binding =================
+document.addEventListener("DOMContentLoaded", () => {
+  updateReadCounterUI();
+
+  document.querySelectorAll(".read-btn").forEach(btn => {
+    btn.addEventListener("click", () => {
+      const bookId = btn.dataset.bookId;
+      if (bookId) {
+        markAsRead(bookId);
+      }
+    });
+  });
+});
+
   </script>
 </body>
 </html>
