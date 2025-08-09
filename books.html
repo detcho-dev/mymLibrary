@@ -47,7 +47,7 @@
       max-width: 500px;
     }
 
-    .book-card {
+    .book {
       text-align: center;
     }
 
@@ -127,7 +127,7 @@
         </div>
 
         <!-- Book 1 -->
-      <div class="relative bg-card p-4 rounded-sm shadow-sm book-card" data-book-id="du" data-title="Du - دو" data-author="Youssef Ahmed">
+      <div class="relative bg-card p-4 rounded-sm shadow-sm book" data-book-id="du" data-title="Du - دو" data-author="Youssef Ahmed">
         <!-- Most Read badge مخفي افتراضيًا -->
         <span
           class="most-read-badge absolute top-4 left-4 text-black text-sm font-semibold px-2 py-1 rounded shadow hidden"
@@ -149,7 +149,7 @@
       </div>
 
       <!-- Book 2 -->
-      <div class="relative bg-card p-4 rounded-sm shadow-sm book-card" data-book-id="eight" data-title="The Eight Worlds - العوالم الثمانية" data-author="Mohammed Osama">
+      <div class="relative bg-card p-4 rounded-sm shadow-sm book" data-book-id="eight" data-title="The Eight Worlds - العوالم الثمانية" data-author="Mohammed Osama">
         <span
           class="most-read-badge absolute top-4 left-4 text-black text-sm font-semibold px-2 py-1 rounded shadow hidden"
           style="background: linear-gradient(135deg, white, #fcd34d, #fbbf24);">
@@ -177,7 +177,7 @@
 
         <!-- Guest Book -->
         <!-- Book 3 -->
-      <div class="relative bg-card p-4 rounded-sm shadow-sm book-card" data-book-id="adam" data-title="Adam and the Secret of the Disappearance of the Al-Zaher Family - أدم وسر اختفاء عائلة الزاهر" data-author="Roshdy Reda">
+      <div class="relative bg-card p-4 rounded-sm shadow-sm book" data-book-id="adam" data-title="Adam and the Secret of the Disappearance of the Al-Zaher Family - أدم وسر اختفاء عائلة الزاهر" data-author="Roshdy Reda">
         <span
           class="most-read-badge absolute top-4 left-4 text-black text-sm font-semibold px-2 py-1 rounded shadow hidden"
           style="background: linear-gradient(135deg, white, #fcd34d, #fbbf24);">
@@ -209,7 +209,7 @@
 
     function searchBooks() {
       let input = document.getElementById("search-input").value.toLowerCase();
-      let books = document.querySelectorAll(".book-card");
+      let books = document.querySelectorAll(".book");
 
       books.forEach(book => {
         let title = book.getAttribute("data-title").toLowerCase();
