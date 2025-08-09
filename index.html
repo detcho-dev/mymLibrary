@@ -419,9 +419,7 @@ body.dark-mode footer {
         </div>
         
         <!-- Right Side (Theme + Button) -->
-     <div class="text-center mt-8">
-  <p>Books You've Read: <span id="read-count">0</span></p>
-</div>    
+         
 
 <div class="flex items-center gap-3">
   <!-- Theme Toggle -->
@@ -471,7 +469,7 @@ body.dark-mode footer {
                     <div class="flex-1 hello">
                     <h2 class="text-4xl font-heading mb-4">Welcome to MYM Library</h2>
                     <p class="text-accent text-lg mb-6">Discover a world of knowledge through our carefully curated collection of books.</p>
-                    <a href="#shop" class="btn-primary">Explore Books</a>
+                    <a href="/books" class="btn-primary">Explore Books</a>
                 </div>
                 <div class="flex-1">
                     <img src="https://images.unsplash.com/photo-1524995997946-a1c2e315a42f?w=600&h=400&fit=crop" alt="Library Banner" class="w-full h-auto rounded-sm shadow-sm">
@@ -479,84 +477,7 @@ body.dark-mode footer {
             </div>
         </section>
 
-       <section id="shop" class="py-16">
-  <div class="container mx-auto px-4">
-    <h2 class="text-3xl font-heading mb-8 text-center">Explore Books</h2>
-    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 justify-center mx-auto">
-
-      <!-- Book 1 -->
-      <div class="relative bg-card p-4 rounded-sm shadow-sm book" data-book-id="du">
-        <!-- Most Read badge مخفي افتراضيًا -->
-        <span
-          class="most-read-badge absolute top-4 left-4 text-black text-sm font-semibold px-2 py-1 rounded shadow hidden"
-          style="background: linear-gradient(135deg, white, #fcd34d, #fbbf24);">
-          Most Read
-        </span>
-
-        <img src="https://res.cloudinary.com/dqyxzsnyq/image/upload/v1735652511/2text_f9ohsk.jpg"
-          alt="Book 1" class="w-full h-64 object-cover rounded-sm mb-4" />
-        <h3 class="font-heading text-xl mb-2">Du - دو</h3>
-        <p class="text-accent mb-2">By Youssef Ahmed</p>
-        <p class="text-accent mb-2">Adventure, Fantasy</p>
-        <button class="btn-primary w-full mb-2"
-          onclick="goToPurchasePage1('Du - دو [FREE EDITION]')">Download Now</button>
-        <!-- زر القراءة كمثال على زيادة القراءة في Firebase -->
-        <button class="btn-secondary w-full read-btn" data-book-id="001" onclick="markAsRead('BOOK_ID')">
-          ✅ I’ve Read This Book
-        </button>
-      </div>
-
-      <!-- Book 2 -->
-      <div class="relative bg-card p-4 rounded-sm shadow-sm book" data-book-id="eight">
-        <span
-          class="most-read-badge absolute top-4 left-4 text-black text-sm font-semibold px-2 py-1 rounded shadow hidden"
-          style="background: linear-gradient(135deg, white, #fcd34d, #fbbf24);">
-          Most Read
-        </span>
-
-        <img src="https://res.cloudinary.com/dqyxzsnyq/image/upload/v1738757292/8_title_e7esmh.jpg"
-          alt="Book 2" class="w-full h-64 object-cover rounded-sm mb-4" />
-        <h3 class="font-heading text-xl mb-2">العوالم الثمانية - The Eight Worlds</h3>
-        <p class="text-accent mb-2">By Mohammed Osama</p>
-        <p class="text-accent mb-2">Mystery, Fantasy</p>
-        <button class="btn-primary w-full mb-2"
-          onclick="goToPurchasePage1('العوالم الثمانية - The Eight Worlds (FREE EDITION)')">Download Now</button>
-        <button class="btn-secondary w-full read-btn" data-book-id="002" onclick="markAsRead('BOOK_ID')">
-          ✅ I’ve Read This Book
-        </button>
-      </div>
-
-      <!-- Book 3 -->
-      <div class="relative bg-card p-4 rounded-sm shadow-sm book" data-book-id="adam">
-        <span
-          class="most-read-badge absolute top-4 left-4 text-black text-sm font-semibold px-2 py-1 rounded shadow hidden"
-          style="background: linear-gradient(135deg, white, #fcd34d, #fbbf24);">
-          Most Read
-        </span>
-
-        <img src="https://res.cloudinary.com/dqyxzsnyq/image/upload/v1744916535/cover1_ad2ttj.png"
-          alt="Book 3" class="w-full h-64 object-cover rounded-sm mb-4" />
-        <h3 class="font-heading text-xl mb-2">Adam and the Secret of the Disappearance of the Al-Zaher Family - أدم وسر اختفاء عائلة الزاهر</h3>
-        <p class="text-accent mb-2">By Roshdy Reda <span class="i">New Guest!!</span></p>
-        <p class="text-accent mb-2">Mystery, Police</p>
-        <button class="btn-primary w-full mb-2"
-          onclick="goToPurchasePage1('Adam and the Secret of the Disappearance of the Al-Zaher Family - أدم وسر اختفاء عائلة الزاهر')">Download Now</button>
-        <button class="btn-secondary w-full read-btn" data-book-id="003" onclick="markAsRead('BOOK_ID')">
-          ✅ I’ve Read This Book
-        </button>
-      </div>
-
-    </div>
-
-    <center class="mt-6">
-      <a href="/books" class="btn-primary w-150">Explore More Books --></a>
-    </center>
-  </div>
-</section>
-
-
-
-        <section id="about" class="py-16 bg-secondary">
+         <section id="about" class="py-16 bg-secondary">
             <div class="about-us flex flex-col md:flex-row justify-center items-center h-[60vh] mt-24">
                 <div class="column flex flex-col items-center mx-12 mb-8 md:mb-0">
                     <div class="letter">
@@ -645,6 +566,7 @@ body.dark-mode footer {
    
 </body>
 </html>
+
 
 
 
