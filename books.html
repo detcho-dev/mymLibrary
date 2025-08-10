@@ -215,15 +215,20 @@
       }
     }
 
-    // Search filter
     function searchBooks() {
-      const input = document.getElementById("search-input").value.toLowerCase();
-      document.querySelectorAll(".book").forEach(book => {
-        const title = book.dataset.title.toLowerCase();
-        const author = book.dataset.author.toLowerCase();
-        book.style.display = (title.includes(input) || author.includes(input)) ? "block" : "none";
-      });
+  const input = document.getElementById("search-input").value.trim().toLowerCase();
+  document.querySelectorAll(".book").forEach(book => {
+    if (input === "") {
+      // لو السيرش فاضي، أظهر كل الكتب
+      book.style.display = "block";
+    } else {
+      const title = book.dataset.title.toLowerCase();
+      const author = book.dataset.author.toLowerCase();
+      book.style.display = (title.includes(input) || author.includes(input)) ? "block" : "none";
     }
+  });
+}
+
 
     // Purchase page redirect
     function goToPurchasePage1(bookName) {
