@@ -71,6 +71,20 @@
 .hidden {
   display: none;
 }  
+
+ .gold-card {
+    background: linear-gradient(135deg, #FFD700, #FFA500);
+    color: #000;
+    padding: 0.8rem 1.5rem;
+    border-radius: 12px;
+    font-weight: bold;
+    font-size: 1.1rem;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+    display: inline-block;
+    min-width: 160px;
+    max-width: 90%;
+    word-wrap: break-word;
+  }   
   </style>
 </head>
 <body class="bg-gray-100 p-6">
@@ -82,9 +96,7 @@
         <img src="logo.png" alt="MYM Library Logo" class="w-12 h-12 object-cover" />
         <h1 class="text-2xl font-heading">MYM Library</h1>
       </div>
-      <div class="text-center mt-0">
-        <p>Books You've Read: <span id="read-count">0</span></p>
-      </div>
+      
       <ul class="flex gap-6">
         <li><a href="https://mymlibrary.vercel.app" class="hover:text-blue-500 transition-colors">Home</a></li>
       </ul>
@@ -93,6 +105,11 @@
 
   <!-- Content -->
   <div class="container mx-auto mt-24">
+    <div class="flex justify-center my-4">
+      <div id="gold-card" class="gold-card text-center">
+        You've Read :  <span id="read-count-gold">0</span> Book(s)
+      </div>
+    </div>
     <h1 class="text-3xl font-bold mb-6 flex justify-center">All Books</h1>
 
     <!-- Search -->
@@ -194,8 +211,26 @@ function getReadBooks() {
   catch { return []; }
 }
 function setReadBooks(books) { localStorage.setItem("readBooks", JSON.stringify(books)); }
+
+// متغير علشان نعرف لو العدد زاد
+let lastCount = getReadBooks().length;
+
+// تحديث العداد الذهبي مع الـ confetti
 function updateReadCounterUI() {
-  document.getElementById("read-count").textContent = getReadBooks().length;
+  const count = getReadBooks().length;
+  const goldCountEl = document.getElementById("read-count-gold");
+
+  if (goldCountEl) goldCountEl.textContent = count;
+
+  // لو العدد زاد نشغل confetti
+  if (count > lastCount) {
+    confetti({
+      particleCount: 150,
+      spread: 70,
+      origin: { y: 0.6 }
+    });
+  }
+  lastCount = count;
 }
 
 // Update Most Read badge
@@ -216,9 +251,9 @@ async function updateMostReadTag() {
     if (!badge) return;
     const id = bookEl.dataset.bookId;
     if (readsMap[id] === maxReads && maxReads > 0) {
-      badge.style.display = "inline-block"; // إظهار التاج
+      badge.style.display = "inline-block";
     } else {
-      badge.style.display = "none"; // إخفاء لو مش الأعلى
+      badge.style.display = "none";
     }
   });
 }
@@ -237,6 +272,7 @@ async function markAsRead(bookId) {
   }
 }
 
+// Search books
 function searchBooks() {
   const input = document.getElementById("search-input").value.trim().toLowerCase();
   document.querySelectorAll(".book").forEach(book => {
@@ -250,10 +286,12 @@ function searchBooks() {
   });
 }
 
+// Go to purchase page
 function goToPurchasePage1(bookName) {
   window.location.href = `/order1?book=${encodeURIComponent(bookName)}`;
 }
 
+// Init
 document.addEventListener("DOMContentLoaded", async () => {
   // رابط سري لمسح القراءات
   const params = new URLSearchParams(window.location.search);
@@ -277,6 +315,385 @@ document.addEventListener("DOMContentLoaded", async () => {
     btn.addEventListener("click", () => goToPurchasePage1(btn.dataset.purchase))
   );
 });
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import { getFirestore, doc, updateDoc, increment, getDocs, collection } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+// Firebase Config
+const firebaseConfig = {
+  apiKey: "AIzaSyBlOVx-YSmPFeq3lp-gAGe576yG1RhMLYs",
+  authDomain: "mymlibraryreads.firebaseapp.com",
+  projectId: "mymlibraryreads",
+  storageBucket: "mymlibraryreads.firebasestorage.app",
+  messagingSenderId: "11947740896",
+  appId: "1:11947740896:web:87482eb72210acdba50a85"
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+
+// Local Storage helpers
+function getReadBooks() {
+  try { return JSON.parse(localStorage.getItem("readBooks") || "[]"); }
+  catch { return []; }
+}
+function setReadBooks(books) { localStorage.setItem("readBooks", JSON.stringify(books)); }
+
+// متغير علشان نعرف لو العدد زاد
+let lastCount = getReadBooks().length;
+
+// تحديث العداد الذهبي مع الـ confetti
+function updateReadCounterUI() {
+  const count = getReadBooks().length;
+  const goldCountEl = document.getElementById("read-count-gold");
+
+  if (goldCountEl) goldCountEl.textContent = count;
+
+  // لو العدد زاد نشغل confetti
+  if (count > lastCount) {
+    confetti({
+      particleCount: 150,
+      spread: 70,
+      origin: { y: 0.6 }
+    });
+  }
+  lastCount = count;
+}
+
+// Update Most Read badge
+async function updateMostReadTag() {
+  const snapshot = await getDocs(collection(db, "Books"));
+  let maxReads = -1;
+  let readsMap = {};
+
+  snapshot.forEach(docSnap => {
+    const id = docSnap.id;
+    const reads = Number(docSnap.data().Reads) || 0;
+    readsMap[id] = reads;
+    if (reads > maxReads) maxReads = reads;
+  });
+
+  document.querySelectorAll(".book").forEach(bookEl => {
+    const badge = bookEl.querySelector(".most-read-badge");
+    if (!badge) return;
+    const id = bookEl.dataset.bookId;
+    if (readsMap[id] === maxReads && maxReads > 0) {
+      badge.style.display = "inline-block";
+    } else {
+      badge.style.display = "none";
+    }
+  });
+}
+
+// Mark as read
+async function markAsRead(bookId) {
+  let readBooks = getReadBooks();
+  if (!readBooks.includes(bookId)) {
+    readBooks.push(bookId);
+    setReadBooks(readBooks);
+    updateReadCounterUI();
+    try {
+      await updateDoc(doc(db, "Books", bookId), { Reads: increment(1) });
+      await updateMostReadTag();
+    } catch (err) { console.error(err); }
+  }
+}
+
+// Search books
+function searchBooks() {
+  const input = document.getElementById("search-input").value.trim().toLowerCase();
+  document.querySelectorAll(".book").forEach(book => {
+    if (input === "") {
+      book.style.display = "block";
+    } else {
+      const title = book.dataset.title.toLowerCase();
+      const author = book.dataset.author.toLowerCase();
+      book.style.display = (title.includes(input) || author.includes(input)) ? "block" : "none";
+    }
+  });
+}
+
+// Go to purchase page
+function goToPurchasePage1(bookName) {
+  window.location.href = `/order1?book=${encodeURIComponent(bookName)}`;
+}
+
+// Init
+document.addEventListener("DOMContentLoaded", async () => {
+  // رابط سري لمسح القراءات
+  const params = new URLSearchParams(window.location.search);
+  if (params.get("reset") === "1") {
+    localStorage.removeItem("readBooks");
+    updateReadCounterUI();
+    alert("✅ تم مسح كل القراءات من جهازك.");
+  }
+
+  if (!localStorage.getItem("readBooks")) setReadBooks([]);
+  updateReadCounterUI();
+  await updateMostReadTag();
+
+  document.querySelectorAll(".read-btn").forEach(btn =>
+    btn.addEventListener("click", () => markAsRead(btn.dataset.bookId))
+  );
+
+  document.getElementById("search-input").addEventListener("keyup", searchBooks);
+
+  document.querySelectorAll("[data-purchase]").forEach(btn =>
+    btn.addEventListener("click", () => goToPurchasePage1(btn.dataset.purchase))
+  );
+});
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import { getFirestore, doc, updateDoc, increment, getDocs, collection } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+// Firebase Config
+const firebaseConfig = {
+  apiKey: "AIzaSyBlOVx-YSmPFeq3lp-gAGe576yG1RhMLYs",
+  authDomain: "mymlibraryreads.firebaseapp.com",
+  projectId: "mymlibraryreads",
+  storageBucket: "mymlibraryreads.firebasestorage.app",
+  messagingSenderId: "11947740896",
+  appId: "1:11947740896:web:87482eb72210acdba50a85"
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+
+// Local Storage helpers
+function getReadBooks() {
+  try { return JSON.parse(localStorage.getItem("readBooks") || "[]"); }
+  catch { return []; }
+}
+function setReadBooks(books) { localStorage.setItem("readBooks", JSON.stringify(books)); }
+
+// متغير علشان نعرف لو العدد زاد
+let lastCount = getReadBooks().length;
+
+// تحديث العداد الذهبي مع الـ confetti
+function updateReadCounterUI() {
+  const count = getReadBooks().length;
+  const goldCountEl = document.getElementById("read-count-gold");
+
+  if (goldCountEl) goldCountEl.textContent = count;
+
+  // لو العدد زاد نشغل confetti
+  if (count > lastCount) {
+    confetti({
+      particleCount: 150,
+      spread: 70,
+      origin: { y: 0.6 }
+    });
+  }
+  lastCount = count;
+}
+
+// Update Most Read badge
+async function updateMostReadTag() {
+  const snapshot = await getDocs(collection(db, "Books"));
+  let maxReads = -1;
+  let readsMap = {};
+
+  snapshot.forEach(docSnap => {
+    const id = docSnap.id;
+    const reads = Number(docSnap.data().Reads) || 0;
+    readsMap[id] = reads;
+    if (reads > maxReads) maxReads = reads;
+  });
+
+  document.querySelectorAll(".book").forEach(bookEl => {
+    const badge = bookEl.querySelector(".most-read-badge");
+    if (!badge) return;
+    const id = bookEl.dataset.bookId;
+    if (readsMap[id] === maxReads && maxReads > 0) {
+      badge.style.display = "inline-block";
+    } else {
+      badge.style.display = "none";
+    }
+  });
+}
+
+// Mark as read
+async function markAsRead(bookId) {
+  let readBooks = getReadBooks();
+  if (!readBooks.includes(bookId)) {
+    readBooks.push(bookId);
+    setReadBooks(readBooks);
+    updateReadCounterUI();
+    try {
+      await updateDoc(doc(db, "Books", bookId), { Reads: increment(1) });
+      await updateMostReadTag();
+    } catch (err) { console.error(err); }
+  }
+}
+
+// Search books
+function searchBooks() {
+  const input = document.getElementById("search-input").value.trim().toLowerCase();
+  document.querySelectorAll(".book").forEach(book => {
+    if (input === "") {
+      book.style.display = "block";
+    } else {
+      const title = book.dataset.title.toLowerCase();
+      const author = book.dataset.author.toLowerCase();
+      book.style.display = (title.includes(input) || author.includes(input)) ? "block" : "none";
+    }
+  });
+}
+
+// Go to purchase page
+function goToPurchasePage1(bookName) {
+  window.location.href = `/order1?book=${encodeURIComponent(bookName)}`;
+}
+
+// Init
+document.addEventListener("DOMContentLoaded", async () => {
+  // رابط سري لمسح القراءات
+  const params = new URLSearchParams(window.location.search);
+  if (params.get("reset") === "1") {
+    localStorage.removeItem("readBooks");
+    updateReadCounterUI();
+    alert("✅ تم مسح كل القراءات من جهازك.");
+  }
+
+  if (!localStorage.getItem("readBooks")) setReadBooks([]);
+  updateReadCounterUI();
+  await updateMostReadTag();
+
+  document.querySelectorAll(".read-btn").forEach(btn =>
+    btn.addEventListener("click", () => markAsRead(btn.dataset.bookId))
+  );
+
+  document.getElementById("search-input").addEventListener("keyup", searchBooks);
+
+  document.querySelectorAll("[data-purchase]").forEach(btn =>
+    btn.addEventListener("click", () => goToPurchasePage1(btn.dataset.purchase))
+  );
+});
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import { getFirestore, doc, updateDoc, increment, getDocs, collection } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+// Firebase Config
+const firebaseConfig = {
+  apiKey: "AIzaSyBlOVx-YSmPFeq3lp-gAGe576yG1RhMLYs",
+  authDomain: "mymlibraryreads.firebaseapp.com",
+  projectId: "mymlibraryreads",
+  storageBucket: "mymlibraryreads.firebasestorage.app",
+  messagingSenderId: "11947740896",
+  appId: "1:11947740896:web:87482eb72210acdba50a85"
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+
+// Local Storage helpers
+function getReadBooks() {
+  try { return JSON.parse(localStorage.getItem("readBooks") || "[]"); }
+  catch { return []; }
+}
+function setReadBooks(books) { localStorage.setItem("readBooks", JSON.stringify(books)); }
+
+// متغير علشان نعرف لو العدد زاد
+let lastCount = getReadBooks().length;
+
+// تحديث العداد الذهبي مع الـ confetti
+function updateReadCounterUI() {
+  const count = getReadBooks().length;
+  const goldCountEl = document.getElementById("read-count-gold");
+
+  if (goldCountEl) goldCountEl.textContent = count;
+
+  // لو العدد زاد نشغل confetti
+  if (count > lastCount) {
+    confetti({
+      particleCount: 150,
+      spread: 70,
+      origin: { y: 0.6 }
+    });
+  }
+  lastCount = count;
+}
+
+// Update Most Read badge
+async function updateMostReadTag() {
+  const snapshot = await getDocs(collection(db, "Books"));
+  let maxReads = -1;
+  let readsMap = {};
+
+  snapshot.forEach(docSnap => {
+    const id = docSnap.id;
+    const reads = Number(docSnap.data().Reads) || 0;
+    readsMap[id] = reads;
+    if (reads > maxReads) maxReads = reads;
+  });
+
+  document.querySelectorAll(".book").forEach(bookEl => {
+    const badge = bookEl.querySelector(".most-read-badge");
+    if (!badge) return;
+    const id = bookEl.dataset.bookId;
+    if (readsMap[id] === maxReads && maxReads > 0) {
+      badge.style.display = "inline-block";
+    } else {
+      badge.style.display = "none";
+    }
+  });
+}
+
+// Mark as read
+async function markAsRead(bookId) {
+  let readBooks = getReadBooks();
+  if (!readBooks.includes(bookId)) {
+    readBooks.push(bookId);
+    setReadBooks(readBooks);
+    updateReadCounterUI();
+    try {
+      await updateDoc(doc(db, "Books", bookId), { Reads: increment(1) });
+      await updateMostReadTag();
+    } catch (err) { console.error(err); }
+  }
+}
+
+// Search books
+function searchBooks() {
+  const input = document.getElementById("search-input").value.trim().toLowerCase();
+  document.querySelectorAll(".book").forEach(book => {
+    if (input === "") {
+      book.style.display = "block";
+    } else {
+      const title = book.dataset.title.toLowerCase();
+      const author = book.dataset.author.toLowerCase();
+      book.style.display = (title.includes(input) || author.includes(input)) ? "block" : "none";
+    }
+  });
+}
+
+// Go to purchase page
+function goToPurchasePage1(bookName) {
+  window.location.href = `/order1?book=${encodeURIComponent(bookName)}`;
+}
+
+// Init
+document.addEventListener("DOMContentLoaded", async () => {
+  // رابط سري لمسح القراءات
+  const params = new URLSearchParams(window.location.search);
+  if (params.get("reset") === "1") {
+    localStorage.removeItem("readBooks");
+    updateReadCounterUI();
+    alert("✅ تم مسح كل القراءات من جهازك.");
+  }
+
+  if (!localStorage.getItem("readBooks")) setReadBooks([]);
+  updateReadCounterUI();
+  await updateMostReadTag();
+
+  document.querySelectorAll(".read-btn").forEach(btn =>
+    btn.addEventListener("click", () => markAsRead(btn.dataset.bookId))
+  );
+
+  document.getElementById("search-input").addEventListener("keyup", searchBooks);
+
+  document.querySelectorAll("[data-purchase]").forEach(btn =>
+    btn.addEventListener("click", () => goToPurchasePage1(btn.dataset.purchase))
+  );
+});
+
   </script>
 </body>
 </html>
