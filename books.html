@@ -263,21 +263,29 @@ async function updateMostReadTag() {
   }
 
   // Init
-  document.addEventListener("DOMContentLoaded", async () => {
-    if (!localStorage.getItem("readBooks")) setReadBooks([]);
+ document.addEventListener("DOMContentLoaded", async () => {
+  // رابط سري لمسح القراءات
+  const params = new URLSearchParams(window.location.search);
+  if (params.get("r") === "1") {
+    localStorage.removeItem("readBooks");
     updateReadCounterUI();
-    await updateMostReadTag();
+    alert("✅ تم مسح كل القراءات من جهازك.");
+  }
 
-    document.querySelectorAll(".read-btn").forEach(btn =>
-      btn.addEventListener("click", () => markAsRead(btn.dataset.bookId))
-    );
+  if (!localStorage.getItem("readBooks")) setReadBooks([]);
+  updateReadCounterUI();
+  await updateMostReadTag();
 
-    document.getElementById("search-input").addEventListener("keyup", searchBooks);
+  document.querySelectorAll(".read-btn").forEach(btn =>
+    btn.addEventListener("click", () => markAsRead(btn.dataset.bookId))
+  );
 
-    document.querySelectorAll("[data-purchase]").forEach(btn =>
-      btn.addEventListener("click", () => goToPurchasePage1(btn.dataset.purchase))
-    );
-  });
+  document.getElementById("search-input").addEventListener("keyup", searchBooks);
+
+  document.querySelectorAll("[data-purchase]").forEach(btn =>
+    btn.addEventListener("click", () => goToPurchasePage1(btn.dataset.purchase))
+  );
+});
   </script>
 </body>
 </html>
