@@ -222,7 +222,7 @@ function getReadBooks() {
   let books;
   try {
     books = JSON.parse(localStorage.getItem("readBooks") || "[]");
-  } catch {
+  } catch (e) {
     books = [];
   }
   if (!Array.isArray(books)) books = [];
@@ -241,7 +241,8 @@ function updateReadCounterUI() {
   }
 }
 
- async function updateMostReadTag() {
+// ================= تاج أعلى قراءة =================
+async function updateMostReadTag() {
   try {
     const snapshot = await getDocs(collection(db, "Books"));
 
@@ -269,9 +270,9 @@ function updateReadCounterUI() {
     console.error("updateMostReadTag error:", err);
   }
 }
-  
+
 // ================= Mark Book as Read =================
-async function markAsRead(bookId) {
+window.markAsRead = async function (bookId) {
   let readBooks = getReadBooks();
 
   if (!readBooks.includes(bookId)) {
@@ -283,18 +284,21 @@ async function markAsRead(bookId) {
     // 2. زوّد في Firestore
     try {
       const bookRef = doc(db, "Books", bookId);
-      await updateMostReadTag();
+      await updateDoc(bookRef, {
+        Reads: increment(1)
+      });
       console.log(`Book ${bookId} read count updated.`);
+      await updateMostReadTag();
     } catch (error) {
       console.error("Error updating Firestore:", error);
     }
   } else {
     console.log(`Book ${bookId} already read before.`);
   }
-}
+};
 
 // ================= Search Books =================
-function searchBooks() {
+window.searchBooks = function () {
   let input = document.getElementById("search-input").value.toLowerCase();
   let books = document.querySelectorAll(".book");
 
@@ -308,41 +312,28 @@ function searchBooks() {
       book.style.display = "none";
     }
   });
-}
+};
 
 // ================= Event Binding =================
-document.addEventListener("DOMContentLoaded", () => {
-  // أول مرة يزور فيها الموقع → نعمل Array فاضية
+document.addEventListener("DOMContentLoaded", async () => {
+  // 🔹 تهيئة localStorage لأول مرة عشان يبدأ من 0
   if (!localStorage.getItem("readBooks")) {
     localStorage.setItem("readBooks", JSON.stringify([]));
   }
 
   updateReadCounterUI();
-
   await updateMostReadTag();
 
-
-  // ربط أزرار القراءة
   document.querySelectorAll(".read-btn").forEach(btn => {
     btn.addEventListener("click", () => {
-      const bookId = btn.dataset.bookId; // جاي من HTML
+      const bookId = btn.dataset.bookId;
       if (bookId) {
         markAsRead(bookId);
       }
     });
   });
-
-  // ربط البحث
-  const searchInput = document.getElementById("search-input");
-  if (searchInput) {
-    searchInput.addEventListener("keyup", searchBooks);
-  }
-});  
-
-  function goToPurchasePage1(bookName) {
-      const encodedBookName = encodeURIComponent(bookName);
-      window.location.href = `/order1?book=${encodedBookName}`;
-    }  
+});
+  
   </script>
 </body>
 </html>
