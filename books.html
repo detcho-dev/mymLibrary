@@ -202,7 +202,7 @@
   <!-- ✅ Scripts -->
   <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-import { getFirestore, doc, updateDoc, increment } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+import { getFirestore, doc, updateDoc, increment, getDocs, collection } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
 // ================= Firebase Config =================
 const firebaseConfig = {
@@ -241,6 +241,35 @@ function updateReadCounterUI() {
   }
 }
 
+ async function updateMostReadTag() {
+  try {
+    const snapshot = await getDocs(collection(db, "Books"));
+
+    let maxReads = -1;
+    const readsMap = {};
+    snapshot.forEach(docSnap => {
+      const id = docSnap.id;
+      const reads = Number(docSnap.data().Reads) || 0;
+      readsMap[id] = reads;
+      if (reads > maxReads) maxReads = reads;
+    });
+
+    document.querySelectorAll(".book").forEach(bookEl => {
+      const badge = bookEl.querySelector(".most-read-badge");
+      if (!badge) return;
+      const id = bookEl.dataset.bookId;
+      const r = readsMap[id] || 0;
+      if (maxReads > 0 && r === maxReads) {
+        badge.classList.remove("hidden");
+      } else {
+        badge.classList.add("hidden");
+      }
+    });
+  } catch (err) {
+    console.error("updateMostReadTag error:", err);
+  }
+}
+  
 // ================= Mark Book as Read =================
 async function markAsRead(bookId) {
   let readBooks = getReadBooks();
@@ -254,7 +283,7 @@ async function markAsRead(bookId) {
     // 2. زوّد في Firestore
     try {
       const bookRef = doc(db, "Books", bookId);
-      await updateDoc(bookRef, { Reads: increment(1) });
+      await updateMostReadTag();
       console.log(`Book ${bookId} read count updated.`);
     } catch (error) {
       console.error("Error updating Firestore:", error);
@@ -289,6 +318,9 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   updateReadCounterUI();
+
+  await updateMostReadTag();
+
 
   // ربط أزرار القراءة
   document.querySelectorAll(".read-btn").forEach(btn => {
