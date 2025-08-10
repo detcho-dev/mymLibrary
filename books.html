@@ -9,55 +9,44 @@
   <script src="https://cdn.tailwindcss.com"></script>
 
   <style>
-    .btn-primary {
-      background-color: #1d4ed8;
-      color: white;
-      padding: 0.75rem 1.5rem;
-      border-radius: 9999px;
-      font-weight: 600;
-      transition: all 0.3s ease-in-out;
-      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-      width: 100%;
-    }
-    .btn-primary:hover {
-      background-color: #2563eb;
-      transform: translateY(-3px);
-      box-shadow: 0 8px 12px rgba(0, 0, 0, 0.15);
-    }
-    .btn-primary:active {
-      transform: translateY(1px);
-      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-    }
-    .btn-secondary {
-      background-color: #4CAF50;
-      color: white;
-      padding: 0.75rem 1.5rem;
-      border-radius: 9999px;
-      font-weight: 600;
-      transition: all 0.3s ease-in-out;
-      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-    }
-    .btn-secondary:hover {
-      background-color: #45a049;
-      transform: translateY(-3px);
-      box-shadow: 0 8px 12px rgba(0, 0, 0, 0.15);
-    }
-    .btn-secondary:active {
-      transform: translateY(1px);
-      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-    }
-    .most-read-badge {
-      background: linear-gradient(135deg, white, #fcd34d, #fbbf24);
-    }
-    .i {
-      font-size: 15px;
-      font-weight: bold;
-      background: linear-gradient(315deg, #020024 0%, #090979 35%, #00d4ff 100%);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-    }
-
-    .most-read-badge {
+  .btn-primary {
+    background-color: #1d4ed8;
+    color: white;
+    padding: 0.75rem 1.5rem;
+    border-radius: 9999px;
+    font-weight: 600;
+    transition: all 0.3s ease-in-out;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    width: 100%;
+  }
+  .btn-primary:hover {
+    background-color: #2563eb;
+    transform: translateY(-3px);
+    box-shadow: 0 8px 12px rgba(0, 0, 0, 0.15);
+  }
+  .btn-primary:active {
+    transform: translateY(1px);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  }
+  .btn-secondary {
+    background-color: #4CAF50;
+    color: white;
+    padding: 0.75rem 1.5rem;
+    border-radius: 9999px;
+    font-weight: 600;
+    transition: all 0.3s ease-in-out;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  }
+  .btn-secondary:hover {
+    background-color: #45a049;
+    transform: translateY(-3px);
+    box-shadow: 0 8px 12px rgba(0, 0, 0, 0.15);
+  }
+  .btn-secondary:active {
+    transform: translateY(1px);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  }
+  .most-read-badge {
     position: absolute;
     top: 10px;
     left: 10px;
@@ -70,6 +59,14 @@
     box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
     z-index: 5;
   }
+  .i {
+    font-size: 15px;
+    font-weight: bold;
+    background: linear-gradient(315deg, #020024 0%, #090979 35%, #00d4ff 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+
 
 .hidden {
   display: none;
@@ -202,36 +199,35 @@
   }
 
   // Update Most Read badge
-  async function updateMostReadTag() {
-    try {
-      const snapshot = await getDocs(collection(db, "Books"));
-      let maxReads = 0;
-      const readsMap = {};
+ // Update Most Read badge
+async function updateMostReadTag() {
+  try {
+    const snapshot = await getDocs(collection(db, "Books"));
+    let maxReads = 0;
+    const readsMap = {};
 
-      snapshot.forEach(docSnap => {
-        const id = docSnap.id;
-        const reads = Number(docSnap.data().Reads) || 0;
-        readsMap[id] = reads;
-        if (reads > maxReads) maxReads = reads;
-      });
+    snapshot.forEach(docSnap => {
+      const id = docSnap.id;
+      const reads = Number(docSnap.data().Reads) || 0;
+      readsMap[id] = reads;
+      if (reads > maxReads) maxReads = reads;
+    });
 
-      // تحديث الواجهة
-      document.querySelectorAll(".book").forEach(bookEl => {
-        const badge = bookEl.querySelector(".most-read-badge");
-        if (!badge) return;
-        const id = bookEl.dataset.bookId;
+    document.querySelectorAll(".book").forEach(bookEl => {
+      const badge = bookEl.querySelector(".most-read-badge");
+      if (!badge) return;
+      const id = bookEl.dataset.bookId;
 
-        // إظهار التاج إذا كانت قراءات الكتاب هي الأعلى
-        if (readsMap[id] === maxReads && maxReads > 0) {
-          badge.classList.remove("hidden");
-        } else {
-          badge.classList.add("hidden");
-        }
-      });
-    } catch (err) {
-      console.error("Error updating most read tag:", err);
-    }
+      if (readsMap[id] === maxReads && maxReads > 0) {
+        badge.classList.remove("hidden");
+      } else {
+        badge.classList.add("hidden");
+      }
+    });
+  } catch (err) {
+    console.error("Error updating most read tag:", err);
   }
+}
 
   // Mark as read
   async function markAsRead(bookId) {
