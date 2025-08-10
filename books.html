@@ -173,100 +173,91 @@
   <!-- JS -->
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-  import { getFirestore, doc, updateDoc, increment, getDocs, collection } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+import { getFirestore, doc, updateDoc, increment, getDocs, collection } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
-  // Firebase Config
-  const firebaseConfig = {
-    apiKey: "AIzaSyBlOVx-YSmPFeq3lp-gAGe576yG1RhMLYs",
-    authDomain: "mymlibraryreads.firebaseapp.com",
-    projectId: "mymlibraryreads",
-    storageBucket: "mymlibraryreads.firebasestorage.app",
-    messagingSenderId: "11947740896",
-    appId: "1:11947740896:web:87482eb72210acdba50a85"
-  };
+// Firebase Config
+const firebaseConfig = {
+  apiKey: "AIzaSyBlOVx-YSmPFeq3lp-gAGe576yG1RhMLYs",
+  authDomain: "mymlibraryreads.firebaseapp.com",
+  projectId: "mymlibraryreads",
+  storageBucket: "mymlibraryreads.firebasestorage.app",
+  messagingSenderId: "11947740896",
+  appId: "1:11947740896:web:87482eb72210acdba50a85"
+};
 
-  const app = initializeApp(firebaseConfig);
-  const db = getFirestore(app);
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
 
-  // Local Storage helpers
-  function getReadBooks() {
-    try { return JSON.parse(localStorage.getItem("readBooks") || "[]"); }
-    catch { return []; }
-  }
-  function setReadBooks(books) { localStorage.setItem("readBooks", JSON.stringify(books)); }
-  function updateReadCounterUI() {
-    document.getElementById("read-count").textContent = getReadBooks().length;
-  }
+// Local Storage helpers
+function getReadBooks() {
+  try { return JSON.parse(localStorage.getItem("readBooks") || "[]"); }
+  catch { return []; }
+}
+function setReadBooks(books) { localStorage.setItem("readBooks", JSON.stringify(books)); }
+function updateReadCounterUI() {
+  document.getElementById("read-count").textContent = getReadBooks().length;
+}
 
-  // Update Most Read badge
- // Update Most Read badge
+// Update Most Read badge
 async function updateMostReadTag() {
-  try {
-    const snapshot = await getDocs(collection(db, "Books"));
-    let maxReads = 0;
-    const readsMap = {};
+  const snapshot = await getDocs(collection(db, "Books"));
+  let maxReads = -1;
+  let readsMap = {};
 
-    snapshot.forEach(docSnap => {
-      const id = docSnap.id;
-      const reads = Number(docSnap.data().Reads) || 0;
-      readsMap[id] = reads;
-      if (reads > maxReads) maxReads = reads;
-    });
+  snapshot.forEach(docSnap => {
+    const id = docSnap.id;
+    const reads = Number(docSnap.data().Reads) || 0;
+    readsMap[id] = reads;
+    if (reads > maxReads) maxReads = reads;
+  });
 
-    document.querySelectorAll(".book").forEach(bookEl => {
-      const badge = bookEl.querySelector(".most-read-badge");
-      if (!badge) return;
-      const id = bookEl.dataset.bookId;
+  document.querySelectorAll(".book").forEach(bookEl => {
+    const badge = bookEl.querySelector(".most-read-badge");
+    if (!badge) return;
+    const id = bookEl.dataset.bookId;
+    if (readsMap[id] === maxReads && maxReads > 0) {
+      badge.style.display = "inline-block"; // إظهار التاج
+    } else {
+      badge.style.display = "none"; // إخفاء لو مش الأعلى
+    }
+  });
+}
 
-      if (readsMap[id] === maxReads && maxReads > 0) {
-        badge.classList.remove("hidden");
-      } else {
-        badge.classList.add("hidden");
-      }
-    });
-  } catch (err) {
-    console.error("Error updating most read tag:", err);
+// Mark as read
+async function markAsRead(bookId) {
+  let readBooks = getReadBooks();
+  if (!readBooks.includes(bookId)) {
+    readBooks.push(bookId);
+    setReadBooks(readBooks);
+    updateReadCounterUI();
+    try {
+      await updateDoc(doc(db, "Books", bookId), { Reads: increment(1) });
+      await updateMostReadTag();
+    } catch (err) { console.error(err); }
   }
 }
 
-  // Mark as read
-  async function markAsRead(bookId) {
-    let readBooks = getReadBooks();
-    if (!readBooks.includes(bookId)) {
-      readBooks.push(bookId);
-      setReadBooks(readBooks);
-      updateReadCounterUI();
-      try {
-        await updateDoc(doc(db, "Books", bookId), { Reads: increment(1) });
-        await updateMostReadTag();
-      } catch (err) { console.error(err); }
+function searchBooks() {
+  const input = document.getElementById("search-input").value.trim().toLowerCase();
+  document.querySelectorAll(".book").forEach(book => {
+    if (input === "") {
+      book.style.display = "block";
+    } else {
+      const title = book.dataset.title.toLowerCase();
+      const author = book.dataset.author.toLowerCase();
+      book.style.display = (title.includes(input) || author.includes(input)) ? "block" : "none";
     }
-  }
+  });
+}
 
-  // Search books
-  function searchBooks() {
-    const input = document.getElementById("search-input").value.trim().toLowerCase();
-    document.querySelectorAll(".book").forEach(book => {
-      if (input === "") {
-        book.style.display = "block"; // عرض كل الكتب لو السيرش فاضي
-      } else {
-        const title = book.dataset.title.toLowerCase();
-        const author = book.dataset.author.toLowerCase();
-        book.style.display = (title.includes(input) || author.includes(input)) ? "block" : "none";
-      }
-    });
-  }
+function goToPurchasePage1(bookName) {
+  window.location.href = `/order1?book=${encodeURIComponent(bookName)}`;
+}
 
-  // Purchase page redirect
-  function goToPurchasePage1(bookName) {
-    window.location.href = `/order1?book=${encodeURIComponent(bookName)}`;
-  }
-
-  // Init
- document.addEventListener("DOMContentLoaded", async () => {
+document.addEventListener("DOMContentLoaded", async () => {
   // رابط سري لمسح القراءات
   const params = new URLSearchParams(window.location.search);
-  if (params.get("r") === "1") {
+  if (params.get("reset") === "1") {
     localStorage.removeItem("readBooks");
     updateReadCounterUI();
     alert("✅ تم مسح كل القراءات من جهازك.");
