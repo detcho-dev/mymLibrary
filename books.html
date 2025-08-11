@@ -3,51 +3,88 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Browse and explore our collection of the best and most popular books available in MYM Library." />
+  <link rel="icon" href="icon.ico" type="image/x-icon" />
   <title>MYM Library - Explore Books</title>
   <script src="https://cdn.tailwindcss.com"></script>
+
   <style>
-    .btn-primary {
-      background-color: #1d4ed8;
-      color: white;
-      padding: 0.75rem 1.5rem;
-      border-radius: 9999px;
-      font-weight: 600;
-      transition: all 0.3s ease-in-out;
-      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-      width: 100%;
-    }
-    .btn-primary:hover {
-      background-color: #2563eb;
-      transform: translateY(-3px);
-      box-shadow: 0 8px 12px rgba(0, 0, 0, 0.15);
-    }
-    .btn-primary:active {
-      transform: translateY(1px);
-      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-    }
-    .most-read-badge {
-      position: absolute;
-      top: 10px;
-      left: 10px;
-      background: linear-gradient(135deg, #FFD700, #FFA500);
-      color: #000;
-      font-weight: bold;
-      font-size: 0.8rem;
-      padding: 4px 8px;
-      border-radius: 6px;
-      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
-      z-index: 5;
-    }
-    .gold-card {
-      background: linear-gradient(135deg, #FFD700, #FFA500);
-      color: #000;
-      padding: 0.8rem 1.5rem;
-      border-radius: 12px;
-      font-weight: bold;
-      font-size: 1.1rem;
-      box-shadow: 0 4px 10px rgba(0,0,0,0.2);
-      display: inline-block;
-    }
+  .btn-primary {
+    background-color: #1d4ed8;
+    color: white;
+    padding: 0.75rem 1.5rem;
+    border-radius: 9999px;
+    font-weight: 600;
+    transition: all 0.3s ease-in-out;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    width: 100%;
+  }
+  .btn-primary:hover {
+    background-color: #2563eb;
+    transform: translateY(-3px);
+    box-shadow: 0 8px 12px rgba(0, 0, 0, 0.15);
+  }
+  .btn-primary:active {
+    transform: translateY(1px);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  }
+  .btn-secondary {
+    background-color: #4CAF50;
+    color: white;
+    padding: 0.75rem 1.5rem;
+    border-radius: 9999px;
+    font-weight: 600;
+    transition: all 0.3s ease-in-out;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  }
+  .btn-secondary:hover {
+    background-color: #45a049;
+    transform: translateY(-3px);
+    box-shadow: 0 8px 12px rgba(0, 0, 0, 0.15);
+  }
+  .btn-secondary:active {
+    transform: translateY(1px);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  }
+  .most-read-badge {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    background: linear-gradient(135deg, #FFD700, #FFA500);
+    color: #000;
+    font-weight: bold;
+    font-size: 0.8rem;
+    padding: 4px 8px;
+    border-radius: 6px;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+    z-index: 5;
+  }
+  .i {
+    font-size: 15px;
+    font-weight: bold;
+    background: linear-gradient(315deg, #020024 0%, #090979 35%, #00d4ff 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+
+
+.hidden {
+  display: none;
+}  
+
+ .gold-card {
+    background: linear-gradient(135deg, #FFD700, #FFA500);
+    color: #000;
+    padding: 0.8rem 1.5rem;
+    border-radius: 12px;
+    font-weight: bold;
+    font-size: 1.1rem;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+    display: inline-block;
+    min-width: 160px;
+    max-width: 90%;
+    word-wrap: break-word;
+  }   
   </style>
 </head>
 <body class="bg-gray-100 p-6">
@@ -56,11 +93,12 @@
   <header class="fixed top-0 left-0 w-full bg-white shadow-md z-50">
     <nav class="container mx-auto px-4 py-4 flex items-center justify-between">
       <div class="flex items-center gap-4">
-        <img src="logo.png" alt="MYM Library Logo" class="w-12 h-12" />
+        <img src="logo.png" alt="MYM Library Logo" class="w-12 h-12 object-cover" />
         <h1 class="text-2xl font-heading">MYM Library</h1>
       </div>
+      
       <ul class="flex gap-6">
-        <li><a href="https://mymlibrary.vercel.app" class="hover:text-blue-500">Home</a></li>
+        <li><a href="https://mymlibrary.vercel.app" class="hover:text-blue-500 transition-colors">Home</a></li>
       </ul>
     </nav>
   </header>
@@ -69,7 +107,7 @@
   <div class="container mx-auto mt-24">
     <div class="flex justify-center my-4">
       <div id="gold-card" class="gold-card text-center">
-        You've Read : <span id="read-count-gold">0</span> Book(s)
+        You've Read :  <span id="read-count-gold">0</span> Book(s)
       </div>
     </div>
     <h1 class="text-3xl font-bold mb-6 flex justify-center">All Books</h1>
@@ -77,65 +115,86 @@
     <!-- Search -->
     <div class="flex justify-center w-full my-6">
       <input id="search-input" type="search" placeholder="Search for books..."
-        class="w-1/2 md:w-1/3 px-4 py-2 rounded-[34px] border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500">
+        class="w-1/2 md:w-1/3 lg:w-1/4 px-4 py-2 rounded-[34px] border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-300 ease-in-out focus:w-2/3 md:focus:w-1/2 lg:focus:w-1/3">
     </div>
 
     <!-- Books List -->
     <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
 
-      <!-- Example Book -->
+      <!-- Section Title -->
+      <div class="col-span-full">
+        <h2 class="text-xl font-bold mb-2">Books written by <span class="text-blue-600">members</span> of the library</h2>
+        <hr class="mb-4">
+      </div>
+
+      <!-- Book 1 -->
       <div class="relative bg-white p-4 rounded-sm shadow-sm book"
            data-book-id="001"
            data-title="Du - دو"
-           data-author="Youssef Ahmed"
-           data-file="book1.pdf">
-        <span class="most-read-badge hidden">Most Read</span>
+           data-author="Youssef Ahmed">
+        <span class="most-read-badge absolute top-4 left-4 text-black text-sm font-semibold px-2 py-1 rounded shadow hidden">
+          Most Read
+        </span>
         <img src="https://res.cloudinary.com/dqyxzsnyq/image/upload/v1735652511/2text_f9ohsk.jpg"
           alt="Book 1" class="w-full h-64 object-cover rounded-sm mb-4" />
         <h3 class="font-heading text-xl mb-2">Du - دو</h3>
-        <p>By Youssef Ahmed</p>
-        <p>Adventure, Fantasy</p>
-        <button class="btn-primary download-btn" data-purchase="Du - دو [FREE EDITION]">Download Now</button>
+        <p class="text-accent mb-2">By Youssef Ahmed</p>
+        <p class="text-accent mb-2">Adventure, Fantasy</p>
+        <button class="btn-primary w-full mb-2" data-purchase="Du - دو [FREE EDITION]">Download Now</button>
+        <button class="btn-secondary w-full read-btn" data-book-id="001">✅ I’ve Read This Book</button>
       </div>
 
       <!-- Book 2 -->
       <div class="relative bg-white p-4 rounded-sm shadow-sm book"
            data-book-id="002"
            data-title="The Eight Worlds - العوالم الثمانية"
-           data-author="Mohammed Osama"
-           data-file="book2.pdf">
-        <span class="most-read-badge hidden">Most Read</span>
+           data-author="Mohammed Osama">
+        <span class="most-read-badge absolute top-4 left-4 text-black text-sm font-semibold px-2 py-1 rounded shadow hidden">
+          Most Read
+        </span>
         <img src="https://res.cloudinary.com/dqyxzsnyq/image/upload/v1738757292/8_title_e7esmh.jpg"
           alt="Book 2" class="w-full h-64 object-cover rounded-sm mb-4" />
         <h3 class="font-heading text-xl mb-2">العوالم الثمانية - The Eight Worlds</h3>
-        <p>By Mohammed Osama</p>
-        <p>Mystery, Fantasy</p>
-        <button class="btn-primary download-btn" data-purchase="العوالم الثمانية - The Eight Worlds (FREE EDITION)">Download Now</button>
+        <p class="text-accent mb-2">By Mohammed Osama</p>
+        <p class="text-accent mb-2">Mystery, Fantasy</p>
+        <button class="btn-primary w-full mb-2" data-purchase="العوالم الثمانية - The Eight Worlds (FREE EDITION)">Download Now</button>
+        <button class="btn-secondary w-full read-btn" data-book-id="002">✅ I’ve Read This Book</button>
+      </div>
+
+      <!-- Section Title -->
+      <div class="col-span-full mt-6">
+        <h2 class="text-xl font-bold mb-2">Books written by <span class="text-purple-600">library Readers</span></h2>
+        <hr class="mb-4">
       </div>
 
       <!-- Book 3 -->
       <div class="relative bg-white p-4 rounded-sm shadow-sm book"
            data-book-id="003"
-           data-title="Adam and the Secret..."
-           data-author="Roshdy Reda"
-           data-file="book3.pdf">
-        <span class="most-read-badge hidden">Most Read</span>
+           data-title="Adam and the Secret of the Disappearance of the Al-Zaher Family - أدم وسر اختفاء عائلة الزاهر"
+           data-author="Roshdy Reda">
+        <span class="most-read-badge absolute top-4 left-4 text-black text-sm font-semibold px-2 py-1 rounded shadow hidden">
+          Most Read
+        </span>
         <img src="https://res.cloudinary.com/dqyxzsnyq/image/upload/v1744916535/cover1_ad2ttj.png"
           alt="Book 3" class="w-full h-64 object-cover rounded-sm mb-4" />
-        <h3 class="font-heading text-xl mb-2">Adam and the Secret...</h3>
-        <p>By Roshdy Reda</p>
-        <p>Mystery, Police</p>
-        <button class="btn-primary download-btn" data-purchase="Adam and the Secret of the Disappearance of the Al-Zaher Family">Download Now</button>
+        <h3 class="font-heading text-xl mb-2">Adam and the Secret of the Disappearance of the Al-Zaher Family - أدم وسر اختفاء عائلة الزاهر</h3>
+        <p class="text-accent mb-2">By Roshdy Reda <span class="i">New Guest!!</span></p>
+        <p class="text-accent mb-2">Mystery, Police</p>
+        <button class="btn-primary w-full mb-2" data-purchase="Adam and the Secret of the Disappearance of the Al-Zaher Family - أدم وسر اختفاء عائلة الزاهر">Download Now</button>
+        <button class="btn-secondary w-full read-btn" data-book-id="003">✅ I’ve Read This Book</button>
       </div>
 
     </div>
   </div>
 
+ <!-- مكتبة الكونفيتي -->
 <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.2/dist/confetti.browser.min.js"></script>
+
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 import { getFirestore, doc, updateDoc, increment, getDocs, collection } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
+// إعدادات Firebase
 const firebaseConfig = {
   apiKey: "AIzaSyBlOVx-YSmPFeq3lp-gAGe576yG1RhMLYs",
   authDomain: "mymlibraryreads.firebaseapp.com",
@@ -148,34 +207,65 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
+// ---- Local Storage ----
 function getReadBooks() {
-  return JSON.parse(localStorage.getItem("readBooks") || "[]");
+  try {
+    return JSON.parse(localStorage.getItem("readBooks") || "[]");
+  } catch {
+    return [];
+  }
 }
+
 function setReadBooks(books) {
   localStorage.setItem("readBooks", JSON.stringify(books));
 }
+
+// ---- تحديث عداد الكارت الذهبي ----
 function updateReadCounterUI() {
+  const newCount = getReadBooks().length;
   const countEl = document.getElementById("read-count-gold");
-  countEl.textContent = getReadBooks().length;
+
+  if (!countEl) return;
+
+  const oldCount = Number(countEl.textContent) || 0;
+  countEl.textContent = newCount;
+
+  // لو العدد زاد يعمل كونفيتي
+  if (newCount > oldCount) {
+    confetti({
+      particleCount: 80,
+      spread: 70,
+      origin: { y: 0.6 }
+    });
+  }
 }
 
+// ---- تحديث تاج Most Read ----
 async function updateMostReadTag() {
   const snapshot = await getDocs(collection(db, "Books"));
   let maxReads = -1;
   let readsMap = {};
+
   snapshot.forEach(docSnap => {
     const id = docSnap.id;
     const reads = Number(docSnap.data().Reads) || 0;
     readsMap[id] = reads;
     if (reads > maxReads) maxReads = reads;
   });
+
   document.querySelectorAll(".book").forEach(bookEl => {
     const badge = bookEl.querySelector(".most-read-badge");
+    if (!badge) return;
     const id = bookEl.dataset.bookId;
-    badge.style.display = (readsMap[id] === maxReads && maxReads > 0) ? "inline-block" : "none";
+    if (readsMap[id] === maxReads && maxReads > 0) {
+      badge.style.display = "inline-block";
+    } else {
+      badge.style.display = "none";
+    }
   });
 }
 
+// ---- تحديد كتاب كمقروء ----
 async function markAsRead(bookId) {
   let readBooks = getReadBooks();
   if (!readBooks.includes(bookId)) {
@@ -191,43 +281,55 @@ async function markAsRead(bookId) {
   }
 }
 
-function downloadBook(fileUrl) {
-  const link = document.createElement("a");
-  link.href = fileUrl;
-  link.download = "";
-  link.click();
+// ---- البحث ----
+function searchBooks() {
+  const input = document.getElementById("search-input").value.trim().toLowerCase();
+  document.querySelectorAll(".book").forEach(book => {
+    if (input === "") {
+      book.style.display = "block";
+    } else {
+      const title = book.dataset.title.toLowerCase();
+      const author = book.dataset.author.toLowerCase();
+      book.style.display = (title.includes(input) || author.includes(input)) ? "block" : "none";
+    }
+  });
 }
 
+// ---- الذهاب لصفحة الشراء ----
+function goToPurchasePage1(bookName) {
+  window.location.href = `/order1?book=${encodeURIComponent(bookName)}`;
+}
+
+// ---- عند تحميل الصفحة ----
 document.addEventListener("DOMContentLoaded", async () => {
+  // لو فيه reset في الرابط
+  const params = new URLSearchParams(window.location.search);
+  if (params.get("reset") === "1") {
+    localStorage.removeItem("readBooks");
+    updateReadCounterUI();
+    alert("✅ تم مسح كل القراءات من جهازك.");
+  }
+
   if (!localStorage.getItem("readBooks")) setReadBooks([]);
   updateReadCounterUI();
   await updateMostReadTag();
 
-  document.querySelectorAll(".download-btn").forEach(btn => {
-    btn.addEventListener("click", e => {
-      const bookEl = e.target.closest(".book");
-      const bookId = bookEl.dataset.bookId;
-      const fileUrl = bookEl.dataset.file;
+  // أزرار "قرأت هذا الكتاب"
+  document.querySelectorAll(".read-btn").forEach(btn =>
+    btn.addEventListener("click", () => markAsRead(btn.dataset.bookId))
+  );
 
-      const userData = localStorage.getItem("userData");
-      if (!userData) {
-        window.location.href = `/order1.html?bookId=${bookId}`;
-        return;
-      }
-      markAsRead(bookId);
-      downloadBook(fileUrl);
-    });
-  });
+  // البحث
+  document.getElementById("search-input").addEventListener("keyup", searchBooks);
 
-  document.getElementById("search-input").addEventListener("keyup", () => {
-    const input = document.getElementById("search-input").value.trim().toLowerCase();
-    document.querySelectorAll(".book").forEach(book => {
-      const title = book.dataset.title.toLowerCase();
-      const author = book.dataset.author.toLowerCase();
-      book.style.display = (title.includes(input) || author.includes(input)) ? "block" : "none";
-    });
-  });
+  // أزرار التحميل/الشراء
+  document.querySelectorAll("[data-purchase]").forEach(btn =>
+    btn.addEventListener("click", () => goToPurchasePage1(btn.dataset.purchase))
+  );
 });
 </script>
+
+ 
 </body>
 </html>
+شايف الكود ده؟
