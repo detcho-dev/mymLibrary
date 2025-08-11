@@ -8,134 +8,141 @@
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://cdn.jsdelivr.net/npm/emailjs-com@3/dist/email.min.js"></script>
   <style>
-  @keyframes drop-swing {
-    0% {
-      transform: translateY(-100px) rotate(0deg);
-      opacity: 0;
+    @keyframes drop-swing {
+      0% { transform: translateY(-100px) rotate(0deg); opacity: 0; }
+      20% { opacity: 1; }
+      30% { transform: translateY(30px) rotate(8deg); }
+      50% { transform: translateY(60px) rotate(-8deg); }
+      70% { transform: translateY(90px) rotate(5deg); }
+      100% { transform: translateY(120px) rotate(0deg); }
     }
-    20% {
-      opacity: 1;
-    }
-    30% {
-      transform: translateY(30px) rotate(8deg);
-    }
-    50% {
-      transform: translateY(60px) rotate(-8deg);
-    }
-    70% {
-      transform: translateY(90px) rotate(5deg);
-    }
-    100% {
-      transform: translateY(120px) rotate(0deg);
-    }
-  }
-
-  .animate-drop-swing {
-    animation: drop-swing 2.5s ease forwards;
-  }
-</style>
+    .animate-drop-swing { animation: drop-swing 2.5s ease forwards; }
+  </style>
 </head>
 <body class="bg-gray-100 flex items-center justify-center min-h-screen">
 
   <div class="max-w-lg w-full bg-white p-6 rounded-lg shadow-lg">
     <h2 class="text-2xl font-bold mb-4 text-center text-gray-800">Download Book</h2>
 
-    <!-- فورم التحميل -->
+    <!-- Download form -->
     <form id="download-form" class="space-y-4">
-      <!-- اسم الكتاب -->
       <label class="block text-sm font-semibold text-gray-700">Book Name</label>
-      <input type="text" id="book-name" name="book_name" class="w-full px-4 py-2 border rounded bg-gray-100" readonly />
+      <input type="text" id="book-name" class="w-full px-4 py-2 border rounded bg-gray-100" readonly />
 
-      <!-- السعر -->
       <label class="block text-sm font-semibold text-gray-700">Price</label>
-      <input type="text" id="book-price" name="book_price" value="0" class="w-full px-4 py-2 border rounded bg-gray-100" readonly />
+      <input type="text" id="book-price" value="0" class="w-full px-4 py-2 border rounded bg-gray-100" readonly />
 
-      <!-- بيانات العميل -->
       <label class="block text-sm font-semibold text-gray-700">Your Name</label>
-      <input type="text" id="user-name" name="user_name" class="w-full px-4 py-2 border rounded" required />
+      <input type="text" id="user-name" class="w-full px-4 py-2 border rounded" required />
 
       <label class="block text-sm font-semibold text-gray-700">Email</label>
-      <input type="email" id="user-email" name="user_email" class="w-full px-4 py-2 border rounded" required />
+      <input type="email" id="user-email" class="w-full px-4 py-2 border rounded" required />
 
-      <!-- زر التحميل -->
       <button type="submit" class="w-full bg-green-600 text-white py-2 px-4 rounded font-bold hover:bg-green-700">
         Download Book
       </button>
     </form>
 
-    <!-- أنيميشن التحميل -->
+    <!-- Animation -->
     <div id="download-animation" class="relative h-52 mt-6 hidden flex flex-col items-center justify-start">
-      <div id="parachute-container" class="absolute top-0 animate-drop-swing">
-        <svg class="w-20 h-20" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <!-- الباراشوت -->
+      <div class="absolute top-0 animate-drop-swing">
+        <svg class="w-20 h-20" viewBox="0 0 100 100" fill="none">
           <path d="M50 5C30 5 15 20 15 35H85C85 20 70 5 50 5Z" fill="#4ade80"/>
           <line x1="35" y1="35" x2="45" y2="65" stroke="#555" stroke-width="2"/>
           <line x1="65" y1="35" x2="55" y2="65" stroke="#555" stroke-width="2"/>
-          <!-- الصندوق -->
           <rect x="45" y="65" width="10" height="10" fill="#a16207" stroke="#000" stroke-width="1"/>
         </svg>
       </div>
-      <br><br>
       <p id="downloaded-text" class="text-green-700 font-semibold mt-40 hidden text-lg">Book Downloaded! 📚</p>
     </div>
-
-</div>
-
   </div>
 
-  <script>
-    (function () {
-    emailjs.init("h43f0gQjAVupGqnPd"); // ← استبدلها بـ ID بتاعك
-  })();
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+    import { getFirestore, doc, updateDoc, increment } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
-  // Get book name from URL
-  const params = new URLSearchParams(window.location.search);
-  const bookName = params.get("book") || "No Book Specified"; // القيمة الافتراضية لو مافيش كتاب في الرابط
-  const formattedName = decodeURIComponent(bookName);
-  document.getElementById("book-name").value = formattedName;
-
-  // Send email & trigger download
-  document.getElementById("download-form").addEventListener("submit", function (e) {
-    e.preventDefault();
-
-    const templateParams = {
-      book_name: formattedName,
-      book_price: "0",
-      customer_name: document.getElementById("user-name").value,
-      customer_email: document.getElementById("user-email").value,
+    // Firebase config
+    const firebaseConfig = {
+      apiKey: "AIzaSyBlOVx-YSmPFeq3lp-gAGe576yG1RhMLYs",
+      authDomain: "mymlibraryreads.firebaseapp.com",
+      projectId: "mymlibraryreads",
+      storageBucket: "mymlibraryreads.firebasestorage.app",
+      messagingSenderId: "11947740896",
+      appId: "1:11947740896:web:87482eb72210acdba50a85"
     };
 
-    emailjs.send("service_2j2mr61", "template_lqjv3pg", templateParams).then(
-      function () {
-        const animationContainer = document.getElementById("download-animation");
-        const downloadedText = document.getElementById("downloaded-text");
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
 
-        animationContainer.classList.remove("hidden");
-        downloadedText.classList.add("hidden");
+    // EmailJS init
+    (function () { emailjs.init("h43f0gQjAVupGqnPd"); })();
 
-        setTimeout(() => {
-          downloadedText.classList.remove("hidden");
-        }, 2600);
+    // Get params from URL
+    const params = new URLSearchParams(window.location.search);
+    const bookId = params.get("bookId");
+    const bookName = decodeURIComponent(params.get("bookName") || "");
+    const fileUrl = decodeURIComponent(params.get("file") || "");
 
+    document.getElementById("book-name").value = bookName || "No Book Specified";
 
-        document.getElementById("download-form").reset();
+    // Local storage helpers
+    function getReadBooks() {
+      return JSON.parse(localStorage.getItem("readBooks") || "[]");
+    }
+    function setReadBooks(books) {
+      localStorage.setItem("readBooks", JSON.stringify(books));
+    }
 
-        // تحميل الكتاب مباشرة بعد النجاح
-        const fileUrl = `/books/${bookName}.pdf`;
-        const a = document.createElement("a");
-        a.href = fileUrl;
-        a.download = `books/${bookName}.pdf`;
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
-      },
-      function (error) {
-        alert("Failed to send request. Please try again.");
-        console.error(error);
+    // Form submit
+    document.getElementById("download-form").addEventListener("submit", async function (e) {
+      e.preventDefault();
+
+      const name = document.getElementById("user-name").value;
+      const email = document.getElementById("user-email").value;
+
+      // Save user data
+      localStorage.setItem("userData", JSON.stringify({ name, email }));
+
+      // Send email
+      await emailjs.send("service_2j2mr61", "template_lqjv3pg", {
+        book_name: bookName,
+        book_price: "0",
+        customer_name: name,
+        customer_email: email
+      });
+
+      // Update Firebase reads
+      try {
+        await updateDoc(doc(db, "Books", bookId), { Reads: increment(1) });
+      } catch (err) {
+        console.error(err);
       }
-    );
-  });
-  </script>
 
+      // Save locally
+      let readBooks = getReadBooks();
+      if (!readBooks.includes(bookId)) {
+        readBooks.push(bookId);
+        setReadBooks(readBooks);
+      }
+
+      // Show animation and download
+      document.getElementById("download-animation").classList.remove("hidden");
+      setTimeout(() => {
+        document.getElementById("downloaded-text").classList.remove("hidden");
+
+        if (fileUrl) {
+          const a = document.createElement("a");
+          a.href = fileUrl;
+          a.download = "";
+          document.body.appendChild(a);
+          a.click();
+          document.body.removeChild(a);
+        }
+
+        // Return to main page after 2s
+        setTimeout(() => { window.location.href = "https://mymlibrary.vercel.app/books"; }, 2000);
+      }, 2600);
+    });
+  </script>
 </body>
 </html>
