@@ -3,12 +3,13 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Leaderboard</title>
+  <link rel="icon" href="icon.ico" type="image/x-icon" />
+  <title>Leadboard</title>
   <script src="https://cdn.tailwindcss.com"></script>
 </head>
 <body class="bg-gray-100 min-h-screen flex flex-col items-center p-4">
 
-  <h1 class="text-2xl font-bold mb-4">📚 Leaderboard</h1>
+  <h1 class="text-2xl font-bold mb-4">📚 Leadboard</h1>
 
   <!-- Name Input Form -->
   <div id="nameForm" class="bg-white shadow-md rounded-lg p-4 w-full max-w-md mb-6">
@@ -25,81 +26,103 @@
   </div>
 
   <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.4/firebase-app.js";
-    import { 
-      getFirestore, collection, doc, setDoc, query, orderBy, limit, onSnapshot 
-    } from "https://www.gstatic.com/firebasejs/10.12.4/firebase-firestore.js";
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.4/firebase-app.js";
+import { 
+  getFirestore, collection, doc, setDoc, query, orderBy, limit, onSnapshot 
+} from "https://www.gstatic.com/firebasejs/10.12.4/firebase-firestore.js";
 
-    const firebaseConfig = {
-      apiKey: "AIzaSyBlOVx-YSmPFeq3lp-gAGe576yG1RhMLYs",
-      authDomain: "mymlibraryreads.firebaseapp.com",
-      projectId: "mymlibraryreads",
-      storageBucket: "mymlibraryreads.firebasestorage.app",
-      messagingSenderId: "11947740896",
-      appId: "1:11947740896:web:87482eb72210acdba50a85"
-    };
-    const app = initializeApp(firebaseConfig);
-    const db = getFirestore(app);
+const firebaseConfig = {
+  apiKey: "AIzaSyBlOVx-YSmPFeq3lp-gAGe576yG1RhMLYs",
+  authDomain: "mymlibraryreads.firebaseapp.com",
+  projectId: "mymlibraryreads",
+  storageBucket: "mymlibraryreads.firebasestorage.app",
+  messagingSenderId: "11947740896",
+  appId: "1:11947740896:web:87482eb72210acdba50a85"
+};
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
 
-    const nameForm = document.getElementById("nameForm");
-    const nameInput = document.getElementById("nameInput");
-    const saveNameBtn = document.getElementById("saveNameBtn");
-    const leaderboardList = document.getElementById("leaderboardList");
+const nameForm = document.getElementById("nameForm");
+const nameInput = document.getElementById("nameInput");
+const saveNameBtn = document.getElementById("saveNameBtn");
+const leaderboardList = document.getElementById("leaderboardList");
 
-    let playerName = localStorage.getItem("playerName") || "";
+let playerName = localStorage.getItem("playerName") || "";
 
-    // إذا كان الاسم موجود من قبل، نخفي الفورم
-    if (playerName) {
-      nameForm.style.display = "none";
-      updateScoreFromLocalStorage();
+// إذا كان الاسم موجود من قبل، نخفي الفورم
+if (playerName) {
+  nameForm.style.display = "none";
+  updateScoreFromLocalStorage();
+}
+
+saveNameBtn.addEventListener("click", () => {
+  const name = nameInput.value.trim();
+  if (!name) {
+    alert("Please enter your name");
+    return;
+  }
+  playerName = name;
+  localStorage.setItem("playerName", name);
+  nameForm.style.display = "none"; // إخفاء الفورم
+  updateScoreFromLocalStorage();
+});
+
+function updateScoreFromLocalStorage() {
+  if (!playerName) return;
+  let readBooks = 0;
+
+  // إذا كانت readBooks مخزنة كمصفوفة
+  try {
+    const booksArray = JSON.parse(localStorage.getItem("readBooks") || "[]");
+    if (Array.isArray(booksArray)) {
+      readBooks = booksArray.length;
+    } else {
+      readBooks = parseInt(localStorage.getItem("readBooks") || "0", 10);
     }
+  } catch {
+    readBooks = parseInt(localStorage.getItem("readBooks") || "0", 10);
+  }
 
-    saveNameBtn.addEventListener("click", () => {
-      const name = nameInput.value.trim();
-      if (!name) {
-        alert("Please enter your name");
-        return;
-      }
-      playerName = name;
-      localStorage.setItem("playerName", name);
-      nameForm.style.display = "none"; // إخفاء الفورم
-      updateScoreFromLocalStorage();
-    });
+  const playerRef = doc(db, "leaderboard", playerName);
+  setDoc(playerRef, { name: playerName, score: readBooks });
+}
 
-    function updateScoreFromLocalStorage() {
-      if (!playerName) return;
-      let booksArray = [];
-      try {
-        booksArray = JSON.parse(localStorage.getItem("readBooks") || "[]");
-      } catch {
-        booksArray = [];
-      }
-      const readBooks = booksArray.length;
+// تحديث عند تغيير readBooks من أي صفحة
+window.addEventListener("storage", (event) => {
+  if (event.key === "readBooks") {
+    updateScoreFromLocalStorage();
+  }
+});
 
-      const playerRef = doc(db, "leaderboard", playerName);
-      setDoc(playerRef, { name: playerName, score: readBooks });
-    }
+// عرض الترتيب لحظيًا مع ألوان المراكز
+const q = query(collection(db, "leaderboard"), orderBy("score", "desc"), limit(10));
+onSnapshot(q, (snapshot) => {
+  leaderboardList.innerHTML = "";
+  let rank = 0;
 
-    // تحديث عند تغيير readBooks من أي صفحة
-    window.addEventListener("storage", (event) => {
-      if (event.key === "readBooks") {
-        updateScoreFromLocalStorage();
-      }
-    });
+  snapshot.forEach((doc) => {
+    rank++;
+    const data = doc.data();
+    const li = document.createElement("li");
 
-    // عرض الترتيب لحظيًا
-    const q = query(collection(db, "leaderboard"), orderBy("score", "desc"), limit(10));
-    onSnapshot(q, (snapshot) => {
-      leaderboardList.innerHTML = "";
-      snapshot.forEach((doc) => {
-        const data = doc.data();
-        const li = document.createElement("li");
-        li.className = "flex justify-between p-2 bg-gray-50 rounded";
-        li.innerHTML = `<span>${data.name}</span> <span class="font-bold">${data.score}</span>`;
-        leaderboardList.appendChild(li);
-      });
-    });
-  </script>
+    let bgColor = "bg-gray-50"; // الافتراضي
+    if (rank === 1) bgColor = "bg-yellow-300"; // ذهبي
+    else if (rank === 2) bgColor = "bg-gray-300"; // فضي
+    else if (rank === 3) bgColor = "bg-orange-300"; // برونزي
+
+    li.className = `flex justify-between items-center p-2 rounded ${bgColor}`;
+    li.innerHTML = `
+      <span class="font-bold">#${rank} ${data.name}</span>
+      <div class="text-center">
+        <span class="font-bold text-lg">${data.score}</span>
+        <div class="text-xs text-gray-700">Books</div>
+      </div>
+    `;
+    leaderboardList.appendChild(li);
+  });
+});
+</script>
+
 
 </body>
 </html>
