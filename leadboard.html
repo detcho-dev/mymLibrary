@@ -68,7 +68,14 @@
 
     function updateScoreFromLocalStorage() {
       if (!playerName) return;
-      const readBooks = parseInt(localStorage.getItem("readBooks") || "0", 10);
+      let booksArray = [];
+      try {
+        booksArray = JSON.parse(localStorage.getItem("readBooks") || "[]");
+      } catch {
+        booksArray = [];
+      }
+      const readBooks = booksArray.length;
+
       const playerRef = doc(db, "leaderboard", playerName);
       setDoc(playerRef, { name: playerName, score: readBooks });
     }
