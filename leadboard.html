@@ -3,86 +3,93 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Leaderboard</title>
+  <title>Leadboard</title>
   <script src="https://cdn.tailwindcss.com"></script>
 </head>
 <body class="bg-gray-100 min-h-screen flex flex-col items-center p-4">
 
-  <h1 class="text-2xl font-bold mb-4">📚 Leaderboard</h1>
+  <h1 class="text-2xl font-bold mb-4">📚 Leadboard</h1>
 
-  <!-- Input Form -->
+  <!-- Name Input -->
   <div class="bg-white shadow-md rounded-lg p-4 w-full max-w-md mb-6">
     <input id="nameInput" type="text" placeholder="Enter your name" class="w-full p-2 border rounded mb-3">
-    <button id="submitBtn" class="w-full bg-blue-500 text-white p-2 rounded hover:bg-blue-600">
-      Save to Leaderboard
+    <button id="saveNameBtn" class="w-full bg-blue-500 text-white p-2 rounded hover:bg-blue-600">
+      Save Name
     </button>
   </div>
 
-  <!-- Leaderboard Table -->
+  <!-- Leaderboard -->
   <div class="bg-white shadow-md rounded-lg p-4 w-full max-w-md">
     <h2 class="text-xl font-semibold mb-3">📊 Top Players</h2>
     <ul id="leaderboardList" class="space-y-2"></ul>
   </div>
 
   <script type="module">
-    // Firebase Setup
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.4/firebase-app.js";
-    import { getFirestore, collection, addDoc, query, orderBy, limit, getDocs } 
-      from "https://www.gstatic.com/firebasejs/10.12.4/firebase-firestore.js";
+    import { 
+      getFirestore, collection, doc, setDoc, query, orderBy, limit, onSnapshot 
+    } from "https://www.gstatic.com/firebasejs/10.12.4/firebase-firestore.js";
 
     const firebaseConfig = {
-      apiKey: "YOUR_API_KEY",
-      authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
-      projectId: "YOUR_PROJECT_ID",
-      storageBucket: "YOUR_PROJECT_ID.appspot.com",
-      messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
-      appId: "YOUR_APP_ID"
+      apiKey: "AIzaSyBlOVx-YSmPFeq3lp-gAGe576yG1RhMLYs",
+      authDomain: "mymlibraryreads.firebaseapp.com",
+      projectId: "mymlibraryreads",
+      storageBucket: "mymlibraryreads.firebasestorage.app",
+      messagingSenderId: "11947740896",
+      appId: "1:11947740896:web:87482eb72210acdba50a85"
     };
 
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
 
     const nameInput = document.getElementById("nameInput");
-    const submitBtn = document.getElementById("submitBtn");
+    const saveNameBtn = document.getElementById("saveNameBtn");
     const leaderboardList = document.getElementById("leaderboardList");
 
-    async function saveScore() {
-      const name = nameInput.value.trim();
-      const readBooks = parseInt(localStorage.getItem("readBooks") || "0", 10);
+    let playerName = localStorage.getItem("playerName") || "";
 
+    if (playerName) {
+      nameInput.value = playerName;
+      updateScoreFromLocalStorage();
+    }
+
+    saveNameBtn.addEventListener("click", () => {
+      const name = nameInput.value.trim();
       if (!name) {
         alert("Please enter your name");
         return;
       }
+      playerName = name;
+      localStorage.setItem("playerName", name);
+      updateScoreFromLocalStorage();
+    });
 
-      try {
-        await addDoc(collection(db, "leaderboard"), {
-          name: name,
-          score: readBooks
-        });
-        nameInput.value = "";
-        loadLeaderboard();
-      } catch (error) {
-        console.error("Error saving data:", error);
-      }
+    function updateScoreFromLocalStorage() {
+      if (!playerName) return;
+      const readBooks = parseInt(localStorage.getItem("readBooks") || "0", 10);
+      const playerRef = doc(db, "leaderboard", playerName);
+      setDoc(playerRef, { name: playerName, score: readBooks });
     }
 
-    async function loadLeaderboard() {
-      leaderboardList.innerHTML = "";
-      const q = query(collection(db, "leaderboard"), orderBy("score", "desc"), limit(10));
-      const querySnapshot = await getDocs(q);
+    // Watch localStorage for changes (when other page updates readBooks)
+    window.addEventListener("storage", (event) => {
+      if (event.key === "readBooks") {
+        updateScoreFromLocalStorage();
+      }
+    });
 
-      querySnapshot.forEach((doc) => {
+    // Real-time leaderboard listener
+    const q = query(collection(db, "leaderboard"), orderBy("score", "desc"), limit(10));
+    onSnapshot(q, (snapshot) => {
+      leaderboardList.innerHTML = "";
+      snapshot.forEach((doc) => {
         const data = doc.data();
         const li = document.createElement("li");
         li.className = "flex justify-between p-2 bg-gray-50 rounded";
         li.innerHTML = `<span>${data.name}</span> <span class="font-bold">${data.score}</span>`;
         leaderboardList.appendChild(li);
       });
-    }
-
-    submitBtn.addEventListener("click", saveScore);
-    loadLeaderboard();
+    });
   </script>
 
 </body>
