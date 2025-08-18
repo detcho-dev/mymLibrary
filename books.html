@@ -41,14 +41,6 @@
     box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
     z-index: 5;
   }
-  .i {
-    font-size: 15px;
-    font-weight: bold;
-    background: linear-gradient(315deg, #020024 0%, #090979 35%, #00d4ff 100%);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-  }
-  .hidden { display: none; }
   .gold-card {
     background: linear-gradient(135deg, #FFD700, #FFA500);
     color: #000;
@@ -79,6 +71,12 @@
 </header>
 
 <div class="container mx-auto mt-24">
+
+  <!-- loader -->
+  <div id="loader" class="flex justify-center items-center my-10">
+    <div class="w-10 h-10 border-4 border-blue-500 border-dashed rounded-full animate-spin"></div>
+  </div>
+
   <div class="flex justify-center my-4">
     <div id="gold-card" class="gold-card text-center">
       You've Read :  <span id="read-count-gold">0</span> Book(s)
@@ -92,7 +90,7 @@
   </div>
 
   <!-- Members Books -->
-  <div id="books-members" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+  <div id="books-members" class="hidden grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
     <div class="col-span-full">
       <h2 class="text-xl font-bold mb-2">Books written by <span class="text-blue-600">members</span> of the library</h2>
       <hr class="mb-4">
@@ -100,7 +98,7 @@
   </div>
 
   <!-- Readers Books -->
-  <div id="books-readers" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 mt-6">
+  <div id="books-readers" class="hidden grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 mt-6">
     <div class="col-span-full">
       <h2 class="text-xl font-bold mb-2">Books written by <span class="text-purple-600">library Readers</span></h2>
       <hr class="mb-4">
@@ -112,7 +110,7 @@
 <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.2/dist/confetti.browser.min.js"></script>
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-import { getFirestore, doc, updateDoc, increment, getDocs, collection } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+import { getFirestore, doc, updateDoc, increment, collection, onSnapshot } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyBlOVx-YSmPFeq3lp-gAGe576yG1RhMLYs",
@@ -145,8 +143,7 @@ function updateReadCounterUI() {
   }
 }
 
-async function updateMostReadTag() {
-  const snapshot = await getDocs(collection(db, "Books"));
+async function updateMostReadTag(snapshot) {
   let maxReads = -1;
   let readsMap = {};
   snapshot.forEach(docSnap => {
@@ -175,7 +172,6 @@ async function markAsRead(bookId) {
     updateReadCounterUI();
     try {
       await updateDoc(doc(db, "Books", bookId), { Reads: increment(1) });
-      await updateMostReadTag();
     } catch (err) {
       console.error(err);
     }
@@ -207,73 +203,84 @@ async function handleDownload(bookId, bookName, buttonEl) {
   goToPurchasePage1(bookName);
 }
 
-function attachBookEvents() {
-  document.querySelectorAll(".book").forEach(bookEl => {
-    const downloadBtn = bookEl.querySelector("[data-purchase]");
-    if (downloadBtn) {
-      if (getReadBooks().includes(bookEl.dataset.bookId)) {
-        downloadBtn.textContent = "✅ Already Read";
-        downloadBtn.disabled = true;
-        downloadBtn.classList.add("opacity-60", "cursor-not-allowed");
-      }
-      downloadBtn.addEventListener("click", () => {
-        handleDownload(bookEl.dataset.bookId, downloadBtn.dataset.purchase, downloadBtn);
-      });
+function attachBookEvents(bookEl) {
+  const downloadBtn = bookEl.querySelector("[data-purchase]");
+  if (downloadBtn) {
+    if (getReadBooks().includes(bookEl.dataset.bookId)) {
+      downloadBtn.textContent = "✅ Already Read";
+      downloadBtn.disabled = true;
+      downloadBtn.classList.add("opacity-60", "cursor-not-allowed");
     }
-  });
+    downloadBtn.addEventListener("click", () => {
+      handleDownload(bookEl.dataset.bookId, downloadBtn.dataset.purchase, downloadBtn);
+    });
+  }
 }
 
-async function loadBooks() {
+function renderBook(docSnap) {
+  const data = docSnap.data();
   const membersContainer = document.getElementById("books-members");
   const readersContainer = document.getElementById("books-readers");
 
-  const snapshot = await getDocs(collection(db, "Books"));
-  snapshot.forEach(docSnap => {
-    const data = docSnap.data();
+  // معالجة الـ Categories
+  let categories = [];
+  if (Array.isArray(data.Categories)) {
+    categories = data.Categories;
+  } else if (typeof data.Categories === "string") {
+    categories = data.Categories.split(",").map(c => c.trim());
+  }
 
-    // معالجة الـ Categories سواء Array أو String
-    let categories = [];
-    if (Array.isArray(data.Categories)) {
-      categories = data.Categories;
-    } else if (typeof data.Categories === "string") {
-      categories = data.Categories.split(",").map(c => c.trim());
-    }
-
-    const bookEl = document.createElement("div");
+  let bookEl = document.querySelector(`.book[data-book-id="${docSnap.id}"]`);
+  if (!bookEl) {
+    bookEl = document.createElement("div");
     bookEl.className = "relative bg-white p-4 rounded-sm shadow-sm book";
     bookEl.dataset.bookId = docSnap.id;
-    bookEl.dataset.title = data.Title;
-    bookEl.dataset.author = data.Author;
-
-    bookEl.innerHTML = `
-      <span class="most-read-badge hidden">Most Read</span>
-      <img src="${data.CoverURL}" alt="${data.Title}" class="w-full h-64 object-cover rounded-sm mb-4" />
-      <h3 class="font-heading text-xl mb-2">${data.Title}</h3>
-      <p class="text-accent mb-2">By ${data.Author}</p>
-      <div class="flex flex-wrap gap-2 mb-2">
-        ${categories.map(c => `<span class="px-2 py-1 bg-blue-100 text-blue-700 rounded-full text-sm">${c}</span>`).join("")}
-      </div>
-      <button class="btn-primary w-full mb-2" data-purchase="${data.PurchaseText}">Download Now</button>
-    `;
-
     if (data.Section === "members") {
       membersContainer.appendChild(bookEl);
+      membersContainer.classList.remove("hidden");
     } else {
       readersContainer.appendChild(bookEl);
+      readersContainer.classList.remove("hidden");
     }
-  });
+  }
 
-  attachBookEvents();
-  await updateMostReadTag();
+  bookEl.dataset.title = data.Title;
+  bookEl.dataset.author = data.Author;
+  bookEl.innerHTML = `
+    <span class="most-read-badge hidden">Most Read</span>
+    <img src="${data.CoverURL}" alt="${data.Title}" class="w-full h-64 object-cover rounded-sm mb-4" />
+    <h3 class="font-heading text-xl mb-2">${data.Title}</h3>
+    <p class="text-accent mb-2">By ${data.Author}</p>
+    <div class="flex flex-wrap gap-2 mb-2">
+      ${categories.map(c => `<span class="px-2 py-1 bg-blue-100 text-blue-700 rounded-full text-sm">${c}</span>`).join("")}
+    </div>
+    <button class="btn-primary w-full mb-2" data-purchase="${data.PurchaseText}">Download Now</button>
+  `;
+
+  attachBookEvents(bookEl);
 }
 
 document.addEventListener("DOMContentLoaded", async () => {
   if (!localStorage.getItem("readBooks")) setReadBooks([]);
   updateReadCounterUI();
-  await loadBooks();
+
+  const booksRef = collection(db, "Books");
+  onSnapshot(booksRef, snapshot => {
+    document.getElementById("loader").classList.add("hidden"); // ⬅️ يخفي اللودر أول ما تيجي البيانات
+    snapshot.docChanges().forEach(change => {
+      if (change.type === "added" || change.type === "modified") {
+        renderBook(change.doc);
+      } else if (change.type === "removed") {
+        const el = document.querySelector(`.book[data-book-id="${change.doc.id}"]`);
+        if (el) el.remove();
+      }
+    });
+    updateMostReadTag(snapshot);
+  });
 
   document.getElementById("search-input").addEventListener("keyup", searchBooks);
 });
 </script>
+
 </body>
 </html>
