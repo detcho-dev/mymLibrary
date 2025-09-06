@@ -414,6 +414,24 @@ body.dark-mode footer {
 }
 
 .btn-gaming i {
+.btn-gaming {
+    background: linear-gradient(135deg, #1a1a1d, #4b0082); /* اسود لبنفسجي */
+    color: white;
+    padding: 0.75rem 1.8rem;
+    border-radius: 9999px;
+    font-weight: 600;
+    font-size: 1rem;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    transition: all 0.3s ease-in-out;
+    box-shadow: 0 4px 10px rgba(75, 0, 130, 0.5);
+    text-decoration: none;
+    white-space: nowrap;
+}
+
+.btn-gaming i {
     font-size: 1.2rem;
 }
 
@@ -427,6 +445,25 @@ body.dark-mode footer {
     transform: translateY(1px) scale(0.98);
     box-shadow: 0 3px 6px rgba(106, 13, 173, 0.4);
 }
+
+/* ✅ موبايل */
+@media (max-width: 640px) {
+    .btn-gaming {
+        display: flex;
+        width: 100%;
+        font-size: 1.1rem;
+        padding: 1rem;
+    }
+}
+
+/* ✅ تابلت */
+@media (min-width: 641px) and (max-width: 1024px) {
+    .btn-gaming {
+        font-size: 1.05rem;
+        padding: 0.85rem 1.6rem;
+    }
+}
+
 
     </style>
     <script src="https://cdn.jsdelivr.net/npm/emailjs-com@3/dist/email.min.js"></script>
@@ -603,6 +640,7 @@ body.dark-mode footer {
    
 </body>
 </html>
+
 
 
 
