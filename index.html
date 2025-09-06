@@ -9,6 +9,10 @@
     <link rel="icon" href="icon.ico" type="image/x-icon">
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.emailjs.com/dist/email.min.js"></script>
+    <!-- لو مش ضايف Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
+
     <!-- Firebase App (the core Firebase SDK) -->
     
     
@@ -394,6 +398,36 @@ body.dark-mode footer {
             transform: translateY(1px);
             box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
         }    
+        .btn-gaming {
+    background: linear-gradient(135deg, #1a1a1d, #4b0082); /* اسود لبنفسجي */
+    color: white;
+    padding: 0.75rem 1.8rem;
+    border-radius: 9999px;
+    font-weight: 600;
+    font-size: 1rem;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    transition: all 0.3s ease-in-out;
+    box-shadow: 0 4px 10px rgba(75, 0, 130, 0.5);
+    text-decoration: none;
+}
+
+.btn-gaming i {
+    font-size: 1.2rem;
+}
+
+.btn-gaming:hover {
+    background: linear-gradient(135deg, #2e2e33, #6a0dad);
+    transform: translateY(-3px) scale(1.05);
+    box-shadow: 0 8px 15px rgba(106, 13, 173, 0.6);
+}
+
+.btn-gaming:active {
+    transform: translateY(1px) scale(0.98);
+    box-shadow: 0 3px 6px rgba(106, 13, 173, 0.4);
+}
+
     </style>
     <script src="https://cdn.jsdelivr.net/npm/emailjs-com@3/dist/email.min.js"></script>
     <script src="https://widget.cloudinary.com/v2.0/global/all.js" type="text/javascript"></script>
@@ -467,6 +501,11 @@ body.dark-mode footer {
                     <p class="text-accent text-lg mb-6">Discover a world of knowledge through our carefully curated collection of books.</p>
                     <a href="/books" class="btn-primary">Explore Books</a>
                     <a href="/leadboard" class="btn-secondary">Leadboard</a>    
+                        <!-- زرار جديد -->
+                    <a href="/games" class="btn-gaming">
+                      <i class="fas fa-gamepad"></i> Play Games
+                    </a>
+
                 </div>
                 <div class="flex-1">
                     <img src="https://images.unsplash.com/photo-1524995997946-a1c2e315a42f?w=600&h=400&fit=crop" alt="Library Banner" class="w-full h-auto rounded-sm shadow-sm">
@@ -563,6 +602,7 @@ body.dark-mode footer {
    
 </body>
 </html>
+
 
 
 
