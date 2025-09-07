@@ -377,6 +377,19 @@ body.dark-mode footer {
         background-color: #ccc; /* لون رمادي */
         cursor: not-allowed;    /* شكل المؤشر يدل على أنه غير قابل للنقر */         /* يجعل الزر باهت قليلاً */
       }    
+        .btn-group a {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 48px;   /* يوحد الطول */
+  padding: 0.75rem 1.5rem;
+  border-radius: 9999px;
+  font-weight: 600;
+  font-size: 1rem;
+  text-decoration: none;
+  white-space: nowrap;
+}
+
 
         .btn-secondary {
             background-color: #4CAF50; /* Primary color */
@@ -536,13 +549,12 @@ body.dark-mode footer {
                     <div class="flex-1 hello">
                     <h2 class="text-4xl font-heading mb-4">Welcome to MYM Library</h2>
                     <p class="text-accent text-lg mb-6">Discover a world of knowledge through our carefully curated collection of books.</p>
-                    <a href="/books" class="btn-primary">Explore Books</a>
-                    <a href="/leadboard" class="btn-secondary">Leadboard</a>    
-                        <!-- زرار جديد -->
-                    <br>
-                    <a href="/games" class="btn-gaming">
-                      <i class="fas fa-gamepad"></i> Play Games
-                    </a>
+                     <div class="btn-group">
+  <a href="/books" class="btn-primary">📚 Explore Books</a>
+  <a href="/leadboard" class="btn-secondary">🏆 Leadboard</a>
+  <a href="/games" class="btn-gaming"><i class="fas fa-gamepad"></i> Play Games</a>
+</div>
+
 
                 </div>
                 <div class="flex-1">
@@ -640,6 +652,7 @@ body.dark-mode footer {
    
 </body>
 </html>
+
 
 
 
