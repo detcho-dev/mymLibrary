@@ -377,6 +377,23 @@ body.dark-mode footer {
         background-color: #ccc; /* لون رمادي */
         cursor: not-allowed;    /* شكل المؤشر يدل على أنه غير قابل للنقر */         /* يجعل الزر باهت قليلاً */
       }    
+
+        .btn-group {
+    display: flex;
+    flex-wrap: wrap;         /* عشان الموبايل ينزلوا تحت بعض */
+    gap: 12px;            /* مسافة بين الأزرار */
+    justify-content: center; /* يخليهم في النص */
+    margin: 1rem 0;
+}
+
+/* لو موبايل: الزرار ياخد عرض الشاشة */
+@media (max-width: 640px) {
+    .btn-group a {
+        flex: 1 1 100%;
+        text-align: center;
+    }
+}
+
         .btn-group a {
   display: inline-flex;
   align-items: center;
@@ -653,6 +670,7 @@ body.dark-mode footer {
    
 </body>
 </html>
+
 
 
 
