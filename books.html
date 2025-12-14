@@ -2,737 +2,285 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>My Book Library</title>
-  <style>
-    /* style.css */
-* {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-  }
-  
-  body {
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    background: #242124;
-    padding: 20px;
-    color: #333;
-  }
-  
-  /* Counter header */
-  .read-counter {
-    text-align: center;
-    margin-bottom: 25px;
-    font-size: 1.4rem;
-    font-weight: bold;
-    color: #2c3e50;
-  }
-  
-  .read-counter span {
-    color: #e74c3c;
-    font-size: 1.6rem;
-  }
-  
-  /* Search */
-  #search-input {
-    width: 100%;
-    max-width: 500px;
-    padding: 12px 20px;
-    margin: 0 auto 25px;
-    border: 2px solid #3498db;
-    border-radius: 50px;
-    font-size: 1rem;
-    text-align: center;
-    display: block;
-  }
-  
-  .list {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-    gap: 25px;
-    justify-content: center;
-    margin-bottom: 100px;
-  }
-  
-  .card {
-    background: white;
-    border-radius: 18px;
-    overflow: hidden;
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.12);
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
-    display: flex;
-    flex-direction: column;
-    height: 100%;
-  }
-  
-  .card:hover {
-    transform: translateY(-8px);
-    box-shadow: 0 15px 40px rgba(0, 0, 0, 0.18);
-  }
-  
-  .card img {
-    width: 100%;
-    height: 220px;
-    object-fit: cover;
-    border-bottom: 1px solid #eee;
-  }
-  
-  .card h3 {
-    padding: 18px 20px 8px;
-    color: #2c3e50;
-    font-size: 1.4rem;
-    font-weight: 700;
-  }
-  
-  .description {
-    padding: 0 20px 15px;
-    color: #555;
-    line-height: 1.6;
-    flex-grow: 1;
-    display: -webkit-box;
-    -webkit-line-clamp: 3;
-    -webkit-box-orient: vertical;
-    overflow: hidden;
-    font-size: 0.95rem;
-  }
-  
-  .card-buttons {
-    display: flex;
-    padding: 0 15px 20px;
-    gap: 10px;
-  }
-  
-  .card-buttons button {
-    flex: 1;
-    padding: 10px;
-    border: none;
-    border-radius: 30px;
-    font-weight: 600;
-    cursor: pointer;
-    transition: all 0.25s ease;
-    font-size: 0.95rem;
-  }
-  
-  .download-btn {
-    background: linear-gradient(135deg, #3498db, #2980b9);
-    color: white;
-  }
-  
-  .download-btn:hover {
-    background: linear-gradient(135deg, #2980b9, #1c6ea4);
-    transform: translateY(-2px);
-  }
-  
-  .add-queue-btn {
-    background: linear-gradient(135deg, #e74c3c, #c0392b);
-    color: white;
-  }
-  
-  .add-queue-btn:hover {
-    background: linear-gradient(135deg, #c0392b, #a93226);
-    transform: translateY(-2px);
-  }
-  
-  /* Dialog */
-  #productDialog {
-    width: 95%;
-    max-width: 600px;
-    border: none;
-    border-radius: 20px;
-    padding: 25px;
-    background: white;
-    box-shadow: 0 15px 50px rgba(0, 0, 0, 0.25);
-    animation: openDialog 0.4s ease forwards;
-    position: relative;
-  }
-  
-  #productDialog::backdrop {
-    background: rgba(0, 0, 0, 0.6);
-  }
-  
-  .dialog-content {
-    display: flex;
-    gap: 25px;
-    margin-bottom: 25px;
-  }
-  
-  .dialog-content img {
-    width: 150px;
-    height: 220px;
-    object-fit: cover;
-    border-radius: 12px;
-    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
-  }
-  
-  .dialog-text h1 {
-    color: #2c3e50;
-    margin-bottom: 15px;
-    font-size: 1.8rem;
-    font-weight: 700;
-  }
-  
-  .dialog-text p {
-    color: #555;
-    line-height: 1.7;
-    font-size: 1.05rem;
-  }
-  
-  .dia-btns {
-    display: flex;
-    justify-content: center;
-    gap: 15px;
-    flex-wrap: wrap;
-  }
-  
-  .dia-btns button {
-    padding: 11px 24px;
-    border: none;
-    border-radius: 30px;
-    font-weight: 600;
-    cursor: pointer;
-    transition: all 0.3s;
-    min-width: 140px;
-    font-size: 1rem;
-  }
-  
-  #downloadDialogBtn {
-    background: linear-gradient(135deg, #3498db, #2980b9);
-    color: white;
-  }
-  
-  #queueDialogBtn {
-    background: linear-gradient(135deg, #e74c3c, #c0392b);
-    color: white;
-  }
-  
-  #closeDialogBtn {
-    background: linear-gradient(135deg, #95a5a6, #7f8c8d);
-    color: white;
-  }
-  
-  @keyframes openDialog {
-    from { opacity: 0; transform: translateY(40px) scale(0.95); }
-    to { opacity: 1; transform: translateY(0) scale(1); }
-  }
-  
-  /* Queue Menu */
-  .queue-menu {
-    position: fixed;
-    bottom: 90px;
-    right: 25px;
-    width: 90%;
-    max-width: 420px;
-    background: white;
-    border-radius: 20px;
-    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
-    padding: 25px;
-    z-index: 1000;
-    animation: slideUp 0.4s ease;
-    max-height: 80vh;
-    overflow: hidden;
-    display: flex;
-    flex-direction: column;
-  }
-  
-  .queue-menu.hidden {
-    display: none;
-  }
-  
-  .queue-menu h2 {
-    color: #2c3e50;
-    margin-bottom: 20px;
-    text-align: center;
-    font-size: 1.5rem;
-    font-weight: 700;
-  }
-  
-  .queue-list {
-    flex: 1;
-    overflow-y: auto;
-    margin-bottom: 20px;
-    padding-right: 10px;
-  }
-  
-  .queue-item {
-    display: flex;
-    gap: 15px;
-    padding: 15px;
-    background: #f8f9fa;
-    border-radius: 14px;
-    margin-bottom: 12px;
-    border-left: 4px solid #3498db;
-    align-items: center;
-  }
-  
-  .queue-item img {
-    width: 60px;
-    height: 90px;
-    object-fit: cover;
-    border-radius: 8px;
-    flex-shrink: 0;
-  }
-  
-  .queue-item-info h4 {
-    color: #2c3e50;
-    font-size: 1.1rem;
-    margin-bottom: 5px;
-    font-weight: 600;
-  }
-  
-  .remove-item {
-    background: #e74c3c;
-    color: white;
-    border: none;
-    border-radius: 50%;
-    width: 32px;
-    height: 32px;
-    font-weight: bold;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    flex-shrink: 0;
-  }
-  
-  .remove-item:hover {
-    background: #c0392b;
-    transform: scale(1.1);
-  }
-  
-  .queue-actions {
-    display: flex;
-    gap: 12px;
-    margin-bottom: 15px;
-  }
-  
-  .queue-actions button {
-    flex: 1;
-    padding: 12px;
-    border: none;
-    border-radius: 10px;
-    font-weight: 600;
-    cursor: pointer;
-    font-size: 1rem;
-  }
-  
-  #downloadAllBtn {
-    background: linear-gradient(135deg, #3498db, #2980b9);
-    color: white;
-  }
-  
-  #clearQueueBtn {
-    background: linear-gradient(135deg, #e74c3c, #c0392b);
-    color: white;
-  }
-  
-  .close-queue-btn {
-    position: absolute;
-    top: 20px;
-    right: 20px;
-    background: none;
-    border: none;
-    font-size: 1.8rem;
-    cursor: pointer;
-    color: #95a5a6;
-    width: 36px;
-    height: 36px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border-radius: 50%;
-  }
-  
-  .close-queue-btn:hover {
-    color: #2c3e50;
-    background: #f0f0f0;
-  }
-  
-  /* Queue Toggle Button */
-  .queue-toggle {
-    position: fixed;
-    bottom: 25px;
-    right: 25px;
-    background: linear-gradient(135deg, #3498db, #2980b9);
-    color: white;
-    border: none;
-    border-radius: 50px;
-    padding: 14px 28px;
-    font-weight: 700;
-    cursor: pointer;
-    box-shadow: 0 6px 15px rgba(52, 152, 219, 0.4);
-    z-index: 999;
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    font-size: 1.1rem;
-  }
-  
-  .queue-toggle:hover {
-    transform: scale(1.05) translateY(-2px);
-    box-shadow: 0 8px 20px rgba(52, 152, 219, 0.5);
-  }
-  
-  /* Loader */
-  #loader {
-    text-align: center;
-    padding: 40px;
-    font-size: 1.2rem;
-    color: #7f8c8d;
-  }
-  
-  /* Responsive */
-  @media (max-width: 768px) {
-    .list { grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); }
-    .card img { height: 200px; }
-    .dialog-content { flex-direction: column; text-align: center; }
-    .dialog-content img { width: 120px; height: 180px; margin: 0 auto; }
-    .queue-menu { width: calc(100% - 50px); bottom: 95px; }
-    .queue-toggle { bottom: 20px; padding: 12px 24px; }
-  }
-  
-  @media (max-width: 480px) {
-    .list { grid-template-columns: 1fr; }
-    .card img { height: 180px; }
-    .description { -webkit-line-clamp: 4; }
-    .queue-toggle { bottom: 15px; font-size: 0.95rem; }
-  }
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Browse and explore our collection of the best and most popular books available in MYM Library." />
+  <link rel="icon" href="icon.ico" type="image/x-icon" />
+  <title>MYM Library - Explore Books</title>
+  <script src="https://cdn.tailwindcss.com"></script>
 
-  /* Toast Notification */
-.toast {
-    position: fixed;
-    top: 20px;
-    left: 50%;
-    transform: translateX(-50%) translateY(-100px);
-    background: #2ecc71;
+  <style>
+  .btn-primary {
+    background-color: #1d4ed8;
     color: white;
-    padding: 12px 24px;
-    border-radius: 8px;
+    padding: 0.75rem 1.5rem;
+    border-radius: 9999px;
     font-weight: 600;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.2);
-    z-index: 2000;
-    opacity: 0;
-    transition: transform 0.3s ease, opacity 0.3s ease;
+    transition: all 0.3s ease-in-out;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    width: 100%;
   }
-  
-  .toast.show {
-    transform: translateX(-50%) translateY(0);
-    opacity: 1;
+  .btn-primary:hover {
+    background-color: #2563eb;
+    transform: translateY(-3px);
+    box-shadow: 0 8px 12px rgba(0, 0, 0, 0.15);
   }
-  
-  .toast.error {
-    background: #e74c3c;
+  .btn-primary:active {
+    transform: translateY(1px);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  }
+  .most-read-badge {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    background: linear-gradient(135deg, #FFD700, #FFA500);
+    color: #000;
+    font-weight: bold;
+    font-size: 0.8rem;
+    padding: 4px 8px;
+    border-radius: 6px;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+    z-index: 5;
+  }
+  .gold-card {
+    background: linear-gradient(135deg, #FFD700, #FFA500);
+    color: #000;
+    padding: 0.8rem 1.5rem;
+    border-radius: 12px;
+    font-weight: bold;
+    font-size: 1.1rem;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+    display: inline-block;
+    min-width: 160px;
+    max-width: 90%;
+    word-wrap: break-word;
   }
   </style>
 </head>
-<body>
-  <!-- Header with counter -->
-  <div class="read-counter">
-    Books Read: <span id="read-count-gold">0</span>
+<body class="bg-gray-100 p-6">
+
+<header class="fixed top-0 left-0 w-full bg-white shadow-md z-50">
+  <nav class="container mx-auto px-4 py-4 flex items-center justify-between">
+    <div class="flex items-center gap-4">
+      <img src="logo.png" alt="MYM Library Logo" class="w-12 h-12 object-cover" />
+      <h1 class="text-2xl font-heading">MYM Library</h1>
+    </div>
+    <ul class="flex gap-6">
+      <li><a href="https://mymlibrary.vercel.app" class="hover:text-blue-500 transition-colors">Home</a></li>
+    </ul>
+  </nav>
+</header>
+
+<div class="container mx-auto mt-24">
+
+  <!-- loader -->
+  <div id="loader" class="flex justify-center items-center my-10">
+    <div class="w-10 h-10 border-4 border-blue-500 border-dashed rounded-full animate-spin"></div>
   </div>
 
-  <!-- Search -->
-  <input type="text" id="search-input" placeholder="Search books..." />
-
-  <!-- Loader -->
-  <div id="loader">Loading books from Firebase...</div>
-
-  <!-- Books Grid -->
-  <div class="list"></div>
-
-  <!-- Product Dialog -->
-  <dialog id="productDialog">
-    <div class="dialog-content">
-      <img id="dialogImage" src="" alt="Book Cover" />
-      <div class="dialog-text">
-        <h1 id="dialogTitle">Book Title</h1>
-        <p id="dialogDesc"></p>
-      </div>
+  <div class="flex justify-center my-4">
+    <div id="gold-card" class="gold-card text-center">
+      You've Read :  <span id="read-count-gold">0</span> Book(s)
     </div>
-    <div class="dia-btns">
-      <button id="downloadDialogBtn">Download Now</button>
-      <button id="queueDialogBtn">Add to Queue</button>
-      <button id="closeDialogBtn">Close</button>
-    </div>
-  </dialog>
+  </div>
+  <h1 class="text-3xl font-bold mb-6 flex justify-center">All Books</h1>
 
-  <!-- Queue Menu -->
-  <div id="queueMenu" class="queue-menu hidden">
-    <h2>Download Queue</h2>
-    <div id="queueList" class="queue-list"></div>
-    <div class="queue-actions">
-      <button id="downloadAllBtn">Download All</button>
-      <button id="clearQueueBtn">Clear Queue</button>
-    </div>
-    <button id="closeQueueBtn" class="close-queue-btn">&times;</button>
+  <div class="flex justify-center w-full my-6">
+    <input id="search-input" type="search" placeholder="Search for books..."
+      class="w-1/2 md:w-1/3 lg:w-1/4 px-4 py-2 rounded-[34px] border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-300 ease-in-out focus:w-2/3 md:focus:w-1/2 lg:focus:w-1/3">
   </div>
 
-  <!-- Queue Toggle Button -->
-  <button id="toggleQueueBtn" class="queue-toggle">Queue (0)</button>
+  <!-- Members Books -->
+  <div id="books-members" class="hidden grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+    <div class="col-span-full">
+      <h2 class="text-xl font-bold mb-2">Books written by <span class="text-blue-600">members</span> of the library</h2>
+      <hr class="mb-4">
+    </div>
+  </div>
 
-  <!-- Scripts -->
-  <script type="module" >
-    // app.js
-import { db } from './firebase-config.js';
-import {
-  collection,
-  doc,
-  updateDoc,
-  increment,
-  onSnapshot
-} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+  <!-- Readers Books -->
+  <div id="books-readers" class="hidden grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 mt-6">
+    <div class="col-span-full">
+      <h2 class="text-xl font-bold mb-2">Books written by <span class="text-purple-600">library Readers</span></h2>
+      <hr class="mb-4">
+    </div>
+  </div>
 
-// ================== TOAST HELPER ==================
-function showToast(message, isError = false) {
-  // إزالة التوست القديم لو موجود
-  const oldToast = document.querySelector('.toast');
-  if (oldToast) oldToast.remove();
+</div>
 
-  const toast = document.createElement('div');
-  toast.className = `toast ${isError ? 'error' : ''}`;
-  toast.textContent = message;
-  document.body.appendChild(toast);
+<script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.2/dist/confetti.browser.min.js"></script>
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import { getFirestore, doc, updateDoc, increment, collection, onSnapshot } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
-  // إظهار التوست
-  setTimeout(() => toast.classList.add('show'), 10);
+const firebaseConfig = {
+  apiKey: "AIzaSyBlOVx-YSmPFeq3lp-gAGe576yG1RhMLYs",
+  authDomain: "mymlibraryreads.firebaseapp.com",
+  projectId: "mymlibraryreads",
+  storageBucket: "mymlibraryreads.firebasestorage.app",
+  messagingSenderId: "11947740896",
+  appId: "1:11947740896:web:87482eb72210acdba50a85"
+};
 
-  // إخفاء التوست بعد 3 ثواني
-  setTimeout(() => {
-    toast.classList.remove('show');
-    setTimeout(() => toast.remove(), 300);
-  }, 3000);
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+
+function getReadBooks() {
+  try { return JSON.parse(localStorage.getItem("readBooks") || "[]"); }
+  catch { return []; }
+}
+function setReadBooks(books) {
+  localStorage.setItem("readBooks", JSON.stringify(books));
 }
 
-// ================== DOM ELEMENTS ==================
-const dialog = document.getElementById("productDialog");
-const dialogTitle = document.getElementById("dialogTitle");
-const dialogDesc = document.getElementById("dialogDesc");
-const dialogImage = document.getElementById("dialogImage");
-const downloadDialogBtn = document.getElementById("downloadDialogBtn");
-const queueDialogBtn = document.getElementById("queueDialogBtn");
-const closeDialogBtn = document.getElementById("closeDialogBtn");
-const queueMenu = document.getElementById("queueMenu");
-const queueList = document.getElementById("queueList");
-const downloadAllBtn = document.getElementById("downloadAllBtn");
-const clearQueueBtn = document.getElementById("clearQueueBtn");
-const closeQueueBtn = document.getElementById("closeQueueBtn");
-const toggleQueueBtn = document.getElementById("toggleQueueBtn");
-const searchInput = document.getElementById("search-input");
-
-// ================== QUEUE MANAGEMENT ==================
-let downloadQueue = JSON.parse(localStorage.getItem("downloadQueue")) || [];
-
-function updateQueueCount() {
-  toggleQueueBtn.textContent = `Queue (${downloadQueue.length})`;
-}
-
-function renderQueue() {
-  queueList.innerHTML = "";
-  if (downloadQueue.length === 0) {
-    queueList.innerHTML = "<p style='text-align:center; padding:20px; color:#7f8c8d;'>Queue is empty</p>";
-    return;
+function updateReadCounterUI() {
+  const newCount = getReadBooks().length;
+  const countEl = document.getElementById("read-count-gold");
+  if (!countEl) return;
+  const oldCount = Number(countEl.textContent) || 0;
+  countEl.textContent = newCount;
+  if (newCount > oldCount) {
+    confetti({ particleCount: 80, spread: 70, origin: { y: 0.6 } });
   }
-
-  downloadQueue.forEach((book, index) => {
-    const item = document.createElement("div");
-    item.className = "queue-item";
-    item.innerHTML = `
-      <img src="${book.cover}" alt="${book.title}">
-      <div class="queue-item-info">
-        <h4>${book.title}</h4>
-      </div>
-      <button class="remove-item" data-index="${index}">&times;</button>
-    `;
-    queueList.appendChild(item);
-  });
-
-  // ربط زر الحذف
-  document.querySelectorAll(".remove-item").forEach(btn => {
-    btn.addEventListener("click", (e) => {
-      const index = parseInt(e.target.dataset.index);
-      downloadQueue.splice(index, 1);
-      localStorage.setItem("downloadQueue", JSON.stringify(downloadQueue));
-      renderQueue();
-    });
-  });
-
-  updateQueueCount();
 }
 
-// ================== BOOK DOWNLOAD LOGIC ==================
-function markButtonAsDownloaded(button) {
-  button.innerHTML = '✅ Downloaded';
-  button.disabled = true;
-  button.classList.add('opacity-60', 'cursor-not-allowed');
-}
-
-async function downloadBook(book, buttonEl = null) {
-    if (!book.filePath) {
-      showToast("Download path not available.", true);
-      return;
+async function updateMostReadTag(snapshot) {
+  let maxReads = -1;
+  let readsMap = {};
+  snapshot.forEach(docSnap => {
+    const id = docSnap.id;
+    const reads = Number(docSnap.data().Reads) || 0;
+    readsMap[id] = reads;
+    if (reads > maxReads) maxReads = reads;
+  });
+  document.querySelectorAll(".book").forEach(bookEl => {
+    const badge = bookEl.querySelector(".most-read-badge");
+    if (!badge) return;
+    const id = bookEl.dataset.bookId;
+    if (readsMap[id] === maxReads && maxReads > 0) {
+      badge.style.display = "inline-block";
+    } else {
+      badge.style.display = "none";
     }
-  
-    // تحويل إلى مسار نسبي صحيح
-    const downloadUrl = book.filePath.startsWith('/') 
-      ? book.filePath 
-      : '/' + book.filePath;
-  
+  });
+}
+
+async function markAsRead(bookId) {
+  let readBooks = getReadBooks();
+  if (!readBooks.includes(bookId)) {
+    readBooks.push(bookId);
+    setReadBooks(readBooks);
+    updateReadCounterUI();
     try {
-      const response = await fetch(downloadUrl, { method: 'HEAD' });
-      if (!response.ok) throw new Error('File not found');
-  
-      window.open(downloadUrl, '_blank');
-  
-      if (buttonEl) markButtonAsDownloaded(buttonEl);
-      showToast(`"${book.title}" is downloading!`);
-  
-      if (book.id) {
-        await updateDoc(doc(db, "Books", book.id), { Reads: increment(1) });
-      }
-  
-    } catch (error) {
-      console.error("Download failed:", error);
-      showToast(`Failed to download "${book.title}". File not found.`, true);
+      await updateDoc(doc(db, "Books", bookId), { Reads: increment(1) });
+    } catch (err) {
+      console.error(err);
+    }
+  }
+}
+
+function searchBooks() {
+  const input = document.getElementById("search-input").value.trim().toLowerCase();
+  document.querySelectorAll(".book").forEach(book => {
+    if (input === "") {
+      book.style.display = "block";
+    } else {
+      const title = book.dataset.title.toLowerCase();
+      const author = book.dataset.author.toLowerCase();
+      book.style.display = (title.includes(input) || author.includes(input)) ? "block" : "none";
+    }
+  });
+}
+
+function goToPurchasePage1(bookName) {
+  window.location.href = `/order1?book=${encodeURIComponent(bookName)}`;
+}
+
+async function handleDownload(bookId, bookName, buttonEl) {
+  await markAsRead(bookId);
+  buttonEl.textContent = "✅ Already Read";
+  buttonEl.disabled = true;
+  buttonEl.classList.add("opacity-60", "cursor-not-allowed");
+  goToPurchasePage1(bookName);
+}
+
+function attachBookEvents(bookEl) {
+  const downloadBtn = bookEl.querySelector("[data-purchase]");
+  if (downloadBtn) {
+    if (getReadBooks().includes(bookEl.dataset.bookId)) {
+      downloadBtn.textContent = "✅ Already Read";
+      downloadBtn.disabled = true;
+      downloadBtn.classList.add("opacity-60", "cursor-not-allowed");
+    }
+    downloadBtn.addEventListener("click", () => {
+      handleDownload(bookEl.dataset.bookId, downloadBtn.dataset.purchase, downloadBtn);
+    });
+  }
+}
+
+function renderBook(docSnap) {
+  const data = docSnap.data();
+  const membersContainer = document.getElementById("books-members");
+  const readersContainer = document.getElementById("books-readers");
+
+  // معالجة الـ Categories
+  let categories = [];
+  if (Array.isArray(data.Categories)) {
+    categories = data.Categories;
+  } else if (typeof data.Categories === "string") {
+    categories = data.Categories.split(",").map(c => c.trim());
+  }
+
+  let bookEl = document.querySelector(`.book[data-book-id="${docSnap.id}"]`);
+  if (!bookEl) {
+    bookEl = document.createElement("div");
+    bookEl.className = "relative bg-white p-4 rounded-sm shadow-sm book";
+    bookEl.dataset.bookId = docSnap.id;
+    if (data.Section === "members") {
+      membersContainer.appendChild(bookEl);
+      membersContainer.classList.remove("hidden");
+    } else {
+      readersContainer.appendChild(bookEl);
+      readersContainer.classList.remove("hidden");
     }
   }
 
-function addToQueue(book) {
-  const exists = downloadQueue.some(b => b.id === book.id);
-  if (exists) {
-    showToast("Already in queue!", true);
-    return;
-  }
-  downloadQueue.push(book);
-  localStorage.setItem("downloadQueue", JSON.stringify(downloadQueue));
-  renderQueue();
-  showToast("Added to queue!");
-}
-
-// ================== DIALOG ==================
-function openDialog(book) {
-  dialogTitle.textContent = book.title;
-  dialogDesc.textContent = book.description;
-  dialogImage.src = book.cover;
-  dialog.showModal();
-
-  downloadDialogBtn.onclick = () => {
-    downloadBook(book);
-    dialog.close();
-  };
-  queueDialogBtn.onclick = () => {
-    addToQueue(book);
-    dialog.close();
-  };
-}
-
-// ================== RENDER BOOK ==================
-function renderBookCard(book) {
-  const card = document.createElement("div");
-  card.className = "card";
-  card.innerHTML = `
-    <img src="${book.cover}" alt="${book.title}">
-    <h3>${book.title}</h3>
-    <p class="description">${book.description}</p>
-    <div class="card-buttons">
-      <button class="download-btn" data-id="${book.id}">Download</button>
-      <button class="add-queue-btn" data-id="${book.id}">Add to Queue</button>
+  bookEl.dataset.title = data.Title;
+  bookEl.dataset.author = data.Author;
+  bookEl.innerHTML = `
+    <span class="most-read-badge hidden">Most Read</span>
+    <img src="${data.CoverURL}" alt="${data.Title}" class="w-full h-64 object-cover rounded-sm mb-4" />
+    <h3 class="font-heading text-xl mb-2">${data.Title}</h3>
+    <p class="text-accent mb-2">By ${data.Author}</p>
+    <div class="flex flex-wrap gap-2 mb-2">
+      ${categories.map(c => `<span class="px-2 py-1 bg-blue-100 text-blue-700 rounded-full text-sm">${c}</span>`).join("")}
     </div>
+    <button class="btn-primary w-full mb-2" data-purchase="${data.PurchaseText}">Download Now</button>
   `;
 
-  const downloadBtn = card.querySelector(".download-btn");
-  const queueBtn = card.querySelector(".add-queue-btn");
-
-  downloadBtn.addEventListener("click", () => downloadBook(book, downloadBtn));
-  queueBtn.addEventListener("click", () => addToQueue(book));
-  
-  card.addEventListener("click", (e) => {
-    if (!e.target.closest("button")) openDialog(book);
-  });
-
-  document.querySelector(".list").appendChild(card);
+  attachBookEvents(bookEl);
 }
 
-// ================== SEARCH ==================
-function handleSearch() {
-  const term = searchInput.value.toLowerCase();
-  document.querySelectorAll(".card").forEach(card => {
-    const title = card.querySelector("h3").textContent.toLowerCase();
-    const desc = card.querySelector(".description").textContent.toLowerCase();
-    card.style.display = (title.includes(term) || desc.includes(term)) ? "block" : "none";
-  });
-}
+document.addEventListener("DOMContentLoaded", async () => {
+  if (!localStorage.getItem("readBooks")) setReadBooks([]);
+  updateReadCounterUI();
 
-// ================== DOWNLOAD FROM QUEUE ==================
-async function downloadFromQueue(book, index) {
-  await downloadBook(book);
-  // بعد التحميل، امسح الكتاب من القائمة
-  downloadQueue.splice(index, 1);
-  localStorage.setItem("downloadQueue", JSON.stringify(downloadQueue));
-  renderQueue();
-  showToast(`"${book.title}" removed from queue after download.`);
-}
-
-// ================== INIT ==================
-document.addEventListener("DOMContentLoaded", () => {
-  renderQueue();
-  
-  // إغلاق الـ dialog
-  closeDialogBtn.addEventListener("click", () => dialog.close());
-  dialog.addEventListener("click", (e) => {
-    const rect = dialog.getBoundingClientRect();
-    const inDialog = e.clientX >= rect.left && e.clientX <= rect.right &&
-                     e.clientY >= rect.top && e.clientY <= rect.bottom;
-    if (!inDialog) dialog.close();
-  });
-
-  // قائمة الانتظار
-  toggleQueueBtn.addEventListener("click", () => queueMenu.classList.toggle("hidden"));
-  closeQueueBtn.addEventListener("click", () => queueMenu.classList.add("hidden"));
-  
-  downloadAllBtn.addEventListener("click", async () => {
-    if (downloadQueue.length === 0) return showToast("Queue is empty!", true);
-    
-    for (let i = downloadQueue.length - 1; i >= 0; i--) {
-      await downloadFromQueue(downloadQueue[i], i);
-    }
-    showToast("All books downloaded and removed from queue!");
-  });
-  
-  clearQueueBtn.addEventListener("click", () => {
-    if (downloadQueue.length === 0) return;
-    if (confirm("Clear all books from queue?")) {
-      downloadQueue = [];
-      localStorage.setItem("downloadQueue", "[]");
-      renderQueue();
-      showToast("Queue cleared!");
-    }
-  });
-
-  // بحث
-  searchInput?.addEventListener("input", handleSearch);
-
-  // تحميل الكتب من Firestore
   const booksRef = collection(db, "Books");
-  onSnapshot(booksRef, (snapshot) => {
-    document.getElementById("loader").style.display = "none";
-    document.querySelector(".list").innerHTML = "";
-    
-    snapshot.forEach(doc => {
-      const data = doc.data();
-      renderBookCard({
-        id: doc.id,
-        title: data.Title,
-        description: data.Description || "No description available.",
-        cover: data.CoverURL || "https://via.placeholder.com/200x300?text=Book",
-        // ←←← هنا نبني filePath من PurchaseText ←←←
-        filePath: `books/${data.PurchaseText}.pdf`
-      });
+  onSnapshot(booksRef, snapshot => {
+    document.getElementById("loader").classList.add("hidden"); // ⬅️ يخفي اللودر أول ما تيجي البيانات
+    snapshot.docChanges().forEach(change => {
+      if (change.type === "added" || change.type === "modified") {
+        renderBook(change.doc);
+      } else if (change.type === "removed") {
+        const el = document.querySelector(`.book[data-book-id="${change.doc.id}"]`);
+        if (el) el.remove();
+      }
     });
-  }, (error) => {
-    console.error("Error loading books:", error);
-    document.getElementById("loader").textContent = "Failed to load books.";
-    showToast("Failed to load books from server.", true);
+    updateMostReadTag(snapshot);
   });
+
+  document.getElementById("search-input").addEventListener("keyup", searchBooks);
 });
-  </script>
+</script>
+
 </body>
 </html>
