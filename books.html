@@ -2,285 +2,325 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta name="description" content="Browse and explore our collection of the best and most popular books available in MYM Library." />
-  <link rel="icon" href="icon.ico" type="image/x-icon" />
-  <title>MYM Library - Explore Books</title>
-  <script src="https://cdn.tailwindcss.com"></script>
-
-  <style>
-  .btn-primary {
-    background-color: #1d4ed8;
-    color: white;
-    padding: 0.75rem 1.5rem;
-    border-radius: 9999px;
-    font-weight: 600;
-    transition: all 0.3s ease-in-out;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-    width: 100%;
-  }
-  .btn-primary:hover {
-    background-color: #2563eb;
-    transform: translateY(-3px);
-    box-shadow: 0 8px 12px rgba(0, 0, 0, 0.15);
-  }
-  .btn-primary:active {
-    transform: translateY(1px);
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  }
-  .most-read-badge {
-    position: absolute;
-    top: 10px;
-    left: 10px;
-    background: linear-gradient(135deg, #FFD700, #FFA500);
-    color: #000;
-    font-weight: bold;
-    font-size: 0.8rem;
-    padding: 4px 8px;
-    border-radius: 6px;
-    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
-    z-index: 5;
-  }
-  .gold-card {
-    background: linear-gradient(135deg, #FFD700, #FFA500);
-    color: #000;
-    padding: 0.8rem 1.5rem;
-    border-radius: 12px;
-    font-weight: bold;
-    font-size: 1.1rem;
-    box-shadow: 0 4px 10px rgba(0,0,0,0.2);
-    display: inline-block;
-    min-width: 160px;
-    max-width: 90%;
-    word-wrap: break-word;
-  }
-  </style>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>My Book Library</title>
+  <link rel="stylesheet" href="books.css" />
 </head>
-<body class="bg-gray-100 p-6">
+<body>
+  <!-- Header with counter -->
+  <div class="read-counter">
+    Books Read: <span id="read-count-gold">0</span>
+  </div>
 
-<header class="fixed top-0 left-0 w-full bg-white shadow-md z-50">
-  <nav class="container mx-auto px-4 py-4 flex items-center justify-between">
-    <div class="flex items-center gap-4">
-      <img src="logo.png" alt="MYM Library Logo" class="w-12 h-12 object-cover" />
-      <h1 class="text-2xl font-heading">MYM Library</h1>
+  <!-- Search -->
+  <input type="text" id="search-input" placeholder="Search books..." />
+
+  <!-- Loader -->
+  <div id="loader">Loading books from Firebase...</div>
+
+  <!-- Books Grid -->
+  <div class="list"></div>
+
+  <!-- Product Dialog -->
+  <dialog id="productDialog">
+    <div class="dialog-content">
+      <img id="dialogImage" src="" alt="Book Cover" />
+      <div class="dialog-text">
+        <h1 id="dialogTitle">Book Title</h1>
+        <p id="dialogDesc"></p>
+      </div>
     </div>
-    <ul class="flex gap-6">
-      <li><a href="https://mymlibrary.vercel.app" class="hover:text-blue-500 transition-colors">Home</a></li>
-    </ul>
-  </nav>
-</header>
-
-<div class="container mx-auto mt-24">
-
-  <!-- loader -->
-  <div id="loader" class="flex justify-center items-center my-10">
-    <div class="w-10 h-10 border-4 border-blue-500 border-dashed rounded-full animate-spin"></div>
-  </div>
-
-  <div class="flex justify-center my-4">
-    <div id="gold-card" class="gold-card text-center">
-      You've Read :  <span id="read-count-gold">0</span> Book(s)
+    <div class="dia-btns">
+      <button id="downloadDialogBtn">Download Now</button>
+      <button id="queueDialogBtn">Add to Queue</button>
+      <button id="closeDialogBtn">Close</button>
     </div>
-  </div>
-  <h1 class="text-3xl font-bold mb-6 flex justify-center">All Books</h1>
+  </dialog>
 
-  <div class="flex justify-center w-full my-6">
-    <input id="search-input" type="search" placeholder="Search for books..."
-      class="w-1/2 md:w-1/3 lg:w-1/4 px-4 py-2 rounded-[34px] border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-300 ease-in-out focus:w-2/3 md:focus:w-1/2 lg:focus:w-1/3">
-  </div>
-
-  <!-- Members Books -->
-  <div id="books-members" class="hidden grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-    <div class="col-span-full">
-      <h2 class="text-xl font-bold mb-2">Books written by <span class="text-blue-600">members</span> of the library</h2>
-      <hr class="mb-4">
+  <!-- Queue Menu -->
+  <div id="queueMenu" class="queue-menu hidden">
+    <h2>Download Queue</h2>
+    <div id="queueList" class="queue-list"></div>
+    <div class="queue-actions">
+      <button id="downloadAllBtn">Download All</button>
+      <button id="clearQueueBtn">Clear Queue</button>
     </div>
+    <button id="closeQueueBtn" class="close-queue-btn">&times;</button>
   </div>
 
-  <!-- Readers Books -->
-  <div id="books-readers" class="hidden grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 mt-6">
-    <div class="col-span-full">
-      <h2 class="text-xl font-bold mb-2">Books written by <span class="text-purple-600">library Readers</span></h2>
-      <hr class="mb-4">
-    </div>
-  </div>
+  <!-- Queue Toggle Button -->
+  <button id="toggleQueueBtn" class="queue-toggle">Queue (0)</button>
 
-</div>
+  <!-- Scripts -->
+  <script type="module" >
+    // app.js
+import { db } from './firebase-config.js';
+import {
+  collection,
+  doc,
+  updateDoc,
+  increment,
+  onSnapshot
+} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
-<script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.2/dist/confetti.browser.min.js"></script>
-<script type="module">
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-import { getFirestore, doc, updateDoc, increment, collection, onSnapshot } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+// ================== TOAST HELPER ==================
+function showToast(message, isError = false) {
+  // إزالة التوست القديم لو موجود
+  const oldToast = document.querySelector('.toast');
+  if (oldToast) oldToast.remove();
 
-const firebaseConfig = {
-  apiKey: "AIzaSyBlOVx-YSmPFeq3lp-gAGe576yG1RhMLYs",
-  authDomain: "mymlibraryreads.firebaseapp.com",
-  projectId: "mymlibraryreads",
-  storageBucket: "mymlibraryreads.firebasestorage.app",
-  messagingSenderId: "11947740896",
-  appId: "1:11947740896:web:87482eb72210acdba50a85"
-};
+  const toast = document.createElement('div');
+  toast.className = `toast ${isError ? 'error' : ''}`;
+  toast.textContent = message;
+  document.body.appendChild(toast);
 
-const app = initializeApp(firebaseConfig);
-const db = getFirestore(app);
+  // إظهار التوست
+  setTimeout(() => toast.classList.add('show'), 10);
 
-function getReadBooks() {
-  try { return JSON.parse(localStorage.getItem("readBooks") || "[]"); }
-  catch { return []; }
+  // إخفاء التوست بعد 3 ثواني
+  setTimeout(() => {
+    toast.classList.remove('show');
+    setTimeout(() => toast.remove(), 300);
+  }, 3000);
 }
-function setReadBooks(books) {
-  localStorage.setItem("readBooks", JSON.stringify(books));
+
+// ================== DOM ELEMENTS ==================
+const dialog = document.getElementById("productDialog");
+const dialogTitle = document.getElementById("dialogTitle");
+const dialogDesc = document.getElementById("dialogDesc");
+const dialogImage = document.getElementById("dialogImage");
+const downloadDialogBtn = document.getElementById("downloadDialogBtn");
+const queueDialogBtn = document.getElementById("queueDialogBtn");
+const closeDialogBtn = document.getElementById("closeDialogBtn");
+const queueMenu = document.getElementById("queueMenu");
+const queueList = document.getElementById("queueList");
+const downloadAllBtn = document.getElementById("downloadAllBtn");
+const clearQueueBtn = document.getElementById("clearQueueBtn");
+const closeQueueBtn = document.getElementById("closeQueueBtn");
+const toggleQueueBtn = document.getElementById("toggleQueueBtn");
+const searchInput = document.getElementById("search-input");
+
+// ================== QUEUE MANAGEMENT ==================
+let downloadQueue = JSON.parse(localStorage.getItem("downloadQueue")) || [];
+
+function updateQueueCount() {
+  toggleQueueBtn.textContent = `Queue (${downloadQueue.length})`;
 }
 
-function updateReadCounterUI() {
-  const newCount = getReadBooks().length;
-  const countEl = document.getElementById("read-count-gold");
-  if (!countEl) return;
-  const oldCount = Number(countEl.textContent) || 0;
-  countEl.textContent = newCount;
-  if (newCount > oldCount) {
-    confetti({ particleCount: 80, spread: 70, origin: { y: 0.6 } });
+function renderQueue() {
+  queueList.innerHTML = "";
+  if (downloadQueue.length === 0) {
+    queueList.innerHTML = "<p style='text-align:center; padding:20px; color:#7f8c8d;'>Queue is empty</p>";
+    return;
   }
-}
 
-async function updateMostReadTag(snapshot) {
-  let maxReads = -1;
-  let readsMap = {};
-  snapshot.forEach(docSnap => {
-    const id = docSnap.id;
-    const reads = Number(docSnap.data().Reads) || 0;
-    readsMap[id] = reads;
-    if (reads > maxReads) maxReads = reads;
+  downloadQueue.forEach((book, index) => {
+    const item = document.createElement("div");
+    item.className = "queue-item";
+    item.innerHTML = `
+      <img src="${book.cover}" alt="${book.title}">
+      <div class="queue-item-info">
+        <h4>${book.title}</h4>
+      </div>
+      <button class="remove-item" data-index="${index}">&times;</button>
+    `;
+    queueList.appendChild(item);
   });
-  document.querySelectorAll(".book").forEach(bookEl => {
-    const badge = bookEl.querySelector(".most-read-badge");
-    if (!badge) return;
-    const id = bookEl.dataset.bookId;
-    if (readsMap[id] === maxReads && maxReads > 0) {
-      badge.style.display = "inline-block";
-    } else {
-      badge.style.display = "none";
-    }
-  });
-}
 
-async function markAsRead(bookId) {
-  let readBooks = getReadBooks();
-  if (!readBooks.includes(bookId)) {
-    readBooks.push(bookId);
-    setReadBooks(readBooks);
-    updateReadCounterUI();
-    try {
-      await updateDoc(doc(db, "Books", bookId), { Reads: increment(1) });
-    } catch (err) {
-      console.error(err);
-    }
-  }
-}
-
-function searchBooks() {
-  const input = document.getElementById("search-input").value.trim().toLowerCase();
-  document.querySelectorAll(".book").forEach(book => {
-    if (input === "") {
-      book.style.display = "block";
-    } else {
-      const title = book.dataset.title.toLowerCase();
-      const author = book.dataset.author.toLowerCase();
-      book.style.display = (title.includes(input) || author.includes(input)) ? "block" : "none";
-    }
-  });
-}
-
-function goToPurchasePage1(bookName) {
-  window.location.href = `/order1?book=${encodeURIComponent(bookName)}`;
-}
-
-async function handleDownload(bookId, bookName, buttonEl) {
-  await markAsRead(bookId);
-  buttonEl.textContent = "✅ Already Read";
-  buttonEl.disabled = true;
-  buttonEl.classList.add("opacity-60", "cursor-not-allowed");
-  goToPurchasePage1(bookName);
-}
-
-function attachBookEvents(bookEl) {
-  const downloadBtn = bookEl.querySelector("[data-purchase]");
-  if (downloadBtn) {
-    if (getReadBooks().includes(bookEl.dataset.bookId)) {
-      downloadBtn.textContent = "✅ Already Read";
-      downloadBtn.disabled = true;
-      downloadBtn.classList.add("opacity-60", "cursor-not-allowed");
-    }
-    downloadBtn.addEventListener("click", () => {
-      handleDownload(bookEl.dataset.bookId, downloadBtn.dataset.purchase, downloadBtn);
+  // ربط زر الحذف
+  document.querySelectorAll(".remove-item").forEach(btn => {
+    btn.addEventListener("click", (e) => {
+      const index = parseInt(e.target.dataset.index);
+      downloadQueue.splice(index, 1);
+      localStorage.setItem("downloadQueue", JSON.stringify(downloadQueue));
+      renderQueue();
     });
+  });
+
+  updateQueueCount();
+}
+
+// ================== BOOK DOWNLOAD LOGIC ==================
+function markButtonAsDownloaded(button) {
+  button.innerHTML = '✅ Downloaded';
+  button.disabled = true;
+  button.classList.add('opacity-60', 'cursor-not-allowed');
+}
+
+async function downloadBook(book, buttonEl = null) {
+  if (!book.downloadUrl) {
+    showToast("Download link not available for this book.", true);
+    return;
+  }
+
+  try {
+    // محاولة تنزيل الملف
+    const response = await fetch(book.downloadUrl, { method: 'HEAD' });
+    
+    if (!response.ok) throw new Error('File not found');
+
+    // فتح رابط التحميل في تاب جديد (أو نفس التاب)
+    window.open(book.downloadUrl, '_blank');
+
+    // تعليم الزر كـ "تم التحميل"
+    if (buttonEl) {
+      markButtonAsDownloaded(buttonEl);
+    }
+
+    showToast(`"${book.title}" is downloading!`);
+
+    // تحديث عداد الكتب المقروءة (اختياري)
+    if (book.id) {
+      try {
+        await updateDoc(doc(db, "Books", book.id), { Reads: increment(1) });
+      } catch (err) {
+        console.warn("Failed to update read count:", err);
+      }
+    }
+
+  } catch (error) {
+    console.error("Download failed:", error);
+    showToast(`Failed to download "${book.title}". File may not exist.`, true);
   }
 }
 
-function renderBook(docSnap) {
-  const data = docSnap.data();
-  const membersContainer = document.getElementById("books-members");
-  const readersContainer = document.getElementById("books-readers");
-
-  // معالجة الـ Categories
-  let categories = [];
-  if (Array.isArray(data.Categories)) {
-    categories = data.Categories;
-  } else if (typeof data.Categories === "string") {
-    categories = data.Categories.split(",").map(c => c.trim());
+function addToQueue(book) {
+  const exists = downloadQueue.some(b => b.id === book.id);
+  if (exists) {
+    showToast("Already in queue!", true);
+    return;
   }
+  downloadQueue.push(book);
+  localStorage.setItem("downloadQueue", JSON.stringify(downloadQueue));
+  renderQueue();
+  showToast("Added to queue!");
+}
 
-  let bookEl = document.querySelector(`.book[data-book-id="${docSnap.id}"]`);
-  if (!bookEl) {
-    bookEl = document.createElement("div");
-    bookEl.className = "relative bg-white p-4 rounded-sm shadow-sm book";
-    bookEl.dataset.bookId = docSnap.id;
-    if (data.Section === "members") {
-      membersContainer.appendChild(bookEl);
-      membersContainer.classList.remove("hidden");
-    } else {
-      readersContainer.appendChild(bookEl);
-      readersContainer.classList.remove("hidden");
-    }
-  }
+// ================== DIALOG ==================
+function openDialog(book) {
+  dialogTitle.textContent = book.title;
+  dialogDesc.textContent = book.description;
+  dialogImage.src = book.cover;
+  dialog.showModal();
 
-  bookEl.dataset.title = data.Title;
-  bookEl.dataset.author = data.Author;
-  bookEl.innerHTML = `
-    <span class="most-read-badge hidden">Most Read</span>
-    <img src="${data.CoverURL}" alt="${data.Title}" class="w-full h-64 object-cover rounded-sm mb-4" />
-    <h3 class="font-heading text-xl mb-2">${data.Title}</h3>
-    <p class="text-accent mb-2">By ${data.Author}</p>
-    <div class="flex flex-wrap gap-2 mb-2">
-      ${categories.map(c => `<span class="px-2 py-1 bg-blue-100 text-blue-700 rounded-full text-sm">${c}</span>`).join("")}
+  downloadDialogBtn.onclick = () => {
+    downloadBook(book);
+    dialog.close();
+  };
+  queueDialogBtn.onclick = () => {
+    addToQueue(book);
+    dialog.close();
+  };
+}
+
+// ================== RENDER BOOK ==================
+function renderBookCard(book) {
+  const card = document.createElement("div");
+  card.className = "card";
+  card.innerHTML = `
+    <img src="${book.cover}" alt="${book.title}">
+    <h3>${book.title}</h3>
+    <p class="description">${book.description}</p>
+    <div class="card-buttons">
+      <button class="download-btn" data-id="${book.id}">Download</button>
+      <button class="add-queue-btn" data-id="${book.id}">Add to Queue</button>
     </div>
-    <button class="btn-primary w-full mb-2" data-purchase="${data.PurchaseText}">Download Now</button>
   `;
 
-  attachBookEvents(bookEl);
-}
+  const downloadBtn = card.querySelector(".download-btn");
+  const queueBtn = card.querySelector(".add-queue-btn");
 
-document.addEventListener("DOMContentLoaded", async () => {
-  if (!localStorage.getItem("readBooks")) setReadBooks([]);
-  updateReadCounterUI();
-
-  const booksRef = collection(db, "Books");
-  onSnapshot(booksRef, snapshot => {
-    document.getElementById("loader").classList.add("hidden"); // ⬅️ يخفي اللودر أول ما تيجي البيانات
-    snapshot.docChanges().forEach(change => {
-      if (change.type === "added" || change.type === "modified") {
-        renderBook(change.doc);
-      } else if (change.type === "removed") {
-        const el = document.querySelector(`.book[data-book-id="${change.doc.id}"]`);
-        if (el) el.remove();
-      }
-    });
-    updateMostReadTag(snapshot);
+  downloadBtn.addEventListener("click", () => downloadBook(book, downloadBtn));
+  queueBtn.addEventListener("click", () => addToQueue(book));
+  
+  card.addEventListener("click", (e) => {
+    if (!e.target.closest("button")) openDialog(book);
   });
 
-  document.getElementById("search-input").addEventListener("keyup", searchBooks);
-});
-</script>
+  document.querySelector(".list").appendChild(card);
+}
 
+// ================== SEARCH ==================
+function handleSearch() {
+  const term = searchInput.value.toLowerCase();
+  document.querySelectorAll(".card").forEach(card => {
+    const title = card.querySelector("h3").textContent.toLowerCase();
+    const desc = card.querySelector(".description").textContent.toLowerCase();
+    card.style.display = (title.includes(term) || desc.includes(term)) ? "block" : "none";
+  });
+}
+
+// ================== DOWNLOAD FROM QUEUE ==================
+async function downloadFromQueue(book, index) {
+  await downloadBook(book);
+  // بعد التحميل، امسح الكتاب من القائمة
+  downloadQueue.splice(index, 1);
+  localStorage.setItem("downloadQueue", JSON.stringify(downloadQueue));
+  renderQueue();
+  showToast(`"${book.title}" removed from queue after download.`);
+}
+
+// ================== INIT ==================
+document.addEventListener("DOMContentLoaded", () => {
+  renderQueue();
+  
+  // إغلاق الـ dialog
+  closeDialogBtn.addEventListener("click", () => dialog.close());
+  dialog.addEventListener("click", (e) => {
+    const rect = dialog.getBoundingClientRect();
+    const inDialog = e.clientX >= rect.left && e.clientX <= rect.right &&
+                     e.clientY >= rect.top && e.clientY <= rect.bottom;
+    if (!inDialog) dialog.close();
+  });
+
+  // قائمة الانتظار
+  toggleQueueBtn.addEventListener("click", () => queueMenu.classList.toggle("hidden"));
+  closeQueueBtn.addEventListener("click", () => queueMenu.classList.add("hidden"));
+  
+  downloadAllBtn.addEventListener("click", async () => {
+    if (downloadQueue.length === 0) return showToast("Queue is empty!", true);
+    
+    for (let i = downloadQueue.length - 1; i >= 0; i--) {
+      await downloadFromQueue(downloadQueue[i], i);
+    }
+    showToast("All books downloaded and removed from queue!");
+  });
+  
+  clearQueueBtn.addEventListener("click", () => {
+    if (downloadQueue.length === 0) return;
+    if (confirm("Clear all books from queue?")) {
+      downloadQueue = [];
+      localStorage.setItem("downloadQueue", "[]");
+      renderQueue();
+      showToast("Queue cleared!");
+    }
+  });
+
+  // بحث
+  searchInput?.addEventListener("input", handleSearch);
+
+  // تحميل الكتب من Firestore
+  const booksRef = collection(db, "Books");
+  onSnapshot(booksRef, (snapshot) => {
+    document.getElementById("loader").style.display = "none";
+    document.querySelector(".list").innerHTML = "";
+    
+    snapshot.forEach(doc => {
+      const data = doc.data();
+      renderBookCard({
+        id: doc.id,
+        title: data.Title,
+        description: data.Description || data.description || "No description available.",
+        cover: data.CoverURL || "https://via.placeholder.com/200x300?text=Book+Cover",
+        downloadUrl: data.PurchaseText // ← تأكد أن هذا الحقل موجود في Firestore
+      });
+    });
+  }, (error) => {
+    console.error("Error loading books:", error);
+    document.getElementById("loader").textContent = "Failed to load books.";
+    showToast("Failed to load books from server.", true);
+  });
+});
+  </script>
 </body>
 </html>
