@@ -566,41 +566,34 @@ function markButtonAsDownloaded(button) {
 }
 
 async function downloadBook(book, buttonEl = null) {
-  if (!book.downloadUrl) {
-    showToast("Download link not available for this book.", true);
-    return;
-  }
-
-  try {
-    // محاولة تنزيل الملف
-    const response = await fetch(book.downloadUrl, { method: 'HEAD' });
-    
-    if (!response.ok) throw new Error('File not found');
-
-    // فتح رابط التحميل في تاب جديد (أو نفس التاب)
-    window.open(book.downloadUrl, '_blank');
-
-    // تعليم الزر كـ "تم التحميل"
-    if (buttonEl) {
-      markButtonAsDownloaded(buttonEl);
+    if (!book.filePath) {
+      showToast("Download path not available.", true);
+      return;
     }
-
-    showToast(`"${book.title}" is downloading!`);
-
-    // تحديث عداد الكتب المقروءة (اختياري)
-    if (book.id) {
-      try {
+  
+    // تحويل إلى مسار نسبي صحيح
+    const downloadUrl = book.filePath.startsWith('/') 
+      ? book.filePath 
+      : '/' + book.filePath;
+  
+    try {
+      const response = await fetch(downloadUrl, { method: 'HEAD' });
+      if (!response.ok) throw new Error('File not found');
+  
+      window.open(downloadUrl, '_blank');
+  
+      if (buttonEl) markButtonAsDownloaded(buttonEl);
+      showToast(`"${book.title}" is downloading!`);
+  
+      if (book.id) {
         await updateDoc(doc(db, "Books", book.id), { Reads: increment(1) });
-      } catch (err) {
-        console.warn("Failed to update read count:", err);
       }
+  
+    } catch (error) {
+      console.error("Download failed:", error);
+      showToast(`Failed to download "${book.title}". File not found.`, true);
     }
-
-  } catch (error) {
-    console.error("Download failed:", error);
-    showToast(`Failed to download "${book.title}". File may not exist.`, true);
   }
-}
 
 function addToQueue(book) {
   const exists = downloadQueue.some(b => b.id === book.id);
@@ -728,9 +721,10 @@ document.addEventListener("DOMContentLoaded", () => {
       renderBookCard({
         id: doc.id,
         title: data.Title,
-        description: data.Description || data.description || "No description available.",
-        cover: data.CoverURL || "https://via.placeholder.com/200x300?text=Book+Cover",
-        downloadUrl: data.PurchaseText // ← تأكد أن هذا الحقل موجود في Firestore
+        description: data.Description || "No description available.",
+        cover: data.CoverURL || "https://via.placeholder.com/200x300?text=Book",
+        // ←←← هنا نبني filePath من PurchaseText ←←←
+        filePath: `books/${data.PurchaseText}.pdf`
       });
     });
   }, (error) => {
