@@ -1,163 +1,132 @@
-const body = document.body;
-const sunIcon = document.getElementById('sun-icon');
-const moonIcon = document.getElementById('moon-icon');
-
-function updateIcons(mode) {
-  if (mode === 'dark') {
-    sunIcon.classList.remove('hidden');
-    moonIcon.classList.add('hidden');
-  } else {
-    sunIcon.classList.add('hidden');
-    moonIcon.classList.remove('hidden');
-  }
-}
-
-document.getElementById('theme-toggle').addEventListener('click', () => {
-  body.classList.toggle('dark-mode');
-  body.classList.toggle('light-mode');
-
-  const currentMode = body.classList.contains('dark-mode') ? 'dark' : 'light';
-  localStorage.setItem('theme', currentMode);
-  updateIcons(currentMode);
-});
-
-window.addEventListener('DOMContentLoaded', () => {
-  const savedTheme = localStorage.getItem('theme') || 'light';
-  body.classList.remove('light-mode', 'dark-mode');
-  body.classList.add(savedTheme + '-mode');
-  updateIcons(savedTheme);
-});
-
-function goToPurchasePage(bookName, bookPrice) {
-    // تحويل المستخدم إلى صفحة الشراء مع تمرير البيانات في الرابط
-    window.location.href = `/order?name=${encodeURIComponent(bookName)}&price=${encodeURIComponent(bookPrice)}`;
-}
-
-function goToPurchasePage1(bookName) {
-    // تحويل المستخدم إلى صفحة الشراء مع تمرير البيانات في الرابط
-    const encodedBookName = encodeURIComponent(bookName);
-    window.location.href = `/order1?book=${encodedBookName}`;
-  }
-
+document.addEventListener('DOMContentLoaded', function() {
+    // Header scroll effect
+    const header = document.querySelector('header');
+    window.addEventListener('scroll', () => {
+        if (window.scrollY > 50) {
+            header.classList.add('header-scrolled');
+        } else {
+            header.classList.remove('header-scrolled');
+        }
+    });
+    
+    // Language switching
+    const languageSwitcher = document.getElementById('language-switcher');
+    let currentLang = 'en';
+    
+    function switchLanguage(lang) {
+        currentLang = lang;
         
-// المتغيرات الأساسية
-const form = document.getElementById("contact-form");
-const requestTypeSelect = document.getElementById("request-type");
-let uploadedFileUrl = "";
-
-// إنشاء Cloudinary Upload Widget
-const cloudinaryWidget = cloudinary.createUploadWidget({
-  cloudName: 'dh328ytl3',          // عوضها باسم حسابك في Cloudinary
-  uploadPreset: 'MYM_Library',  // عوضها باسم Upload Preset اللي عملته (Unsigned)
-  multiple: false,
-  sources: ['local'],
-  folder: 'MYM_Library_requests'
-}, (error, result) => {
-  if (!error && result && result.event === "success") {
-    uploadedFileUrl = result.info.secure_url;
-    alert("File uploaded successfully!");
-  }
-});
-
-// دالة لتحديث الفورم حسب اختيار المستخدم
-function updateForm() {
-  // إزالة زر رفع الملف إذا كان موجود
-  const existingUploadBtn = document.getElementById("upload-widget-btn");
-  if (existingUploadBtn) {
-    existingUploadBtn.remove();
-    uploadedFileUrl = "";
-  }
-
-  // إذا نوع الطلب 'book-request' نضيف زر رفع الملف
-  if (requestTypeSelect.value === "book-request") {
-    const uploadBtn = document.createElement("button");
-    uploadBtn.type = "button";
-    uploadBtn.id = "upload-widget-btn";
-    uploadBtn.className = "btn-primary w-full mb-4";
-    uploadBtn.textContent = "Upload Book File";
-    uploadBtn.addEventListener("click", () => {
-      cloudinaryWidget.open();
-    });
-
-    // نضيف الزر قبل زر الإرسال
-    form.insertBefore(uploadBtn, form.querySelector("button[type='submit']"));
-  }
-}
-
-// تفعيل تحديث الفورم عند تغيير اختيار المستخدم
-requestTypeSelect.addEventListener("change", updateForm);
-
-// تفعيل تحديث الفورم عند تحميل الصفحة
-window.addEventListener("DOMContentLoaded", updateForm);
-
-// التعامل مع إرسال الفورم
-form.addEventListener("submit", function(event) {
-  event.preventDefault();
-
-  // لو نوع الطلب 'book-request' بدون رفع ملف، نمنع الإرسال
-  if (requestTypeSelect.value === "book-request" && !uploadedFileUrl) {
-    alert("Please upload the book file before submitting.");
-    return;
-  }
-
-  // تحضير بيانات الإرسال
-  const templateParams = {
-    name: form.name.value,
-    email: form.email.value,
-    message: form.message.value,
-    request_type: requestTypeSelect.value === "contact-us" ? "Contact Us" : "Request Adding Book",
-    file_url: uploadedFileUrl ? `<a href="${uploadedFileUrl}" target="_blank">${uploadedFileUrl}</a>` : "No file attached"
-  };
-
-
-  // إرسال البيانات لـ EmailJS
-  emailjs.send("service_6ewqm85", "template_2w9x0ot", templateParams, "nnP-kvyjBP356LpcZ")
-  .then(function(response) {
-    form.innerHTML = `
-      <div class="text-center p-4 bg-green-100 border border-green-400 text-green-700 rounded-sm">
-        ✅ Your message has been sent successfully! We will get back to you soon.
-      </div>
-    `;
-  }, function(error) {
-    form.innerHTML += `
-      <div class="text-center p-4 mt-4 bg-red-100 border border-red-400 text-red-700 rounded-sm">
-        ❌ An error occurred while sending your message. Please try again later.
-      </div>
-    `;
-  });
-});
-
-
-const words = ["Books", "Stories", "Knowledge", "Games"];
-    let wordIndex = 0;
-    let charIndex = 0;
-    let isDeleting = false;
-    const textElement = document.getElementById("typewriter");
-
-    function type() {
-      const current = words[wordIndex];
-      if (isDeleting) {
-        charIndex--;
-      } else {
-        charIndex++;
-      }
-
-      textElement.textContent = current.substring(0, charIndex);
-
-      let delay = isDeleting ? 60 : Math.random() * (300 - 100) + 100;
-
-      if (!isDeleting && charIndex === current.length) {
-        delay = 1000;
-        isDeleting = true;
-      } else if (isDeleting && charIndex === 0) {
-        isDeleting = false;
-        wordIndex = (wordIndex + 1) % words.length;
-        delay = 600;
-      }
-
-      setTimeout(type, delay);
+        // Toggle visibility of language-specific elements
+        document.querySelectorAll('.lang-en').forEach(el => {
+            el.classList.toggle('hidden', lang !== 'en');
+        });
+        
+        document.querySelectorAll('.lang-ar').forEach(el => {
+            el.classList.toggle('hidden', lang !== 'ar');
+        });
+        
+        // Update language switcher button
+        if (lang === 'ar') {
+            languageSwitcher.innerHTML = `<span>AR</span>`;
+            document.documentElement.dir = 'rtl';
+            document.body.classList.add('rtl');
+        } else {
+            languageSwitcher.innerHTML = `<span>EN</span>`;
+            document.documentElement.dir = 'ltr';
+            document.body.classList.remove('rtl');
+        }
     }
-
-    document.addEventListener("DOMContentLoaded", () => {
-      setTimeout(type, 800);
+    
+    languageSwitcher.addEventListener('click', function() {
+        switchLanguage(currentLang === 'en' ? 'ar' : 'en');
     });
+    
+    // Form submission with EmailJS
+    const contactForm = document.getElementById('contact-form');
+    
+    contactForm.addEventListener('submit', function(e) {
+        e.preventDefault();
+        
+        // Get form values
+        const name = document.getElementById('name').value.trim();
+        const email = document.getElementById('email').value.trim();
+        const message = document.getElementById('message').value.trim();
+        
+        // Simple validation
+        if (!name || !email || !message) {
+            alert('Please fill in all fields');
+            return;
+        }
+        
+        if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+            alert('Please enter a valid email address');
+            return;
+        }
+        
+        // Get button reference
+        const submitBtn = contactForm.querySelector('button[type="submit"]');
+        const originalText = submitBtn.innerHTML;
+        
+        // Disable button and show loading
+        submitBtn.disabled = true;
+        submitBtn.innerHTML = '<span class="lang-en">Sending...</span><span class="lang-ar hidden">جاري الإرسال...</span>';
+        
+        // Prepare template parameters
+        const templateParams = {
+            name: name,
+            email: email,
+            message: message,
+            request_type: "Contact Us"
+        };
+        
+        // Send email using EmailJS
+        emailjs.send("service_6ewqm85", "template_2w9x0ot", templateParams)
+            .then(function(response) {
+                // Show success message
+                contactForm.innerHTML = `
+                    <div class="text-center p-4 bg-green-100 border border-green-400 text-green-700 rounded-sm">
+                        <span class="lang-en">✅ Your message has been sent successfully! We will get back to you soon.</span>
+                        <span class="lang-ar hidden">✅ تم إرسال رسالتك بنجاح! سوف نرد عليك قريباً.</span>
+                    </div>
+                `;
+                
+                // Update language elements after form submit
+                if (currentLang === 'ar') {
+                    document.querySelector('.lang-en').classList.add('hidden');
+                    document.querySelector('.lang-ar').classList.remove('hidden');
+                }
+            }, function(error) {
+                // Show error message
+                contactForm.innerHTML += `
+                    <div class="text-center p-4 mt-4 bg-red-100 border border-red-400 text-red-700 rounded-sm">
+                        <span class="lang-en">❌ An error occurred while sending your message. Please try again later.</span>
+                        <span class="lang-ar hidden">❌ حدث خطأ أثناء إرسال رسالتك. يرجى المحاولة لاحقاً.</span>
+                    </div>
+                `;
+                
+                // Re-enable submit button
+                contactForm.querySelector('button[type="submit"]').disabled = false;
+                contactForm.querySelector('button[type="submit"]').innerHTML = originalText;
+            });
+    });
+    
+    // Smooth scrolling for anchor links
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener('click', function(e) {
+            e.preventDefault();
+            const targetId = this.getAttribute('href');
+            if (targetId === '#') return;
+            
+            const targetElement = document.querySelector(targetId);
+            if (targetElement) {
+                const headerHeight = document.querySelector('header').offsetHeight;
+                const targetPosition = targetElement.getBoundingClientRect().top + window.pageYOffset - headerHeight;
+                
+                window.scrollTo({
+                    top: targetPosition,
+                    behavior: 'smooth'
+                });
+            }
+        });
+    });
+});
