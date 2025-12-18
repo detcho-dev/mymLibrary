@@ -1,0 +1,461 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MYM Library - Login / Sign Up</title>
+    <!-- Firebase App (the core Firebase SDK) is always required -->
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+    <!-- Add Firestore -->
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+
+    <script>
+        // تهيئة Firebase Config مباشرة
+        const firebaseConfig = {
+            apiKey: "AIzaSyB1OVx-YSmPFeq3lp-gAGe576yG1RhMLYs",
+            authDomain: "mymlibraryreads.firebaseapp.com",
+            projectId: "mymlibraryreads",
+            storageBucket: "mymlibraryreads.firebasestorage.app",
+            messagingSenderId: "11947740896",
+            appId: "1:11947740896:web:87482eb72210acdba50a85"
+        };
+
+        // تهيئة Firebase
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore(); // 👈 هذا هو Firestore
+    </script>
+
+    <style>
+        :root {
+            --dark-bg: #121212;
+            --card-bg: #1e1e1e;
+            --border-color: #333;
+            --primary-color: #6c5ce7;
+            --primary-hover: #5d4fc7;
+            --text-primary: #f8f9fa;
+            --text-secondary: #adb5bd;
+            --error-color: #ff6b6b;
+            --success-color: #4caf50;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, var(--dark-bg), #0a0a0a);
+            color: var(--text-primary);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .logo-container {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .logo {
+            font-size: 2.5rem;
+            font-weight: 800;
+            background: linear-gradient(90deg, #6c5ce7, #a29bfe);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 8px;
+        }
+
+        .logo-text {
+            color: var(--text-secondary);
+            font-size: 1.1rem;
+        }
+
+        .auth-container {
+            background: var(--card-bg);
+            border-radius: 16px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            overflow: hidden;
+            width: 100%;
+            max-width: 450px;
+            border: 1px solid var(--border-color);
+        }
+
+        .tabs {
+            display: flex;
+            background: rgba(30, 30, 30, 0.7);
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .tab {
+            flex: 1;
+            padding: 16px;
+            text-align: center;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            color: var(--text-secondary);
+        }
+
+        .tab.active {
+            color: var(--primary-color);
+            background: rgba(108, 92, 231, 0.1);
+            border-bottom: 3px solid var(--primary-color);
+        }
+
+        .tab:hover:not(.active) {
+            color: var(--text-primary);
+        }
+
+        .form-container {
+            padding: 30px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: var(--text-secondary);
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 14px;
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            background: rgba(30, 30, 30, 0.8);
+            color: var(--text-primary);
+            font-size: 16px;
+            transition: border-color 0.3s;
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(108, 92, 231, 0.3);
+        }
+
+        .form-control::placeholder {
+            color: #555;
+        }
+
+        .btn {
+            width: 100%;
+            padding: 14px;
+            border: none;
+            border-radius: 10px;
+            background: var(--primary-color);
+            color: white;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 10px;
+        }
+
+        .btn:hover {
+            background: var(--primary-hover);
+            transform: translateY(-2px);
+        }
+
+        .btn:active {
+            transform: translateY(0);
+        }
+
+        .error-message {
+            color: var(--error-color);
+            text-align: center;
+            margin: 15px 0;
+            min-height: 24px;
+            font-size: 14px;
+        }
+
+        .success-message {
+            color: var(--success-color);
+            text-align: center;
+            margin: 15px 0;
+            min-height: 24px;
+            font-size: 14px;
+        }
+
+        .divider {
+            display: flex;
+            align-items: center;
+            margin: 25px 0;
+        }
+
+        .divider::before,
+        .divider::after {
+            content: "";
+            flex: 1;
+            height: 1px;
+            background: var(--border-color);
+        }
+
+        .divider span {
+            padding: 0 15px;
+            color: var(--text-secondary);
+            font-size: 14px;
+        }
+
+        .firebase-logo {
+            text-align: center;
+            margin-top: 20px;
+            color: var(--text-secondary);
+            font-size: 14px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .firebase-icon {
+            font-size: 20px;
+            color: #ffca28;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        @media (max-width: 480px) {
+            .form-container {
+                padding: 20px;
+            }
+
+            .logo {
+                font-size: 2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="auth-container">
+        <div class="logo-container">
+            <div class="logo">MYM Library</div>
+            <div class="logo-text">Access your personal book collection</div>
+        </div>
+
+        <div class="tabs">
+            <div class="tab active" data-tab="login">Login</div>
+            <div class="tab" data-tab="signup">Sign Up</div>
+        </div>
+
+        <div class="form-container">
+            <form id="login-form">
+                <div class="error-message" id="login-error"></div>
+                <div class="success-message" id="login-success"></div>
+
+                <div class="form-group">
+                    <label for="login-email">Email Address</label>
+                    <input type="email" id="login-email" class="form-control" placeholder="your@email.com" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="login-password">Password</label>
+                    <input type="password" id="login-password" class="form-control" placeholder="••••••••" required>
+                </div>
+
+                <button type="submit" class="btn">Log In to Your Account</button>
+            </form>
+
+            <form id="signup-form" class="hidden">
+                <div class="error-message" id="signup-error"></div>
+                <div class="success-message" id="signup-success"></div>
+
+                <div class="form-group">
+                    <label for="signup-name">Full Name</label>
+                    <input type="text" id="signup-name" class="form-control" placeholder="John Doe" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="signup-email">Email Address</label>
+                    <input type="email" id="signup-email" class="form-control" placeholder="your@email.com" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="signup-password">Password</label>
+                    <input type="password" id="signup-password" class="form-control" placeholder="••••••••" required>
+                </div>
+
+                <button type="submit" class="btn">Create Your Account</button>
+            </form>
+
+            
+
+            
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const tabs = document.querySelectorAll('.tab');
+            const loginForm = document.getElementById('login-form');
+            const signupForm = document.getElementById('signup-form');
+
+            tabs.forEach(tab => {
+                tab.addEventListener('click', () => {
+                    tabs.forEach(t => t.classList.remove('active'));
+                    tab.classList.add('active');
+
+                    if (tab.dataset.tab === 'login') {
+                        loginForm.classList.remove('hidden');
+                        signupForm.classList.add('hidden');
+                    } else {
+                        loginForm.classList.add('hidden');
+                        signupForm.classList.remove('hidden');
+                    }
+
+                    clearMessages();
+                });
+            });
+
+            loginForm.addEventListener('submit', handleLogin);
+            signupForm.addEventListener('submit', handleSignup);
+
+            function clearMessages() {
+                ['login-error', 'login-success', 'signup-error', 'signup-success'].forEach(id => {
+                    const element = document.getElementById(id);
+                    if (element) {
+                         element.textContent = '';
+                         element.style.opacity = '1';
+                         element.style.transition = 'none';
+                    }
+                });
+            }
+
+            function showError(formType, message) {
+                const errorElement = document.getElementById(`${formType}-error`);
+                if (errorElement) {
+                     errorElement.textContent = message;
+                     errorElement.style.opacity = '0';
+                     setTimeout(() => {
+                         errorElement.style.transition = 'opacity 0.3s';
+                         errorElement.style.opacity = '1';
+                     }, 10);
+                }
+            }
+
+            function showSuccess(formType, message) {
+                const successElement = document.getElementById(`${formType}-success`);
+                 if (successElement) {
+                     successElement.textContent = message;
+                     successElement.style.opacity = '0';
+                     setTimeout(() => {
+                         successElement.style.transition = 'opacity 0.3s';
+                         successElement.style.opacity = '1';
+                     }, 10);
+                 }
+            }
+
+            function generateRedirectUrl(userId, name, email) {
+                 const encodedUserId = encodeURIComponent(userId);
+                 const encodedName = encodeURIComponent(name);
+                 const encodedEmail = encodeURIComponent(email);
+                 return `https://mym-apps.vercel.app/library/explore?userId=${encodedUserId}&name=${encodedName}&email=${encodedEmail}`;
+            }
+
+            async function handleLogin(e) {
+                e.preventDefault();
+                clearMessages();
+
+                const email = document.getElementById('login-email').value.trim();
+                const password = document.getElementById('login-password').value; // لا تزال نأخذها، لكن لا نستخدمها
+
+                if (!email || !password) {
+                    showError('login', 'Please enter both email and password.');
+                    return;
+                }
+
+                try {
+                    // ابحث عن المستخدم في Collection 'users' باستخدام البريد الإلكتروني
+                    const querySnapshot = await db.collection('users').where('email', '==', email).get();
+
+                    if (querySnapshot.empty) {
+                        throw new Error('User not found');
+                    }
+
+                    // نفترض أن البريد فريد، لذا نأخذ أول نتيجة
+                    const doc = querySnapshot.docs[0]; // أول مستند مطابق
+                    const userId = doc.id; // ID المستند (document ID)
+                    const userData = doc.data();
+
+                    // إذا وُجد المستخدم
+                    const redirectUrl = generateRedirectUrl(userId, userData.name, userData.email);
+                    showSuccess('login', 'Login successful! Redirecting...');
+                    setTimeout(() => {
+                        window.location.href = redirectUrl;
+                    }, 1500);
+
+                } catch (error) {
+                    console.error("Login Error:", error);
+                    let errorMessage = 'Login failed. ';
+                    if (error.message.includes('not found')) {
+                        errorMessage += 'No account found with this email.';
+                    } else {
+                        errorMessage += 'Please check your credentials and try again.';
+                    }
+                    showError('login', errorMessage);
+                }
+            }
+
+            async function handleSignup(e) {
+                e.preventDefault();
+                clearMessages();
+
+                const name = document.getElementById('signup-name').value.trim();
+                const email = document.getElementById('signup-email').value.trim();
+                const password = document.getElementById('signup-password').value; // لا تزال نأخذها، لكن لا نخزنها
+
+                if (!name || !email || !password) {
+                    showError('signup', 'Please fill in all fields.');
+                    return;
+                }
+
+                // تحقق مما إذا كان المستخدم موجودًا بالفعل
+                try {
+                    const existingQuery = await db.collection('users').where('email', '==', email).get();
+                    if (!existingQuery.empty) {
+                        throw new Error('User already exists');
+                    }
+
+                    // إذا لم يكن موجودًا، أنشئ مستخدمًا جديدًا
+                    // add() يُنشئ Document ID تلقائيًا
+                    const docRef = await db.collection('users').add({
+                        name: name,
+                        email: email,
+                        // لا نخزن password
+                        readCount: 0 // عدد الكتب المقروءة الافتراضي
+                    });
+
+                    const userId = docRef.id; // ID المستند الجديد
+
+                    // بعد إنشاء الحساب، قم بتسجيل الدخول تلقائيًا
+                    const redirectUrl = generateRedirectUrl(userId, name, email);
+                    showSuccess('signup', 'Account created and logged in! Redirecting...');
+                    setTimeout(() => {
+                        window.location.href = redirectUrl;
+                    }, 1500);
+
+                } catch (error) {
+                    console.error("Signup Error:", error);
+                    let errorMessage = 'Registration failed. ';
+                    if (error.message.includes('already exists')) {
+                        errorMessage += 'An account with this email already exists.';
+                    } else {
+                        errorMessage += 'Please try again with different credentials.';
+                    }
+                    showError('signup', errorMessage);
+                }
+            }
+        });
+    </script>
+</body>
+</html>
