@@ -3,22 +3,44 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MYM Library - Explore The Best Books</title>
-    <meta name="description" content="Discover and buy top-rated books in MYM Library. Find the latest and most popular books online.">
+    <title>MYM - Explore The Best Books and Games</title>
+    <meta name="description" content="Discover and top-rated books and Games in MYM. Find the latest and most popular Books and Games online.">
+    <meta name="author" content="MYM ">
+    <meta name="keywords" content="books, games, , reading, entertainment, fantasy, mystery">
     <meta name="google-site-verification" content="Q21EzFp9__t1mjmjnaVeJhSSJeFLwAjDpk1pNicqupA" />
-    <!--<link rel="icon" href="icon" type="image/x-icon">-->
+    
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://mym-apps.vercel.app/">
+    <meta property="og:title" content="MYM - Explore The Best Books and Games">
+    <meta property="og:description" content="Discover a world of knowledge through our carefully curated collection of books and games.">
+    <meta property="og:image" content="https://mym-apps.vercel.app/logo.png">
+    
+    <!-- Twitter -->
+    <meta property="twitter:card" content="summary_large_image">
+    <meta property="twitter:url" content="https://mym-apps.vercel.app/">
+    <meta property="twitter:title" content="MYM - Explore The Best Books and Games">
+    <meta property="twitter:description" content="Discover a world of knowledge through our carefully curated collection of books and games.">
+    <meta property="twitter:image" content="https://mym-apps.vercel.app/logo.png">
+    
+    <!-- WhatsApp specific metadata -->
+    <meta property="og:image:alt" content="MYM - Books and Games">
+    <meta property="og:site_name" content="MYM">
+    
+    <link rel="icon" href="https://mym-apps.vercel.app/logo.png" type="image/x-icon">
     <script src="https://cdn.tailwindcss.com"></script>
     <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-9888101132674477" crossorigin="anonymous"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
     <link rel="stylesheet" href="index.css">
-    
+    <link rel="shortcut icon" href="https://mym-apps.vercel.app/logo.ico" type="image/x-icon">
 </head>
 <body class="bg-background text-foreground">
     <header class="header-scrolled">
         <div class="container mx-auto px-2 sm:px-4">
             <div class="nav-container">
                 <div class="flex items-center gap-4">
-                    <h1 class="text-2xl md:text-3xl font-heading log">MYM</h1>
+                    <img src="https://mym-apps.vercel.app/logo.png" height="40px" width="40px">
+                    <h1 class="text-2xl md:text-3xl font-heading lo">MYM</h1>
                 </div>
                 <div class="flex items-center gap-3 sm:gap-4">
                     <button id="language-switcher" class="language-switcher">
@@ -32,8 +54,8 @@
         <section id="home">
             <div class="home-content">
                 <h2 class="text-3xl md:text-4xl font-heading mb-4">
-                    <span class="lang-en">Welcome to<span class="lo">  MYM</span></span>
-                    <span class="lang-ar hidden">مرحبا بكم في<span class="lo"> MYM</span></span>
+                    <span class="lang-en">Welcome to<span class="log"> MYM</span></span>
+                    <span class="lang-ar hidden">مرحبا بكم في<span class="loga"> MYM</span></span>
                 </h2>
                 <p class="text-blue-300 text-lg md:text-xl mb-8 max-w-2xl mx-auto">
                     <span class="lang-en">Discover a world of knowledge through our carefully curated collection of books and games.</span>
@@ -66,7 +88,7 @@
                                 <span class="lang-en">Dive into a vast collection of books across various genres. Read, rate, and review your favorite books with our intuitive interface.</span>
                                 <span class="lang-ar hidden">انغمس في مجموعة واسعة من الكتب من مختلف التصنيفات. اقرأ، قيّم، وراجع كتبك المفضلة باستخدام واجهتنا البديهية.</span>
                             </p>
-                            <a href="/books" class="btn-primary self-start">
+                            <a href="library/explore" class="btn-primary self-start">
                                 <span class="lang-en">Explore Books</span>
                                 <span class="lang-ar hidden">استكشف الكتب</span>
                             </a>
@@ -154,22 +176,6 @@
                 <div class="max-w-lg mx-auto bg-gray-800 p-5 sm:p-6 rounded-xl shadow-sm contact-form">
                     <form id="contact-form">
                         <div class="mb-5">
-                            <label for="request-type" class="block text-sm font-medium mb-2 text-gray-300">
-                                <span class="lang-en">Select Request Type</span>
-                                <span class="lang-ar hidden">اختر نوع الطلب</span>
-                            </label>
-                            <select id="request-type" class="w-full px-3 py-2.5 rounded-lg border border-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-gray-700 text-white">
-                                <option value="contact-us">
-                                    <span class="lang-en">Contact Us</span>
-                                    <span class="lang-ar hidden">اتصل بنا</span>
-                                </option>
-                                <option value="book-request">
-                                    <span class="lang-en">Request Adding Book</span>
-                                    <span class="lang-ar hidden">طلب إضافة كتاب</span>
-                                </option>
-                            </select>
-                        </div>
-                        <div class="mb-5">
                             <label for="name" class="block text-sm font-medium mb-2 text-gray-300">
                                 <span class="lang-en">Name</span>
                                 <span class="lang-ar hidden">الاسم</span>
@@ -227,6 +233,16 @@
             </div>
         </div>
     </footer>
+
+    <!-- EmailJS SDK -->
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/emailjs-com@3/dist/email.min.js"></script>
+    <script type="text/javascript">
+        // Initialize EmailJS with your public key
+        (function() {
+            emailjs.init("nnP-kvyjBP356LpcZ");
+        })();
+    </script>
+
     <script src="index.js"></script>
 </body>
 </html>
