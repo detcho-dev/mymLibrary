@@ -350,9 +350,15 @@ section#contact {
     .home-content {
         padding: 0 10px;
     }
+    .lo{
+        display: none;
+    }
 }
 @media (max-width: 480px) {
     section#home {
         min-height: 80vh;
+    }
+    .lo{
+        display: none;
     }
 }
