@@ -691,7 +691,7 @@ function showNotification(message) {
 
 // Download functionality
 function downloadBook(bookName) {
-  const fileUrl = `/books/${bookName}.pdf`;
+  const fileUrl = `library/books/${bookName}.pdf`;
   const a = document.createElement("a");
   a.href = fileUrl;
   a.download = `${bookName}.pdf`;
