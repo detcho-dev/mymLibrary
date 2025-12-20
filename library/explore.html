@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="dark">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -7,107 +7,311 @@
   <link rel="icon" href="icon.ico" type="image/x-icon" />
   <title>MYM Library - Explore Books</title>
   <script src="https://cdn.tailwindcss.com"></script>
-
+  
   <style>
-  .btn-primary {
-    background-color: #1d4ed8;
-    color: white;
-    padding: 0.75rem 1.5rem;
-    border-radius: 9999px;
-    font-weight: 600;
-    transition: all 0.3s ease-in-out;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-    width: 100%;
-  }
-  .btn-primary:hover {
-    background-color: #2563eb;
-    transform: translateY(-3px);
-    box-shadow: 0 8px 12px rgba(0, 0, 0, 0.15);
-  }
-  .btn-primary:active {
-    transform: translateY(1px);
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  }
-  .most-read-badge {
-    position: absolute;
-    top: 10px;
-    left: 10px;
-    background: linear-gradient(135deg, #FFD700, #FFA500);
-    color: #000;
-    font-weight: bold;
-    font-size: 0.8rem;
-    padding: 4px 8px;
-    border-radius: 6px;
-    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
-    z-index: 5;
-  }
-  .gold-card {
-    background: linear-gradient(135deg, #FFD700, #FFA500);
-    color: #000;
-    padding: 0.8rem 1.5rem;
-    border-radius: 12px;
-    font-weight: bold;
-    font-size: 1.1rem;
-    box-shadow: 0 4px 10px rgba(0,0,0,0.2);
-    display: inline-block;
-    min-width: 160px;
-    max-width: 90%;
-    word-wrap: break-word;
-  }
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+    
+    :root {
+      --color-primary: #1d4ed8;
+      --color-primary-dark: #1e40af;
+      --color-secondary: #8b5cf6;
+      --color-accent: #f59e0b;
+      --bg-dark: #0f172a;
+      --bg-dark-light: #1e293b;
+      --text-light: #f1f5f9;
+      --text-gray: #94a3b8;
+    }
+    
+    html.dark {
+      background-color: var(--bg-dark);
+      color: var(--text-light);
+    }
+    
+    .btn-primary {
+      background-color: var(--color-primary);
+      color: white;
+      padding: 0.75rem 1.5rem;
+      border-radius: 9999px;
+      font-weight: 600;
+      transition: all 0.3s ease-in-out;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+      width: 100%;
+    }
+    .btn-primary:hover {
+      background-color: var(--color-primary-dark);
+      transform: translateY(-3px);
+      box-shadow: 0 8px 12px rgba(0, 0, 0, 0.25);
+    }
+    .btn-primary:active {
+      transform: translateY(1px);
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+    
+    .book-type-badge {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      font-weight: bold;
+      font-size: 0.75rem;
+      padding: 4px 8px;
+      border-radius: 6px;
+      z-index: 5;
+      color: white;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    
+    .book-type-badge-member {
+      background: linear-gradient(135deg, #3b82f6, #2563eb);
+      box-shadow: 0 2px 6px rgba(59, 130, 246, 0.4);
+    }
+    
+    .book-type-badge-reader {
+      background: linear-gradient(135deg, #8b5cf6, #7c3aed);
+      box-shadow: 0 2px 6px rgba(139, 92, 246, 0.4);
+    }
+    
+    .sidebar {
+      transform: translateX(-100%);
+      transition: transform 0.3s ease-in-out;
+    }
+    
+    .sidebar.open {
+      transform: translateX(0);
+    }
+    
+    .user-card {
+      background: linear-gradient(135deg, #1e293b, #1e293b);
+      border: 1px solid #334155;
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    }
+    
+    .book-list-item {
+      border-bottom: 1px solid #334155;
+      padding-bottom: 0.75rem;
+      margin-bottom: 0.75rem;
+    }
+    
+    .book-list-item:last-child {
+      border-bottom: none;
+      margin-bottom: 0;
+    }
+    
+    .filter-badge {
+      transition: all 0.2s ease;
+    }
+    
+    .filter-badge:hover, .filter-badge.active {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    }
+    
+    .language-toggle {
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    
+    .language-toggle:hover {
+      transform: scale(1.1);
+    }
+    
+    .search-input {
+      transition: all 0.3s ease-in-out;
+      width: 0;
+      opacity: 0;
+      padding: 0;
+      margin: 0;
+    }
+    
+    .search-input-open {
+      width: 250px;
+      opacity: 1;
+      padding: 0.5rem 1rem;
+      margin-left: 1rem;
+    }
+    
+    .no-books-message {
+      display: none;
+    }
+    
+    .sidebar-empty {
+      display: none;
+    }
+    
+    .sidebar.has-books .no-books-message {
+      display: none;
+    }
+    
+    .sidebar.empty .no-books-message {
+      display: block;
+    }
+    
+    .sidebar.empty .book-list-content {
+      display: none;
+    }
+    
+    .sidebar.empty .sidebar-actions {
+      display: none;
+    }
+    
+    @media (max-width: 640px) {
+      .search-input-open {
+        width: 180px;
+      }
+    }
   </style>
 </head>
-<body class="bg-gray-100 p-6">
+<body class="bg-gray-900 text-gray-100 min-h-screen flex flex-col">
 
-<header class="fixed top-0 left-0 w-full bg-white shadow-md z-50">
+<header class="fixed top-0 left-0 w-full bg-gray-900 border-b border-gray-800 z-50">
   <nav class="container mx-auto px-4 py-4 flex items-center justify-between">
     <div class="flex items-center gap-4">
-      <img src="logo.png" alt="MYM Library Logo" class="w-12 h-12 object-cover" />
-      <h1 class="text-2xl font-heading">MYM Library</h1>
+      <div class="relative">
+        <img src="logo.png" alt="MYM Library Logo" class="w-12 h-12 object-cover rounded-full border-2 border-blue-500" />
+        <span class="absolute -bottom-1 -right-1 w-4 h-4 bg-green-500 rounded-full border-2 border-gray-900"></span>
+      </div>
+      <h1 class="text-2xl font-bold text-white">MYM Library</h1>
     </div>
-    <ul class="flex gap-6">
-      <li><a href="https://mymlibrary.vercel.app" class="hover:text-blue-500 transition-colors">Home</a></li>
-    </ul>
+    
+    <div class="flex items-center gap-4">
+      <div class="relative">
+        <button id="search-toggle" class="text-gray-400 hover:text-white transition-colors">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-5.197-5.197m0 0A2.25 2.25 0 0113.5 15.75l-2.697.343m-2.697.343a2.25 2.25 0 01-1.91-1.91L6.25 12H4.5m4.06-2.193l-1.51 1.51m0 0a2.25 2.25 0 01-1.91-1.91L2.25 6.75 4.5 4.5m4.06-2.193l-1.51 1.51m0 0a2.25 2.25 0 01-1.91 1.91L2.25 7.5 4.5 9.75m14.25-2.193l-1.51 1.51m0 0a2.25 2.25 0 01-1.91 1.91L15.75 12h-3.375m-2.193-1.51l-1.51 1.51m0 0a2.25 2.25 0 01-1.91 1.91L9 15.75V18m3.06-12.193l-1.51 1.51m0 0a2.25 2.25 0 01-1.91 1.91L9 12.75v2.032c0 .418.336.754.754.754h4.082c.418 0 .754-.336.754-.754V12.75c0-.418-.336-.754-.754-.754h-1.082a2.25 2.25 0 00-1.91 1.91z" />
+          </svg>
+        </button>
+        <input id="search-input" type="search" placeholder="Search for books..." class="search-input bg-gray-800 text-white rounded-full border border-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500">
+      </div>
+      
+      <button id="language-toggle" class="text-gray-400 hover:text-white transition-colors">
+        <span class="en">EN</span>
+        <span class="ar hidden">AR</span>
+      </button>
+      
+      <button id="sidebar-toggle" class="text-gray-400 hover:text-white transition-colors">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" />
+        </svg>
+      </button>
+      
+      <button id="leaderboard-toggle" class="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1 rounded-md text-sm font-medium">
+        Leaderboard
+      </button>
+    </div>
   </nav>
 </header>
 
-<div class="container mx-auto mt-24">
-
-  <!-- loader -->
-  <div id="loader" class="flex justify-center items-center my-10">
-    <div class="w-10 h-10 border-4 border-blue-500 border-dashed rounded-full animate-spin"></div>
+<!-- Sidebar for book list -->
+<div id="sidebar" class="sidebar fixed top-0 left-0 h-full w-80 bg-gray-800 border-r border-gray-700 z-40 flex flex-col">
+  <div class="p-4 border-b border-gray-700 flex justify-between items-center">
+    <h2 class="text-xl font-bold text-white">My Reading List</h2>
+    <button id="sidebar-close" class="text-gray-400 hover:text-white">
+      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+      </svg>
+    </button>
   </div>
+  
+  <div class="p-4">
+    <div class="user-card p-4 mb-6">
+      <div class="flex items-center mb-4">
+        <div class="w-12 h-12 rounded-full bg-blue-500 flex items-center justify-center text-white font-bold mr-3">
+          U
+        </div>
+        <div>
+          <h3 id="user-name" class="font-bold text-lg">User Name</h3>
+          <p id="user-read-count" class="text-blue-400">0 books read</p>
+        </div>
+      </div>
+      <div class="border-t border-gray-700 pt-3">
+        <p class="text-gray-400 mb-1">Email:</p>
+        <p id="user-email" class="text-gray-300">user@example.com</p>
+      </div>
+    </div>
+    
+    <div class="book-list-content">
+      <div id="book-list" class="space-y-3 mb-4">
+        <!-- Books will be added here -->
+      </div>
+      
+      <div class="no-books-message text-center py-4 text-gray-400">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-12 h-12 mx-auto mb-2 text-gray-600">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m9-.75a9 9 0 11-18 0 9 9 0 0118 0zm-9 3.75h.008v.008H12v-.008z" />
+        </svg>
+        <p>Your reading list is empty</p>
+        <p class="text-sm mt-1">Add books to your list by clicking the + button on book cards</p>
+      </div>
+      
+      <div class="sidebar-actions">
+        <button id="download-all" class="btn-primary mb-2 flex items-center justify-center">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5 mr-2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3" />
+          </svg>
+          Download All
+        </button>
+        <button id="clear-list" class="bg-gray-700 hover:bg-gray-600 text-white w-full py-2 rounded-full font-medium transition-colors">
+          Clear List
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
 
+<!-- User info popup -->
+<div id="user-popup" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
+  <div class="bg-gray-800 rounded-xl p-6 max-w-md w-full shadow-2xl">
+    <div class="flex items-center mb-6">
+      <div class="w-16 h-16 rounded-full bg-blue-500 flex items-center justify-center text-white font-bold mr-4">
+        U
+      </div>
+      <div>
+        <h3 id="popup-user-name" class="font-bold text-2xl text-white">User Name</h3>
+        <p id="popup-user-read-count" class="text-blue-400">0 books read</p>
+      </div>
+    </div>
+    
+    <div class="border-t border-gray-700 pt-4">
+      <div class="mb-4">
+        <p class="text-gray-400 mb-1">Email:</p>
+        <p id="popup-user-email" class="text-gray-300">user@example.com</p>
+      </div>
+      
+      <div class="text-center mt-6">
+        <button id="close-popup" class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg font-medium">
+          Continue to Library
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="container mx-auto mt-24 px-4">
   <div class="flex justify-center my-4">
-    <div id="gold-card" class="gold-card text-center">
+    <div class="gold-card text-center">
       You've Read :  <span id="read-count-gold">0</span> Book(s)
     </div>
   </div>
+  
   <h1 class="text-3xl font-bold mb-6 flex justify-center">All Books</h1>
-
-  <div class="flex justify-center w-full my-6">
-    <input id="search-input" type="search" placeholder="Search for books..."
-      class="w-1/2 md:w-1/3 lg:w-1/4 px-4 py-2 rounded-[34px] border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-300 ease-in-out focus:w-2/3 md:focus:w-1/2 lg:focus:w-1/3">
-  </div>
-
-  <!-- Members Books -->
-  <div id="books-members" class="hidden grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-    <div class="col-span-full">
-      <h2 class="text-xl font-bold mb-2">Books written by <span class="text-blue-600">members</span> of the library</h2>
-      <hr class="mb-4">
+  
+  <div class="flex justify-center mb-6">
+    <div class="flex flex-wrap gap-2">
+      <span class="filter-badge px-3 py-1 bg-blue-600 text-white rounded-full cursor-pointer active">All</span>
+      <span class="filter-badge px-3 py-1 bg-gray-700 text-gray-300 rounded-full cursor-pointer hover:bg-gray-600">Fiction</span>
+      <span class="filter-badge px-3 py-1 bg-gray-700 text-gray-300 rounded-full cursor-pointer hover:bg-gray-600">Non-Fiction</span>
+      <span class="filter-badge px-3 py-1 bg-gray-700 text-gray-300 rounded-full cursor-pointer hover:bg-gray-600">Biography</span>
+      <span class="filter-badge px-3 py-1 bg-gray-700 text-gray-300 rounded-full cursor-pointer hover:bg-gray-600">Science</span>
+      <span class="filter-badge px-3 py-1 bg-gray-700 text-gray-300 rounded-full cursor-pointer hover:bg-gray-600">History</span>
     </div>
   </div>
 
-  <!-- Readers Books -->
-  <div id="books-readers" class="hidden grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 mt-6">
-    <div class="col-span-full">
-      <h2 class="text-xl font-bold mb-2">Books written by <span class="text-purple-600">library Readers</span></h2>
-      <hr class="mb-4">
-    </div>
+  <!-- Books grid -->
+  <div id="books-grid" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+    <!-- Books will be loaded here -->
   </div>
-
 </div>
 
-<script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.2/dist/confetti.browser.min.js"></script>
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 import { getFirestore, doc, updateDoc, increment, collection, onSnapshot } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
@@ -124,10 +328,184 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
-function getReadBooks() {
-  try { return JSON.parse(localStorage.getItem("readBooks") || "[]"); }
-  catch { return []; }
+// User data storage
+let userData = {
+  userId: null,
+  name: "User",
+  email: "user@example.com",
+  readCount: 0
+};
+
+// Book list storage
+let bookList = [];
+
+// Get URL parameters
+function getURLParams() {
+  const params = new URLSearchParams(window.location.search);
+  return {
+    userId: params.get('userId'),
+    name: params.get('name'),
+    email: params.get('email'),
+    readCount: params.get('readCount') || 0
+  };
 }
+
+// Initialize user data
+function initUserData() {
+  const params = getURLParams();
+  
+  if (params.userId) {
+    userData = {
+      userId: params.userId,
+      name: params.name || "User",
+      email: params.email || "user@example.com",
+      readCount: parseInt(params.readCount) || 0
+    };
+    
+    // Update UI
+    document.getElementById('user-name').textContent = userData.name;
+    document.getElementById('user-read-count').textContent = `${userData.readCount} books read`;
+    document.getElementById('user-email').textContent = userData.email;
+    
+    document.getElementById('popup-user-name').textContent = userData.name;
+    document.getElementById('popup-user-read-count').textContent = `${userData.readCount} books read`;
+    document.getElementById('popup-user-email').textContent = userData.email;
+    
+    // Show popup
+    document.getElementById('user-popup').classList.remove('hidden');
+  } else {
+    // Redirect to login if no user data
+    window.location.href = '/login';
+  }
+}
+
+// Book list management
+function getBookList() {
+  try {
+    return JSON.parse(localStorage.getItem("bookList") || "[]");
+  } catch {
+    return [];
+  }
+}
+
+function setBookList(books) {
+  localStorage.setItem("bookList", JSON.stringify(books));
+  bookList = books;
+  
+  // Update sidebar UI
+  updateBookListUI();
+}
+
+function addToBookList(book) {
+  if (!bookList.some(b => b.id === book.id)) {
+    bookList.push(book);
+    setBookList(bookList);
+    
+    // Show notification
+    const notification = document.createElement('div');
+    notification.className = 'fixed bottom-4 right-4 bg-green-600 text-white px-4 py-2 rounded-lg shadow-lg z-50';
+    notification.textContent = `Added "${book.title}" to your list`;
+    document.body.appendChild(notification);
+    
+    setTimeout(() => {
+      notification.remove();
+    }, 3000);
+  }
+}
+
+function removeFromBookList(bookId) {
+  bookList = bookList.filter(b => b.id !== bookId);
+  setBookList(bookList);
+}
+
+function clearBookList() {
+  bookList = [];
+  setBookList(bookList);
+}
+
+function updateBookListUI() {
+  const bookListEl = document.getElementById('book-list');
+  const sidebar = document.getElementById('sidebar');
+  
+  if (bookList.length === 0) {
+    sidebar.classList.add('empty');
+    sidebar.classList.remove('has-books');
+  } else {
+    sidebar.classList.add('has-books');
+    sidebar.classList.remove('empty');
+    
+    bookListEl.innerHTML = bookList.map(book => `
+      <div class="book-list-item flex items-center">
+        <img src="${book.coverURL}" alt="${book.title}" class="w-12 h-12 object-cover rounded mr-3">
+        <div class="flex-1 min-w-0">
+          <h4 class="text-sm font-medium truncate">${book.title}</h4>
+          <p class="text-xs text-gray-400 truncate">by ${book.author}</p>
+        </div>
+        <button data-book-id="${book.id}" class="remove-from-list text-gray-400 hover:text-red-500">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+          </svg>
+        </button>
+      </div>
+    `).join('');
+    
+    // Add event listeners for remove buttons
+    document.querySelectorAll('.remove-from-list').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        const bookId = e.currentTarget.dataset.bookId;
+        removeFromBookList(bookId);
+      });
+    });
+  }
+}
+
+// Download functionality
+function downloadBook(bookName) {
+  const fileUrl = `/books/${bookName}.pdf`;
+  const a = document.createElement("a");
+  a.href = fileUrl;
+  a.download = `${bookName}.pdf`;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+}
+
+async function handleDownload(bookId, bookName, buttonEl) {
+  try {
+    // Mark as read
+    let readBooks = getReadBooks();
+    if (!readBooks.includes(bookId)) {
+      readBooks.push(bookId);
+      setReadBooks(readBooks);
+      updateReadCounterUI();
+      
+      // Update Firebase
+      await updateDoc(doc(db, "Books", bookId), { Reads: increment(1) });
+    }
+    
+    // Download the book
+    downloadBook(bookName);
+    
+    // Update button state
+    buttonEl.textContent = "✅ Downloaded";
+    buttonEl.disabled = true;
+    buttonEl.classList.add("opacity-60", "cursor-not-allowed");
+    
+  } catch (err) {
+    console.error("Download error:", err);
+    alert("Failed to download the book. Please try again.");
+  }
+}
+
+// Book reading tracking
+function getReadBooks() {
+  try {
+    return JSON.parse(localStorage.getItem("readBooks") || "[]");
+  } catch {
+    return [];
+  }
+}
+
 function setReadBooks(books) {
   localStorage.setItem("readBooks", JSON.stringify(books));
 }
@@ -136,137 +514,140 @@ function updateReadCounterUI() {
   const newCount = getReadBooks().length;
   const countEl = document.getElementById("read-count-gold");
   if (!countEl) return;
-  const oldCount = Number(countEl.textContent) || 0;
+  
   countEl.textContent = newCount;
-  if (newCount > oldCount) {
-    confetti({ particleCount: 80, spread: 70, origin: { y: 0.6 } });
-  }
+  userData.readCount = newCount;
+  
+  // Update user info
+  document.getElementById('user-read-count').textContent = `${newCount} books read`;
+  document.getElementById('popup-user-read-count').textContent = `${newCount} books read`;
 }
 
-async function updateMostReadTag(snapshot) {
-  let maxReads = -1;
-  let readsMap = {};
-  snapshot.forEach(docSnap => {
-    const id = docSnap.id;
-    const reads = Number(docSnap.data().Reads) || 0;
-    readsMap[id] = reads;
-    if (reads > maxReads) maxReads = reads;
-  });
-  document.querySelectorAll(".book").forEach(bookEl => {
-    const badge = bookEl.querySelector(".most-read-badge");
-    if (!badge) return;
-    const id = bookEl.dataset.bookId;
-    if (readsMap[id] === maxReads && maxReads > 0) {
-      badge.style.display = "inline-block";
-    } else {
-      badge.style.display = "none";
-    }
-  });
-}
-
-async function markAsRead(bookId) {
-  let readBooks = getReadBooks();
-  if (!readBooks.includes(bookId)) {
-    readBooks.push(bookId);
-    setReadBooks(readBooks);
-    updateReadCounterUI();
-    try {
-      await updateDoc(doc(db, "Books", bookId), { Reads: increment(1) });
-    } catch (err) {
-      console.error(err);
-    }
-  }
-}
-
-function searchBooks() {
-  const input = document.getElementById("search-input").value.trim().toLowerCase();
+// Search functionality
+function searchBooks(query) {
+  query = query.trim().toLowerCase();
   document.querySelectorAll(".book").forEach(book => {
-    if (input === "") {
+    if (query === "") {
       book.style.display = "block";
     } else {
       const title = book.dataset.title.toLowerCase();
       const author = book.dataset.author.toLowerCase();
-      book.style.display = (title.includes(input) || author.includes(input)) ? "block" : "none";
+      const categories = book.dataset.categories.toLowerCase();
+      book.style.display = (title.includes(query) || author.includes(query) || categories.includes(query)) 
+        ? "block" 
+        : "none";
     }
   });
 }
 
-function goToPurchasePage1(bookName) {
-  window.location.href = `/order1?book=${encodeURIComponent(bookName)}`;
-}
-
-async function handleDownload(bookId, bookName, buttonEl) {
-  await markAsRead(bookId);
-  buttonEl.textContent = "✅ Already Read";
-  buttonEl.disabled = true;
-  buttonEl.classList.add("opacity-60", "cursor-not-allowed");
-  goToPurchasePage1(bookName);
-}
-
-function attachBookEvents(bookEl) {
-  const downloadBtn = bookEl.querySelector("[data-purchase]");
-  if (downloadBtn) {
-    if (getReadBooks().includes(bookEl.dataset.bookId)) {
-      downloadBtn.textContent = "✅ Already Read";
-      downloadBtn.disabled = true;
-      downloadBtn.classList.add("opacity-60", "cursor-not-allowed");
-    }
-    downloadBtn.addEventListener("click", () => {
-      handleDownload(bookEl.dataset.bookId, downloadBtn.dataset.purchase, downloadBtn);
+// Filter functionality
+function applyFilters() {
+  const activeFilter = document.querySelector('.filter-badge.active');
+  if (!activeFilter || activeFilter.textContent === 'All') {
+    document.querySelectorAll(".book").forEach(book => {
+      book.style.display = "block";
     });
+    return;
   }
+  
+  const filterName = activeFilter.textContent.toLowerCase();
+  document.querySelectorAll(".book").forEach(book => {
+    const categories = book.dataset.categories.toLowerCase();
+    book.style.display = categories.includes(filterName) ? "block" : "none";
+  });
 }
 
+// Card rendering
 function renderBook(docSnap) {
   const data = docSnap.data();
-  const membersContainer = document.getElementById("books-members");
-  const readersContainer = document.getElementById("books-readers");
+  const booksGrid = document.getElementById("books-grid");
 
-  // معالجة الـ Categories
+  // Process categories
   let categories = [];
   if (Array.isArray(data.Categories)) {
     categories = data.Categories;
   } else if (typeof data.Categories === "string") {
     categories = data.Categories.split(",").map(c => c.trim());
   }
+  const categoriesStr = categories.join(",");
 
   let bookEl = document.querySelector(`.book[data-book-id="${docSnap.id}"]`);
   if (!bookEl) {
     bookEl = document.createElement("div");
-    bookEl.className = "relative bg-white p-4 rounded-sm shadow-sm book";
+    bookEl.className = "relative bg-gray-800 rounded-xl overflow-hidden shadow-lg book";
     bookEl.dataset.bookId = docSnap.id;
-    if (data.Section === "members") {
-      membersContainer.appendChild(bookEl);
-      membersContainer.classList.remove("hidden");
-    } else {
-      readersContainer.appendChild(bookEl);
-      readersContainer.classList.remove("hidden");
-    }
+    bookEl.dataset.title = data.Title;
+    bookEl.dataset.author = data.Author;
+    bookEl.dataset.categories = categoriesStr;
+    booksGrid.appendChild(bookEl);
   }
 
-  bookEl.dataset.title = data.Title;
-  bookEl.dataset.author = data.Author;
+  // Determine book type
+  const bookType = data.Section === "members" ? "member" : "reader";
+  const badgeClass = bookType === "member" ? "book-type-badge-member" : "book-type-badge-reader";
+
   bookEl.innerHTML = `
-    <span class="most-read-badge hidden">Most Read</span>
-    <img src="${data.CoverURL}" alt="${data.Title}" class="w-full h-64 object-cover rounded-sm mb-4" />
-    <h3 class="font-heading text-xl mb-2">${data.Title}</h3>
-    <p class="text-accent mb-2">By ${data.Author}</p>
-    <div class="flex flex-wrap gap-2 mb-2">
-      ${categories.map(c => `<span class="px-2 py-1 bg-blue-100 text-blue-700 rounded-full text-sm">${c}</span>`).join("")}
+    <div class="relative">
+      <div class="book-type-badge ${badgeClass}">${bookType}</div>
+      <img src="${data.CoverURL}" alt="${data.Title}" class="w-full h-64 object-cover" />
     </div>
-    <button class="btn-primary w-full mb-2" data-purchase="${data.PurchaseText}">Download Now</button>
+    <div class="p-4">
+      <h3 class="font-bold text-xl mb-2">${data.Title}</h3>
+      <p class="text-gray-400 mb-2">By ${data.Author}</p>
+      <div class="flex flex-wrap gap-2 mb-4">
+        ${categories.map(c => `<span class="px-2 py-1 bg-gray-700 text-blue-300 rounded-full text-xs">${c}</span>`).join("")}
+      </div>
+      <div class="flex gap-2">
+        <button class="btn-primary w-full" data-purchase="${data.PurchaseText}">Download</button>
+        <button class="add-to-list w-10 h-10 rounded-full bg-gray-700 flex items-center justify-center text-white hover:bg-gray-600 transition-colors">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+          </svg>
+        </button>
+      </div>
+    </div>
   `;
 
-  attachBookEvents(bookEl);
+  // Add event listeners
+  const downloadBtn = bookEl.querySelector("[data-purchase]");
+  if (downloadBtn) {
+    if (getReadBooks().includes(docSnap.id)) {
+      downloadBtn.textContent = "✅ Downloaded";
+      downloadBtn.disabled = true;
+      downloadBtn.classList.add("opacity-60", "cursor-not-allowed");
+    }
+    downloadBtn.addEventListener("click", () => {
+      handleDownload(docSnap.id, downloadBtn.dataset.purchase, downloadBtn);
+    });
+  }
+  
+  const addToListBtn = bookEl.querySelector(".add-to-list");
+  addToListBtn.addEventListener("click", () => {
+    addToBookList({
+      id: docSnap.id,
+      title: data.Title,
+      author: data.Author,
+      coverURL: data.CoverURL
+    });
+  });
 }
 
+// Initialize the app
 document.addEventListener("DOMContentLoaded", async () => {
+  // Initialize user data
+  initUserData();
+  
+  // Set up book list
+  bookList = getBookList();
+  updateBookListUI();
+  
+  // Set up read books
   if (!localStorage.getItem("readBooks")) setReadBooks([]);
   updateReadCounterUI();
-
+  
+  // Firebase listener
   const booksRef = collection(db, "Books");
   onSnapshot(booksRef, snapshot => {
-    document.getElementById("loader").classList.add("hidden"); // ⬅️ يخفي اللودر أول ما تيجي البيانات
     snapshot.docChanges().forEach(change => {
       if (change.type === "added" || change.type === "modified") {
         renderBook(change.doc);
@@ -275,10 +656,112 @@ document.addEventListener("DOMContentLoaded", async () => {
         if (el) el.remove();
       }
     });
-    updateMostReadTag(snapshot);
   });
-
-  document.getElementById("search-input").addEventListener("keyup", searchBooks);
+  
+  // Search functionality
+  document.getElementById("search-input").addEventListener("keyup", (e) => {
+    searchBooks(e.target.value);
+  });
+  
+  document.getElementById("search-toggle").addEventListener("click", () => {
+    const searchInput = document.getElementById("search-input");
+    searchInput.classList.toggle("search-input-open");
+    if (searchInput.classList.contains("search-input-open")) {
+      searchInput.focus();
+    }
+  });
+  
+  // Filter functionality
+  document.querySelectorAll('.filter-badge').forEach(badge => {
+    badge.addEventListener('click', function() {
+      document.querySelectorAll('.filter-badge').forEach(b => b.classList.remove('active'));
+      this.classList.add('active');
+      applyFilters();
+    });
+  });
+  
+  // Sidebar functionality
+  document.getElementById("sidebar-toggle").addEventListener("click", () => {
+    document.getElementById("sidebar").classList.add("open");
+  });
+  
+  document.getElementById("sidebar-close").addEventListener("click", () => {
+    document.getElementById("sidebar").classList.remove("open");
+  });
+  
+  // Download all functionality
+  document.getElementById("download-all").addEventListener("click", () => {
+    if (bookList.length === 0) return;
+    
+    bookList.forEach(book => {
+      downloadBook(book.title);
+    });
+    
+    // Mark all as read
+    const readBooks = getReadBooks();
+    bookList.forEach(book => {
+      if (!readBooks.includes(book.id)) {
+        readBooks.push(book.id);
+      }
+    });
+    setReadBooks(readBooks);
+    updateReadCounterUI();
+    
+    // Clear the list
+    clearBookList();
+    
+    // Show notification
+    const notification = document.createElement('div');
+    notification.className = 'fixed bottom-4 right-4 bg-green-600 text-white px-4 py-2 rounded-lg shadow-lg z-50';
+    notification.textContent = `Downloaded ${bookList.length} books successfully!`;
+    document.body.appendChild(notification);
+    
+    setTimeout(() => {
+      notification.remove();
+    }, 3000);
+  });
+  
+  // Clear list functionality
+  document.getElementById("clear-list").addEventListener("click", () => {
+    clearBookList();
+  });
+  
+  // Close popup
+  document.getElementById("close-popup").addEventListener("click", () => {
+    document.getElementById("user-popup").classList.add("hidden");
+  });
+  
+  // Language toggle
+  document.getElementById("language-toggle").addEventListener("click", () => {
+    const enText = document.querySelector('.en');
+    const arText = document.querySelector('.ar');
+    
+    if (enText.classList.contains('hidden')) {
+      // Switch to English
+      enText.classList.remove('hidden');
+      arText.classList.add('hidden');
+      document.documentElement.setAttribute('dir', 'ltr');
+      
+      // Update UI elements
+      document.getElementById('user-read-count').textContent = `${userData.readCount} books read`;
+      document.getElementById('popup-user-read-count').textContent = `${userData.readCount} books read`;
+      document.getElementById('download-all').textContent = 'Download All';
+      document.getElementById('clear-list').textContent = 'Clear List';
+      document.getElementById('close-popup').textContent = 'Continue to Library';
+    } else {
+      // Switch to Arabic
+      enText.classList.add('hidden');
+      arText.classList.remove('hidden');
+      document.documentElement.setAttribute('dir', 'rtl');
+      
+      // Update UI elements
+      document.getElementById('user-read-count').textContent = `قرأت ${userData.readCount} كتاب`;
+      document.getElementById('popup-user-read-count').textContent = `قرأت ${userData.readCount} كتاب`;
+      document.getElementById('download-all').textContent = 'تنزيل الكل';
+      document.getElementById('clear-list').textContent = 'مسح القائمة';
+      document.getElementById('close-popup').textContent = 'استمرار إلى المكتبة';
+    }
+  });
 });
 </script>
 
