@@ -7,6 +7,9 @@
   <link rel="icon" href="icon.ico" type="image/x-icon" />
   <title>MYM Library - Explore Books</title>
   <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.2/dist/confetti.browser.min.js"></script>
   
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
@@ -257,6 +260,26 @@
       box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
     }
     
+    .loader {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 200px;
+    }
+    
+    .spinner {
+      width: 48px;
+      height: 48px;
+      border: 5px solid rgba(59, 130, 246, 0.2);
+      border-top-color: #3b82f6;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+    }
+    
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+    
     @media (max-width: 1024px) {
       .sidebar {
         width: 300px;
@@ -329,6 +352,29 @@
       .notification {
         display: none;
       }
+      
+      .mobile-hidden {
+        display: none;
+      }
+    }
+    
+    @media (max-width: 480px) {
+      .header-actions {
+        gap: 4px;
+      }
+      
+      .leaderboard-mobile {
+        display: block;
+      }
+      
+      .leaderboard-desktop {
+        display: none;
+      }
+      
+      .search-container {
+        width: 100%;
+        max-width: 200px;
+      }
     }
   </style>
 </head>
@@ -374,7 +420,7 @@
           </svg>
         </button>
         
-        <button id="leaderboard-toggle" class="hidden md:flex bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white px-3 py-1.5 rounded-lg text-sm font-medium transition-all duration-200">
+        <button id="leaderboard-toggle" class="leaderboard-desktop bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white px-3 py-1.5 rounded-lg text-sm font-medium transition-all duration-200">
           <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4 mr-1">
             <path stroke-linecap="round" stroke-linejoin="round" d="M16.5 18.75h-9m9 0a3 3 0 013 3h-15a3 3 0 013-3m9 0v-3.375c0-.621-.504-1.125-1.125-1.125h-.871M7.5 18.75v-3.375c0-.621.504-1.125 1.125-1.125h.872m5.007 0H9.497m5.007 0a7.454 7.454 0 01-.982-3.172M9.497 14.25a7.454 7.454 0 00.981-3.172M5.25 4.236c-.982.143-1.954.317-2.916.52A6.003 6.003 0 007.73 9.728M5.25 4.236V4.5c0 2.108.966 3.99 2.48 5.228M5.25 4.236V2.721C7.456 2.41 9.71 2.25 12 2.25c2.291 0 4.545.16 6.75.47v1.516M7.73 9.728a6.726 6.726 0 002.748 1.35m8.272-6.842V4.5c0 2.108-.966 3.99-2.48 5.228m2.48-5.492c.962-.203 1.934-.377 2.916-.52" />
           </svg>
@@ -515,13 +561,8 @@
   <!-- Books grid -->
   <div id="books-grid" class="books-grid grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 max-w-7xl mx-auto">
     <!-- Books will be loaded here -->
-    <div class="text-center py-12 col-span-full">
-      <div class="inline-block mb-4">
-        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-12 h-12 mx-auto text-gray-500 animate-pulse">
-          <path stroke-linecap="round" stroke-linejoin="round" d="M12 6.042A8.967 8.967 0 006 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 016 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 016-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0018 18a8.987 8.987 0 00-6 2.292m0-14.25v14.25" />
-        </svg>
-      </div>
-      <p class="text-gray-400 font-medium">Loading books...</p>
+    <div class="loader col-span-full">
+      <div class="spinner"></div>
     </div>
   </div>
   
@@ -537,374 +578,404 @@
   </svg>
 </div>
 
-<script type="module">
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-import { getFirestore, doc, updateDoc, increment, collection, onSnapshot } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+<!-- Floating button for mobile leaderboard access -->
+<div class="floating-btn md:hidden leaderboard-mobile" id="mobile-leaderboard-toggle" style="right: 100px; bottom: 30px;">
+  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
+    <path stroke-linecap="round" stroke-linejoin="round" d="M16.5 18.75h-9m9 0a3 3 0 013 3h-15a3 3 0 013-3m9 0v-3.375c0-.621-.504-1.125-1.125-1.125h-.871M7.5 18.75v-3.375c0-.621.504-1.125 1.125-1.125h.872m5.007 0H9.497m5.007 0a7.454 7.454 0 01-.982-3.172M9.497 14.25a7.454 7.454 0 00.981-3.172M5.25 4.236c-.982.143-1.954.317-2.916.52A6.003 6.003 0 007.73 9.728M5.25 4.236V4.5c0 2.108.966 3.99 2.48 5.228M5.25 4.236V2.721C7.456 2.41 9.71 2.25 12 2.25c2.291 0 4.545.16 6.75.47v1.516M7.73 9.728a6.726 6.726 0 002.748 1.35m8.272-6.842V4.5c0 2.108-.966 3.99-2.48 5.228m2.48-5.492c.962-.203 1.934-.377 2.916-.52" />
+  </svg>
+</div>
 
-const firebaseConfig = {
-  apiKey: "AIzaSyBlOVx-YSmPFeq3lp-gAGe576yG1RhMLYs",
-  authDomain: "mymlibraryreads.firebaseapp.com",
-  projectId: "mymlibraryreads",
-  storageBucket: "mymlibraryreads.firebasestorage.app",
-  messagingSenderId: "11947740896",
-  appId: "1:11947740896:web:87482eb72210acdba50a85"
-};
-
-const app = initializeApp(firebaseConfig);
-const db = getFirestore(app);
-
-// User data storage
-let userData = {
-  userId: null,
-  name: "User",
-  email: "user@example.com",
-  readCount: 0
-};
-
-// Book list storage
-let bookList = [];
-
-// Get URL parameters
-function getURLParams() {
-  const params = new URLSearchParams(window.location.search);
-  return {
-    userId: params.get('userId'),
-    name: params.get('name'),
-    email: params.get('email'),
-    readCount: params.get('readCount') || 0
+<script>
+document.addEventListener("DOMContentLoaded", async () => {
+  // Firebase configuration
+  const firebaseConfig = {
+    apiKey: "AIzaSyBlOVx-YSmPFeq3lp-gAGe576yG1RhMLYs",
+    authDomain: "mymlibraryreads.firebaseapp.com",
+    projectId: "mymlibraryreads",
+    storageBucket: "mymlibraryreads.firebasestorage.app",
+    messagingSenderId: "11947740896",
+    appId: "1:11947740896:web:87482eb72210acdba50a85"
   };
-}
 
-// Initialize user data
-function initUserData() {
-  const params = getURLParams();
-  
-  if (params.userId) {
-    userData = {
-      userId: params.userId,
-      name: params.name || "User",
-      email: params.email || "user@example.com",
-      readCount: parseInt(params.readCount) || 0
-    };
-    
-    // Update UI
-    document.getElementById('user-name').textContent = userData.name;
-    document.getElementById('user-read-count').textContent = `${userData.readCount} books read`;
-    document.getElementById('user-email').textContent = userData.email;
-    
-    document.getElementById('popup-user-name').textContent = userData.name;
-    document.getElementById('popup-user-read-count').textContent = `${userData.readCount} books read`;
-    document.getElementById('popup-user-email').textContent = userData.email;
-    
-    // Show popup
-    document.getElementById('user-popup').classList.remove('hidden');
-  } else {
-    // Redirect to login if no user data
-    window.location.href = '/login';
+  // Initialize Firebase
+  if (!firebase.apps.length) {
+    firebase.initializeApp(firebaseConfig);
   }
-}
-
-// Book list management
-function getBookList() {
-  try {
-    return JSON.parse(localStorage.getItem("bookList") || "[]");
-  } catch {
-    return [];
-  }
-}
-
-function setBookList(books) {
-  localStorage.setItem("bookList", JSON.stringify(books));
-  bookList = books;
   
-  // Update sidebar UI
-  updateBookListUI();
-}
-
-function addToBookList(book) {
-  if (!bookList.some(b => b.id === book.id)) {
-    bookList.push(book);
-    setBookList(bookList);
-    
-    // Show notification
-    showNotification(`Added "${book.title}" to your list`);
-  }
-}
-
-function removeFromBookList(bookId) {
-  bookList = bookList.filter(b => b.id !== bookId);
-  setBookList(bookList);
-}
-
-function clearBookList() {
-  bookList = [];
-  setBookList(bookList);
-}
-
-function updateBookListUI() {
-  const bookListEl = document.getElementById('book-list');
-  const sidebar = document.getElementById('sidebar');
+  const db = firebase.firestore();
+  const booksCollection = db.collection("Books");
   
-  if (bookList.length === 0) {
-    sidebar.classList.add('sidebar-empty');
-  } else {
-    sidebar.classList.remove('sidebar-empty');
-    
-    bookListEl.innerHTML = bookList.map(book => `
-      <div class="book-list-item">
-        <div class="flex items-center">
-          <img src="${book.coverURL}" alt="${book.title}" class="w-12 h-12 object-cover rounded-lg mr-3">
-          <div class="flex-1 min-w-0">
-            <h4 class="text-sm font-medium truncate">${book.title}</h4>
-            <p class="text-xs text-gray-400 truncate">by ${book.author}</p>
-          </div>
-          <button data-book-id="${book.id}" class="remove-from-list text-gray-400 hover:text-red-500 p-1 hover:bg-red-500/10 rounded-full transition-colors">
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
-            </svg>
-          </button>
-        </div>
-      </div>
-    `).join('');
-    
-    // Add event listeners for remove buttons
-    document.querySelectorAll('.remove-from-list').forEach(btn => {
-      btn.addEventListener('click', (e) => {
-        const bookId = e.currentTarget.dataset.bookId;
-        removeFromBookList(bookId);
-        showNotification("Book removed from list");
-      });
-    });
-  }
-}
+  // User data storage
+  let userData = {
+    userId: null,
+    name: "User",
+    email: "user@example.com",
+    readCount: 0
+  };
 
-// Notification system
-function showNotification(message) {
-  const notification = document.getElementById('notification');
-  notification.textContent = message;
-  notification.classList.add('show');
+  // Book list storage
+  let bookList = [];
   
-  setTimeout(() => {
-    notification.classList.remove('show');
-  }, 3000);
-}
-
-// Download functionality
-function downloadBook(bookName) {
-  const fileUrl = `library/books/${bookName}.pdf`;
-  const a = document.createElement("a");
-  a.href = fileUrl;
-  a.download = `${bookName}.pdf`;
-  document.body.appendChild(a);
-  a.click();
-  document.body.removeChild(a);
-  
-  showNotification(`Downloading "${bookName}"...`);
-}
-
-async function handleDownload(bookId, bookName, buttonEl) {
-  try {
-    // Mark as read
-    let readBooks = getReadBooks();
-    if (!readBooks.includes(bookId)) {
-      readBooks.push(bookId);
-      setReadBooks(readBooks);
-      updateReadCounterUI();
-      
-      // Update Firebase
-      await updateDoc(doc(db, "Books", bookId), { Reads: increment(1) });
-    }
+  // Initialize user data from URL parameters
+  function initUserData() {
+    const params = new URLSearchParams(window.location.search);
+    const userId = params.get('userId');
     
-    // Download the book
-    downloadBook(bookName);
-    
-    // Update button state
-    buttonEl.innerHTML = `
-      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4 inline mr-1">
-        <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" />
-      </svg>
-      Downloaded
-    `;
-    buttonEl.disabled = true;
-    buttonEl.classList.add("opacity-70", "cursor-not-allowed", "bg-green-600", "hover:bg-green-700");
-    
-    showNotification(`"${bookName}" downloaded successfully!`);
-    
-  } catch (err) {
-    console.error("Download error:", err);
-    showNotification("Failed to download. Please try again.");
-  }
-}
-
-// Book reading tracking
-function getReadBooks() {
-  try {
-    return JSON.parse(localStorage.getItem("readBooks") || "[]");
-  } catch {
-    return [];
-  }
-}
-
-function setReadBooks(books) {
-  localStorage.setItem("readBooks", JSON.stringify(books));
-}
-
-function updateReadCounterUI() {
-  const newCount = getReadBooks().length;
-  const countEl = document.getElementById("read-count-gold");
-  if (!countEl) return;
-  
-  countEl.textContent = newCount;
-  userData.readCount = newCount;
-  
-  // Update user info
-  document.getElementById('user-read-count').textContent = `${newCount} books read`;
-  document.getElementById('popup-user-read-count').textContent = `${newCount} books read`;
-}
-
-// Search functionality
-function searchBooks(query) {
-  query = query.trim().toLowerCase();
-  document.querySelectorAll(".book-card").forEach(book => {
-    if (query === "") {
-      book.style.display = "block";
+    if (userId) {
+      // Fetch user data from Firestore
+      db.collection("Users").doc(userId).get()
+        .then((doc) => {
+          if (doc.exists) {
+            const data = doc.data();
+            userData = {
+              userId: userId,
+              name: data.name || "User",
+              email: data.email || "user@example.com",
+              readCount: data.readCount || 0
+            };
+            
+            // Update UI
+            document.getElementById('user-name').textContent = userData.name;
+            document.getElementById('user-read-count').textContent = `${userData.readCount} books read`;
+            document.getElementById('user-email').textContent = userData.email;
+            
+            document.getElementById('popup-user-name').textContent = userData.name;
+            document.getElementById('popup-user-read-count').textContent = `${userData.readCount} books read`;
+            document.getElementById('popup-user-email').textContent = userData.email;
+            
+            // Show popup
+            document.getElementById('user-popup').classList.remove('hidden');
+          } else {
+            // User not found, redirect to login
+            window.location.href = '/login';
+          }
+        })
+        .catch((error) => {
+          console.error("Error getting user document:", error);
+          window.location.href = '/login';
+        });
     } else {
-      const title = book.dataset.title.toLowerCase();
-      const author = book.dataset.author.toLowerCase();
-      const categories = book.dataset.categories.toLowerCase();
-      book.style.display = (title.includes(query) || author.includes(query) || categories.includes(query)) 
-        ? "block" 
-        : "none";
+      // Redirect to login if no user ID
+      window.location.href = '/login';
     }
-  });
-}
-
-// Filter functionality
-function applyFilters() {
-  const activeFilter = document.querySelector('.filter-badge.active');
-  if (!activeFilter || activeFilter.textContent === 'All') {
-    document.querySelectorAll(".book-card").forEach(book => {
-      book.style.display = "block";
-    });
-    return;
-  }
-  
-  const filterName = activeFilter.textContent.toLowerCase();
-  document.querySelectorAll(".book-card").forEach(book => {
-    const categories = book.dataset.categories.toLowerCase();
-    book.style.display = categories.includes(filterName) ? "block" : "none";
-  });
-}
-
-// Card rendering
-function renderBook(docSnap) {
-  const data = docSnap.data();
-  const booksGrid = document.getElementById("books-grid");
-
-  // Process categories
-  let categories = [];
-  if (Array.isArray(data.Categories)) {
-    categories = data.Categories;
-  } else if (typeof data.Categories === "string") {
-    categories = data.Categories.split(",").map(c => c.trim());
-  }
-  const categoriesStr = categories.join(",");
-
-  let bookEl = document.querySelector(`.book-card[data-book-id="${docSnap.id}"]`);
-  if (!bookEl) {
-    bookEl = document.createElement("div");
-    bookEl.className = "book-card relative";
-    bookEl.dataset.bookId = docSnap.id;
-    bookEl.dataset.title = data.Title;
-    bookEl.dataset.author = data.Author;
-    bookEl.dataset.categories = categoriesStr;
-    booksGrid.appendChild(bookEl);
   }
 
-  // Determine book type
-  const bookType = data.Section === "members" ? "member" : "reader";
-  const badgeClass = bookType === "member" ? "book-type-badge-member" : "book-type-badge-reader";
+  // Book list management
+  function getBookList() {
+    try {
+      return JSON.parse(localStorage.getItem("bookList") || "[]");
+    } catch {
+      return [];
+    }
+  }
 
-  bookEl.innerHTML = `
-    <div class="relative">
-      <div class="book-type-badge ${badgeClass}">${bookType}</div>
-      <div class="h-56 overflow-hidden">
-        <img src="${data.CoverURL}" alt="${data.Title}" class="w-full h-full object-cover transition-transform duration-500 hover:scale-105" />
-      </div>
-    </div>
-    <div class="p-4">
-      <h3 class="font-bold text-lg mb-1 line-clamp-2">${data.Title}</h3>
-      <p class="text-gray-400 mb-3 text-sm line-clamp-1">By ${data.Author}</p>
-      <div class="flex flex-wrap gap-1.5 mb-4">
-        ${categories.map(c => `
-          <span class="category-badge px-2 py-1 bg-gray-800 text-blue-300 rounded-md text-xs">${c}</span>
-        `).join("")}
-      </div>
-      <div class="flex gap-2">
-        <button class="btn-primary" 
-                data-purchase="${data.PurchaseText}">
-          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4 inline mr-1">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3" />
-          </svg>
-          Download
-        </button>
-        <button class="add-to-list w-10 h-10 rounded-xl bg-gray-800 flex items-center justify-center text-gray-300 hover:bg-blue-600 hover:text-white transition-all duration-200">
-          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
-          </svg>
-        </button>
-      </div>
-    </div>
-  `;
+  function setBookList(books) {
+    localStorage.setItem("bookList", JSON.stringify(books));
+    bookList = books;
+    
+    // Update sidebar UI
+    updateBookListUI();
+  }
 
-  // Add event listeners
-  const downloadBtn = bookEl.querySelector("[data-purchase]");
-  if (downloadBtn) {
-    if (getReadBooks().includes(docSnap.id)) {
-      downloadBtn.innerHTML = `
+  function addToBookList(book) {
+    if (!bookList.some(b => b.id === book.id)) {
+      bookList.push(book);
+      setBookList(bookList);
+      
+      // Show notification
+      showNotification(`Added "${book.title}" to your list`);
+    }
+  }
+
+  function removeFromBookList(bookId) {
+    bookList = bookList.filter(b => b.id !== bookId);
+    setBookList(bookList);
+  }
+
+  function clearBookList() {
+    bookList = [];
+    setBookList(bookList);
+  }
+
+  function updateBookListUI() {
+    const bookListEl = document.getElementById('book-list');
+    const sidebar = document.getElementById('sidebar');
+    
+    if (bookList.length === 0) {
+      sidebar.classList.add('sidebar-empty');
+    } else {
+      sidebar.classList.remove('sidebar-empty');
+      
+      bookListEl.innerHTML = bookList.map(book => `
+        <div class="book-list-item">
+          <div class="flex items-center">
+            <img src="${book.coverURL || 'placeholder.jpg'}" alt="${book.title}" class="w-12 h-12 object-cover rounded-lg mr-3">
+            <div class="flex-1 min-w-0">
+              <h4 class="text-sm font-medium truncate">${book.title}</h4>
+              <p class="text-xs text-gray-400 truncate">by ${book.author}</p>
+            </div>
+            <button data-book-id="${book.id}" class="remove-from-list text-gray-400 hover:text-red-500 p-1 hover:bg-red-500/10 rounded-full transition-colors">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+          </div>
+        </div>
+      `).join('');
+      
+      // Add event listeners for remove buttons
+      document.querySelectorAll('.remove-from-list').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+          const bookId = e.currentTarget.dataset.bookId;
+          removeFromBookList(bookId);
+          showNotification("Book removed from list");
+        });
+      });
+    }
+  }
+
+  // Notification system
+  function showNotification(message) {
+    const notification = document.getElementById('notification');
+    notification.textContent = message;
+    notification.classList.add('show');
+    
+    setTimeout(() => {
+      notification.classList.remove('show');
+    }, 3000);
+  }
+
+  // Download functionality
+  function downloadBook(bookName) {
+    const fileUrl = `/library/books/${bookName}.pdf`;
+    
+    // Check if the file exists before downloading
+    fetch(fileUrl, { method: 'HEAD' })
+      .then(response => {
+        if (response.ok) {
+          const a = document.createElement("a");
+          a.href = fileUrl;
+          a.download = `${bookName}.pdf`;
+          document.body.appendChild(a);
+          a.click();
+          document.body.removeChild(a);
+          showNotification(`Downloading "${bookName}"...`);
+        } else {
+          throw new Error('File not found');
+        }
+      })
+      .catch(error => {
+        console.error("Download error:", error);
+        showNotification(`Failed to download "${bookName}". File not found.`);
+      });
+  }
+
+  async function handleDownload(bookId, bookName, buttonEl) {
+    try {
+      // Mark as read
+      let readBooks = getReadBooks();
+      if (!readBooks.includes(bookId)) {
+        readBooks.push(bookId);
+        setReadBooks(readBooks);
+        
+        // Update Firebase
+        await db.collection("Books").doc(bookId).update({ 
+          Reads: firebase.firestore.FieldValue.increment(1) 
+        });
+        
+        // Update user's read count
+        userData.readCount++;
+        updateReadCounterUI();
+        
+        // Update user document
+        if (userData.userId) {
+          await db.collection("Users").doc(userData.userId).update({ 
+            readCount: firebase.firestore.FieldValue.increment(1) 
+          });
+        }
+      }
+      
+      // Download the book
+      downloadBook(bookName);
+      
+      // Update button state
+      buttonEl.innerHTML = `
         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4 inline mr-1">
           <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" />
         </svg>
         Downloaded
       `;
-      downloadBtn.disabled = true;
-      downloadBtn.classList.add("opacity-70", "cursor-not-allowed", "bg-green-600", "hover:bg-green-700");
+      buttonEl.disabled = true;
+      buttonEl.classList.add("opacity-70", "cursor-not-allowed", "bg-green-600", "hover:bg-green-700");
+      
+      showNotification(`"${bookName}" downloaded successfully!`);
+      
+    } catch (err) {
+      console.error("Download error:", err);
+      showNotification("Failed to download book. Please try again.");
     }
-    downloadBtn.addEventListener("click", () => {
-      handleDownload(docSnap.id, downloadBtn.dataset.purchase, downloadBtn);
+  }
+
+  // Book reading tracking
+  function getReadBooks() {
+    try {
+      return JSON.parse(localStorage.getItem("readBooks") || "[]");
+    } catch {
+      return [];
+    }
+  }
+
+  function setReadBooks(books) {
+    localStorage.setItem("readBooks", JSON.stringify(books));
+  }
+
+  function updateReadCounterUI() {
+    // Update user info
+    document.getElementById('user-read-count').textContent = `${userData.readCount} books read`;
+    document.getElementById('popup-user-read-count').textContent = `${userData.readCount} books read`;
+  }
+
+  // Search functionality
+  function searchBooks(query) {
+    query = query.trim().toLowerCase();
+    document.querySelectorAll(".book-card").forEach(book => {
+      if (query === "") {
+        book.style.display = "block";
+      } else {
+        const title = book.dataset.title.toLowerCase();
+        const author = book.dataset.author.toLowerCase();
+        const categories = book.dataset.categories.toLowerCase();
+        book.style.display = (title.includes(query) || author.includes(query) || categories.includes(query)) 
+          ? "block" 
+          : "none";
+      }
     });
   }
-  
-  const addToListBtn = bookEl.querySelector(".add-to-list");
-  addToListBtn.addEventListener("click", () => {
-    addToBookList({
-      id: docSnap.id,
-      title: data.Title,
-      author: data.Author,
-      coverURL: data.CoverURL
+
+  // Filter functionality
+  function applyFilters() {
+    const activeFilter = document.querySelector('.filter-badge.active');
+    if (!activeFilter || activeFilter.textContent === 'All') {
+      document.querySelectorAll(".book-card").forEach(book => {
+        book.style.display = "block";
+      });
+      return;
+    }
+    
+    const filterName = activeFilter.textContent.toLowerCase();
+    document.querySelectorAll(".book-card").forEach(book => {
+      const categories = book.dataset.categories.toLowerCase();
+      book.style.display = categories.includes(filterName) ? "block" : "none";
     });
-    addToListBtn.innerHTML = `
-      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
-        <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" />
-      </svg>
+  }
+
+  // Card rendering
+  function renderBook(doc) {
+    const data = doc.data();
+    const booksGrid = document.getElementById("books-grid");
+
+    // Process categories
+    let categories = [];
+    if (Array.isArray(data.Categories)) {
+      categories = data.Categories;
+    } else if (typeof data.Categories === "string") {
+      categories = data.Categories.split(",").map(c => c.trim());
+    }
+    const categoriesStr = categories.join(",");
+
+    let bookEl = document.querySelector(`.book-card[data-book-id="${doc.id}"]`);
+    if (!bookEl) {
+      bookEl = document.createElement("div");
+      bookEl.className = "book-card relative";
+      bookEl.dataset.bookId = doc.id;
+      bookEl.dataset.title = data.Title;
+      bookEl.dataset.author = data.Author;
+      bookEl.dataset.categories = categoriesStr;
+      booksGrid.appendChild(bookEl);
+    }
+
+    // Determine book type
+    const bookType = data.Section === "members" ? "member" : "reader";
+    const badgeClass = bookType === "member" ? "book-type-badge-member" : "book-type-badge-reader";
+
+    bookEl.innerHTML = `
+      <div class="relative">
+        <div class="book-type-badge ${badgeClass}">${bookType}</div>
+        <div class="h-56 overflow-hidden">
+          <img src="${data.CoverURL || 'placeholder.jpg'}" alt="${data.Title}" class="w-full h-full object-cover transition-transform duration-500 hover:scale-105" />
+        </div>
+      </div>
+      <div class="p-4">
+        <h3 class="font-bold text-lg mb-1 line-clamp-2">${data.Title}</h3>
+        <p class="text-gray-400 mb-3 text-sm line-clamp-1">By ${data.Author}</p>
+        <div class="flex flex-wrap gap-1.5 mb-4">
+          ${categories.map(c => `
+            <span class="category-badge px-2 py-1 bg-gray-800 text-blue-300 rounded-md text-xs">${c}</span>
+          `).join("")}
+        </div>
+        <div class="flex gap-2">
+          <button class="btn-primary" 
+                  data-purchase="${data.PurchaseText}">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4 inline mr-1">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3" />
+            </svg>
+            Download
+          </button>
+          <button class="add-to-list w-10 h-10 rounded-xl bg-gray-800 flex items-center justify-center text-gray-300 hover:bg-blue-600 hover:text-white transition-all duration-200">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+            </svg>
+          </button>
+        </div>
+      </div>
     `;
-    addToListBtn.classList.replace("bg-gray-800", "bg-green-600");
-    addToListBtn.classList.replace("text-gray-300", "text-white");
-    setTimeout(() => {
+
+    // Add event listeners
+    const downloadBtn = bookEl.querySelector("[data-purchase]");
+    if (downloadBtn) {
+      if (getReadBooks().includes(doc.id)) {
+        downloadBtn.innerHTML = `
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4 inline mr-1">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" />
+          </svg>
+          Downloaded
+        `;
+        downloadBtn.disabled = true;
+        downloadBtn.classList.add("opacity-70", "cursor-not-allowed", "bg-green-600", "hover:bg-green-700");
+      }
+      downloadBtn.addEventListener("click", () => {
+        handleDownload(doc.id, downloadBtn.dataset.purchase, downloadBtn);
+      });
+    }
+    
+    const addToListBtn = bookEl.querySelector(".add-to-list");
+    addToListBtn.addEventListener("click", () => {
+      addToBookList({
+        id: doc.id,
+        title: data.Title,
+        author: data.Author,
+        coverURL: data.CoverURL
+      });
       addToListBtn.innerHTML = `
         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
-          <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+          <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" />
         </svg>
       `;
-      addToListBtn.classList.replace("bg-green-600", "bg-gray-800");
-      addToListBtn.classList.replace("text-white", "text-gray-300");
-    }, 1500);
-  });
-}
+      addToListBtn.classList.replace("bg-gray-800", "bg-green-600");
+      addToListBtn.classList.replace("text-gray-300", "text-white");
+      setTimeout(() => {
+        addToListBtn.innerHTML = `
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+          </svg>
+        `;
+        addToListBtn.classList.replace("bg-green-600", "bg-gray-800");
+        addToListBtn.classList.replace("text-white", "text-gray-300");
+      }, 1500);
+    });
+  }
 
-// Initialize the app
-document.addEventListener("DOMContentLoaded", async () => {
-  // Initialize user data
+  // Initialize the app
   initUserData();
   
   // Set up book list
@@ -914,13 +985,27 @@ document.addEventListener("DOMContentLoaded", async () => {
   // Set up read books
   if (!localStorage.getItem("readBooks")) setReadBooks([]);
   
-  // Firebase listener
-  const booksRef = collection(db, "Books");
-  onSnapshot(booksRef, snapshot => {
+  // Firebase listener for books
+  booksCollection.onSnapshot(snapshot => {
     // Clear the loading state
-    const booksGrid = document.getElementById("books-grid");
-    if (booksGrid.querySelector('.text-center.py-12')) {
-      booksGrid.querySelector('.text-center.py-12').remove();
+    const loader = document.querySelector('.loader');
+    if (loader) {
+      loader.remove();
+    }
+    
+    // Clear the grid if no books are found
+    if (snapshot.empty) {
+      document.getElementById("books-grid").innerHTML = `
+        <div class="text-center py-12 col-span-full">
+          <div class="inline-block mb-4">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-12 h-12 mx-auto text-gray-500">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M12 6.042A8.967 8.967 0 006 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 016 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 016-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0018 18a8.987 8.987 0 00-6 2.292m0-14.25v14.25" />
+            </svg>
+          </div>
+          <p class="text-gray-400 font-medium">No books available at the moment</p>
+        </div>
+      `;
+      return;
     }
     
     // Handle changes
@@ -1032,18 +1117,36 @@ document.addEventListener("DOMContentLoaded", async () => {
     
     if (newBooksAdded > 0) {
       setReadBooks(readBooks);
-      updateReadCounterUI();
       
       // Update Firebase for each book
-      bookList.forEach(book => {
-        updateDoc(doc(db, "Books", book.id), { Reads: increment(1) })
-          .catch(err => console.error(`Error updating reads for ${book.id}:`, err));
+      bookList.forEach(async book => {
+        try {
+          await db.collection("Books").doc(book.id).update({ 
+            Reads: firebase.firestore.FieldValue.increment(1) 
+          });
+        } catch (error) {
+          console.error(`Error updating reads for ${book.id}:`, error);
+        }
       });
+      
+      // Update user's read count
+      userData.readCount += newBooksAdded;
+      updateReadCounterUI();
+      
+      // Update user read count in database
+      if (userData.userId) {
+        try {
+          await db.collection("Users").doc(userData.userId).update({ 
+            readCount: firebase.firestore.FieldValue.increment(newBooksAdded) 
+          });
+        } catch (error) {
+          console.error("Error updating user read count:", error);
+        }
+      }
     }
     
-    // Clear the list
+    // Clear the list after download
     clearBookList();
-    
     showNotification(`Downloaded ${bookList.length} books successfully!`);
   });
   
@@ -1116,6 +1219,10 @@ document.addEventListener("DOMContentLoaded", async () => {
   
   // Leaderboard functionality
   document.getElementById("leaderboard-toggle").addEventListener("click", () => {
+    window.location.href = '/leaderboard';
+  });
+  
+  document.getElementById("mobile-leaderboard-toggle").addEventListener("click", () => {
     window.location.href = '/leaderboard';
   });
   
