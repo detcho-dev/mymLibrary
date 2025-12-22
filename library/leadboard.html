@@ -1,128 +1,568 @@
 <!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <link rel="icon" href="icon.ico" type="image/x-icon" />
-  <title>Leadboard</title>
-  <script src="https://cdn.tailwindcss.com"></script>
-</head>
-<body class="bg-gray-100 min-h-screen flex flex-col items-center p-4">
-
-  <h1 class="text-2xl font-bold mb-4">📚 Leadboard</h1>
-
-  <!-- Name Input Form -->
-  <div id="nameForm" class="bg-white shadow-md rounded-lg p-4 w-full max-w-md mb-6">
-    <input id="nameInput" type="text" placeholder="Enter your name" class="w-full p-2 border rounded mb-3">
-    <button id="saveNameBtn" class="w-full bg-blue-500 text-white p-2 rounded hover:bg-blue-600">
-      Save Name
+<html lang="en" class="scroll-smooth">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" href="icon.ico" type="image/x-icon" />
+    <title>Leadboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      // Configure Tailwind for dark mode
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              primary: {
+                light: "#3b82f6",
+                dark: "#60a5fa",
+              },
+            },
+            animation: {
+              "pulse-slow": "pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite",
+              "fade-in": "fadeIn 0.5s ease-in-out",
+            },
+            keyframes: {
+              fadeIn: {
+                "0%": { opacity: "0", transform: "translateY(10px)" },
+                "100%": { opacity: "1", transform: "translateY(0)" },
+              },
+            },
+          },
+        },
+      };
+    </script>
+    <style>
+      .medal-glow {
+        box-shadow: 0 0 10px rgba(255, 215, 0, 0.7);
+        animation: glow 2s infinite alternate;
+      }
+      @keyframes glow {
+        from {
+          box-shadow: 0 0 5px rgba(255, 215, 0, 0.7);
+        }
+        to {
+          box-shadow: 0 0 20px rgba(255, 215, 0, 0.9);
+        }
+      }
+      .leaderboard-item:nth-child(1) {
+        border-top-left-radius: 1rem;
+        border-top-right-radius: 1rem;
+      }
+      .leaderboard-item:last-child {
+        border-bottom-left-radius: 1rem;
+        border-bottom-right-radius: 1rem;
+      }
+    </style>
+  </head>
+  <body
+    class="bg-gray-50 dark:bg-gray-900 min-h-screen flex flex-col items-center p-4 transition-colors duration-300"
+  >
+    <!-- Language Toggle Button -->
+    <button
+      id="langToggle"
+      class="absolute top-4 right-4 p-2.5 rounded-full bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200 shadow-md hover:bg-gray-300 dark:hover:bg-gray-600 transition-all duration-300 z-50"
+    >
+      <span class="font-medium">EN</span> / <span class="font-medium">AR</span>
     </button>
-  </div>
 
-  <!-- Leaderboard -->
-  <div class="bg-white shadow-md rounded-lg p-4 w-full max-w-md">
-    <h2 class="text-xl font-semibold mb-3">📊 Top Players</h2>
-    <ul id="leaderboardList" class="space-y-2"></ul>
-  </div>
+    <!-- Theme Toggle Button -->
+    <button
+      id="themeToggle"
+      class="absolute top-4 left-4 p-2.5 rounded-full bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200 shadow-md hover:bg-gray-300 dark:hover:bg-gray-600 transition-all duration-300 z-50"
+    >
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        class="h-5 w-5 dark:hidden"
+        fill="none"
+        viewBox="0 0 24 24"
+        stroke="currentColor"
+      >
+        <path
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          stroke-width="2"
+          d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"
+        />
+      </svg>
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        class="h-5 w-5 hidden dark:block"
+        fill="none"
+        viewBox="0 0 24 24"
+        stroke="currentColor"
+      >
+        <path
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          stroke-width="2"
+          d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"
+        />
+      </svg>
+    </button>
 
-  <script type="module">
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.4/firebase-app.js";
-import { 
-  getFirestore, collection, doc, setDoc, query, orderBy, limit, onSnapshot 
-} from "https://www.gstatic.com/firebasejs/10.12.4/firebase-firestore.js";
-
-const firebaseConfig = {
-  apiKey: "AIzaSyBlOVx-YSmPFeq3lp-gAGe576yG1RhMLYs",
-  authDomain: "mymlibraryreads.firebaseapp.com",
-  projectId: "mymlibraryreads",
-  storageBucket: "mymlibraryreads.firebasestorage.app",
-  messagingSenderId: "11947740896",
-  appId: "1:11947740896:web:87482eb72210acdba50a85"
-};
-const app = initializeApp(firebaseConfig);
-const db = getFirestore(app);
-
-const nameForm = document.getElementById("nameForm");
-const nameInput = document.getElementById("nameInput");
-const saveNameBtn = document.getElementById("saveNameBtn");
-const leaderboardList = document.getElementById("leaderboardList");
-
-let playerName = localStorage.getItem("playerName") || "";
-
-// إذا كان الاسم موجود من قبل، نخفي الفورم
-if (playerName) {
-  nameForm.style.display = "none";
-  updateScoreFromLocalStorage();
-}
-
-saveNameBtn.addEventListener("click", () => {
-  const name = nameInput.value.trim();
-  if (!name) {
-    alert("Please enter your name");
-    return;
-  }
-  playerName = name;
-  localStorage.setItem("playerName", name);
-  nameForm.style.display = "none"; // إخفاء الفورم
-  updateScoreFromLocalStorage();
-});
-
-function updateScoreFromLocalStorage() {
-  if (!playerName) return;
-  let readBooks = 0;
-
-  // إذا كانت readBooks مخزنة كمصفوفة
-  try {
-    const booksArray = JSON.parse(localStorage.getItem("readBooks") || "[]");
-    if (Array.isArray(booksArray)) {
-      readBooks = booksArray.length;
-    } else {
-      readBooks = parseInt(localStorage.getItem("readBooks") || "0", 10);
-    }
-  } catch {
-    readBooks = parseInt(localStorage.getItem("readBooks") || "0", 10);
-  }
-
-  const playerRef = doc(db, "leaderboard", playerName);
-  setDoc(playerRef, { name: playerName, score: readBooks });
-}
-
-// تحديث عند تغيير readBooks من أي صفحة
-window.addEventListener("storage", (event) => {
-  if (event.key === "readBooks") {
-    updateScoreFromLocalStorage();
-  }
-});
-
-// عرض الترتيب لحظيًا مع ألوان المراكز
-const q = query(collection(db, "leaderboard"), orderBy("score", "desc"), limit(10));
-onSnapshot(q, (snapshot) => {
-  leaderboardList.innerHTML = "";
-  let rank = 0;
-
-  snapshot.forEach((doc) => {
-    rank++;
-    const data = doc.data();
-    const li = document.createElement("li");
-
-    let bgColor = "bg-gray-50"; // الافتراضي
-    if (rank === 1) bgColor = "bg-yellow-300"; // ذهبي
-    else if (rank === 2) bgColor = "bg-gray-300"; // فضي
-    else if (rank === 3) bgColor = "bg-orange-300"; // برونزي
-
-    li.className = `flex justify-between items-center p-2 rounded ${bgColor}`;
-    li.innerHTML = `
-      <span class="font-bold">#${rank} ${data.name}</span>
-      <div class="text-center">
-        <span class="font-bold text-lg">${data.score}</span>
-        <div class="text-xs text-gray-700">Books</div>
+    <div class="max-w-2xl w-full">
+      <!-- Header with animation -->
+      <div class="text-center mb-10 animate-fade-in">
+        <div class="flex justify-center items-center mb-4">
+          <div
+            class="bg-blue-500 dark:bg-blue-600 p-4 rounded-2xl shadow-lg transform hover:scale-105 transition-transform duration-300"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              class="h-10 w-10 text-white"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M8 14v6m4-12v18M20 8v12a2 2 0 01-2 2H6a2 2 0 01-2-2V8a2 2 0 012-2h12a2 2 0 012 2z"
+              />
+            </svg>
+          </div>
+        </div>
+        <h1
+          id="pageTitle"
+          class="text-4xl md:text-5xl font-extrabold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent animate-pulse-slow"
+        >
+          📚 Leadboard
+        </h1>
+        <p
+          id="pageSubtitle"
+          class="text-gray-600 dark:text-gray-300 mt-3 text-lg max-w-2xl mx-auto px-4"
+        >
+          Track your reading journey and compete with others
+        </p>
       </div>
-    `;
-    leaderboardList.appendChild(li);
-  });
-});
-</script>
 
+      <!-- Name Input Form with enhanced UI -->
+      <div
+        id="nameForm"
+        class="bg-white dark:bg-gray-800 shadow-xl rounded-2xl p-6 mb-8 border border-gray-200 dark:border-gray-700 transition-all duration-300 transform hover:shadow-2xl"
+      >
+        <div class="mb-5">
+          <h2
+            id="enterNameTitle"
+            class="text-2xl font-bold text-gray-800 dark:text-white mb-2"
+          >
+            Enter Your Name
+          </h2>
+          <p id="nameInstructions" class="text-gray-500 dark:text-gray-400">
+            Join the leaderboard and track your reading progress
+          </p>
+        </div>
 
-</body>
+        <div class="relative mb-5">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            class="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
+            />
+          </svg>
+          <input
+            id="nameInput"
+            type="text"
+            placeholder="Enter your name"
+            class="w-full pl-10 pr-4 py-3 border-2 border-gray-300 dark:border-gray-600 rounded-xl focus:ring-3 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-white transition-all duration-300"
+          />
+        </div>
+
+        <button
+          id="saveNameBtn"
+          class="w-full bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white font-bold py-3 px-4 rounded-xl transition-all duration-300 transform hover:scale-[1.02] shadow-lg flex items-center justify-center group"
+        >
+          <span id="saveNameText" class="mr-2">Save Name</span>
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            class="h-5 w-5 group-hover:translate-x-1 transition-transform duration-300"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M13 7l5 5m0 0l-5 5m5-5H6"
+            />
+          </svg>
+        </button>
+      </div>
+
+      <!-- Enhanced Leaderboard -->
+      <div
+        class="bg-white dark:bg-gray-800 shadow-xl rounded-2xl p-6 border border-gray-200 dark:border-gray-700 transition-all duration-300 overflow-hidden"
+      >
+        <div
+          class="flex flex-col md:flex-row md:items-center justify-between mb-6"
+        >
+          <h2
+            id="leaderboardTitle"
+            class="text-2xl font-bold text-gray-800 dark:text-white flex items-center mb-3 md:mb-0"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              class="h-6 w-6 text-yellow-500 mr-2"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z"
+              />
+            </svg>
+            <span>Top Players</span>
+          </h2>
+          <div class="flex space-x-2 justify-center md:justify-end">
+            <div
+              class="w-3 h-3 bg-yellow-400 rounded-full"
+              title="1st Place"
+            ></div>
+            <div
+              class="w-3 h-3 bg-gray-400 rounded-full"
+              title="2nd Place"
+            ></div>
+            <div
+              class="w-3 h-3 bg-orange-400 rounded-full"
+              title="3rd Place"
+            ></div>
+          </div>
+        </div>
+
+        <div
+          class="overflow-hidden rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/50"
+        >
+          <ul
+            id="leaderboardList"
+            class="divide-y divide-gray-200 dark:divide-gray-700 leaderboard-list"
+          ></ul>
+
+          <div id="loadingIndicator" class="flex justify-center py-8">
+            <div
+              class="animate-spin rounded-full h-10 w-10 border-b-2 border-blue-500"
+            ></div>
+          </div>
+        </div>
+
+        <div class="mt-6 text-center">
+          <p id="updateNotice" class="text-sm text-gray-500 dark:text-gray-400">
+            Leaderboard updates in real-time as you read more books
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <footer class="mt-12 text-center text-gray-500 dark:text-gray-400 text-sm">
+      <p id="footerText" class="flex items-center justify-center">
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          class="h-4 w-4 mr-1 text-blue-500"
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke="currentColor"
+        >
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+          />
+        </svg>
+        <span>Reading makes a full man</span>
+      </p>
+    </footer>
+
+    <script type="module">
+      // Translation data
+      const translations = {
+        en: {
+          pageTitle: "📚 Leadboard",
+          pageSubtitle: "Track your reading journey and compete with others",
+          enterNameTitle: "Enter Your Name",
+          nameInstructions:
+            "Join the leaderboard and track your reading progress",
+          nameInputPlaceholder: "Enter your name",
+          saveNameText: "Save Name",
+          leaderboardTitle: "Top Players",
+          updateNotice:
+            "Leaderboard updates in real-time as you read more books",
+          footerText: "Reading makes a full man",
+          alertMessage: "Please enter your name",
+          noPlayers: "No players yet. Be the first to join!",
+          booksText: "Books",
+        },
+        ar: {
+          pageTitle: "📚 لوحة المتصدرين",
+          pageSubtitle: "تتبع رحلتك في القراءة وتنافس مع الآخرين",
+          enterNameTitle: "أدخل اسمك",
+          nameInstructions: "انضم إلى لوحة المتصدرين وتتبع تقدمك في القراءة",
+          nameInputPlaceholder: "أدخل اسمك",
+          saveNameText: "حفظ الاسم",
+          leaderboardTitle: "أفضل اللاعبين",
+          updateNotice:
+            "يتم تحديث لوحة المتصدرين في الوقت الفعلي عندما تقرأ المزيد من الكتب",
+          footerText: "القراءة تجعل الإنسان كاملاً",
+          alertMessage: "الرجاء إدخال اسمك",
+          noPlayers: "لا يوجد لاعبون حتى الآن. كن أول من ينضم!",
+          booksText: "كتب",
+        },
+      };
+
+      // Initialize language from localStorage or default to English
+      let currentLang = localStorage.getItem("language") || "en";
+      const dir = currentLang === "ar" ? "rtl" : "ltr";
+      document.documentElement.setAttribute("lang", currentLang);
+      document.documentElement.setAttribute("dir", dir);
+      document.body.className =
+        document.body.className.replace("ltr", "").replace("rtl", "").trim() +
+        ` ${dir}`;
+
+      // Initialize theme from localStorage or system preference
+      const savedTheme = localStorage.getItem("theme");
+      const systemPrefersDark = window.matchMedia(
+        "(prefers-color-scheme: dark)"
+      ).matches;
+      const initialTheme = savedTheme || (systemPrefersDark ? "dark" : "light");
+
+      if (initialTheme === "dark") {
+        document.documentElement.classList.add("dark");
+      }
+
+      // Translation function
+      function translatePage() {
+        // Translate elements
+        document.getElementById("pageTitle").textContent =
+          translations[currentLang].pageTitle;
+        document.getElementById("pageSubtitle").textContent =
+          translations[currentLang].pageSubtitle;
+        document.getElementById("enterNameTitle").textContent =
+          translations[currentLang].enterNameTitle;
+        document.getElementById("nameInstructions").textContent =
+          translations[currentLang].nameInstructions;
+        document.getElementById("nameInput").placeholder =
+          translations[currentLang].nameInputPlaceholder;
+        document.getElementById("saveNameText").textContent =
+          translations[currentLang].saveNameText;
+        document.getElementById("leaderboardTitle").textContent =
+          translations[currentLang].leaderboardTitle;
+        document.getElementById("updateNotice").textContent =
+          translations[currentLang].updateNotice;
+        document.getElementById("footerText").lastChild.textContent =
+          translations[currentLang].footerText;
+
+        // Update leaderboard items if they exist
+        document.querySelectorAll(".books-text").forEach((el) => {
+          el.textContent = translations[currentLang].booksText;
+        });
+
+        // Update direction
+        const newDir = currentLang === "ar" ? "rtl" : "ltr";
+        document.documentElement.setAttribute("dir", newDir);
+        document.body.className =
+          document.body.className.replace("ltr", "").replace("rtl", "").trim() +
+          ` ${newDir}`;
+
+        // Save language preference
+        localStorage.setItem("language", currentLang);
+        document.getElementById(
+          "langToggle"
+        ).innerHTML = `<span class="font-medium">${currentLang.toUpperCase()}</span> / <span class="font-medium">${
+          currentLang === "en" ? "AR" : "EN"
+        }</span>`;
+      }
+
+      // Theme toggle function
+      function toggleTheme() {
+        const isDark = document.documentElement.classList.toggle("dark");
+        localStorage.setItem("theme", isDark ? "dark" : "light");
+      }
+
+      // Event listeners for UI controls
+      document.getElementById("langToggle").addEventListener("click", () => {
+        currentLang = currentLang === "en" ? "ar" : "en";
+        translatePage();
+      });
+
+      document
+        .getElementById("themeToggle")
+        .addEventListener("click", toggleTheme);
+
+      // Initial translation
+      translatePage();
+
+      // Firebase imports and initialization (same as original)
+      import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.4/firebase-app.js";
+      import {
+        getFirestore,
+        collection,
+        doc,
+        setDoc,
+        query,
+        orderBy,
+        limit,
+        onSnapshot,
+      } from "https://www.gstatic.com/firebasejs/10.12.4/firebase-firestore.js";
+
+      const firebaseConfig = {
+        apiKey: "AIzaSyBlOVx-YSmPFeq3lp-gAGe576yG1RhMLYs",
+        authDomain: "mymlibraryreads.firebaseapp.com",
+        projectId: "mymlibraryreads",
+        storageBucket: "mymlibraryreads.firebasestorage.app",
+        messagingSenderId: "11947740896",
+        appId: "1:11947740896:web:87482eb72210acdba50a85",
+      };
+
+      const app = initializeApp(firebaseConfig);
+      const db = getFirestore(app);
+
+      const nameForm = document.getElementById("nameForm");
+      const nameInput = document.getElementById("nameInput");
+      const saveNameBtn = document.getElementById("saveNameBtn");
+      const leaderboardList = document.getElementById("leaderboardList");
+      const loadingIndicator = document.getElementById("loadingIndicator");
+
+      let playerName = localStorage.getItem("playerName") || "";
+
+      // إذا كان الاسم موجود من قبل، نخفي الفورم
+      if (playerName) {
+        nameForm.style.display = "none";
+        updateScoreFromLocalStorage();
+      } else {
+        loadingIndicator.style.display = "none";
+      }
+
+      saveNameBtn.addEventListener("click", () => {
+        const name = nameInput.value.trim();
+        if (!name) {
+          alert(translations[currentLang].alertMessage);
+          return;
+        }
+        playerName = name;
+        localStorage.setItem("playerName", name);
+        nameForm.style.display = "none"; // إخفاء الفورم
+        updateScoreFromLocalStorage();
+
+        // Show loading indicator temporarily
+        loadingIndicator.style.display = "block";
+        setTimeout(() => {
+          loadingIndicator.style.display = "none";
+        }, 1000);
+      });
+
+      function updateScoreFromLocalStorage() {
+        if (!playerName) return;
+        let readBooks = 0;
+
+        // إذا كانت readBooks مخزنة كمصفوفة
+        try {
+          const booksArray = JSON.parse(
+            localStorage.getItem("readBooks") || "[]"
+          );
+          if (Array.isArray(booksArray)) {
+            readBooks = booksArray.length;
+          } else {
+            readBooks = parseInt(localStorage.getItem("readBooks") || "0", 10);
+          }
+        } catch {
+          readBooks = parseInt(localStorage.getItem("readBooks") || "0", 10);
+        }
+
+        const playerRef = doc(db, "leaderboard", playerName);
+        setDoc(playerRef, { name: playerName, score: readBooks });
+      }
+
+      // تحديث عند تغيير readBooks من أي صفحة
+      window.addEventListener("storage", (event) => {
+        if (event.key === "readBooks") {
+          updateScoreFromLocalStorage();
+        }
+      });
+
+      // عرض الترتيب لحظيًا مع ألوان المراكز
+      const q = query(
+        collection(db, "leaderboard"),
+        orderBy("score", "desc"),
+        limit(10)
+      );
+      onSnapshot(q, (snapshot) => {
+        leaderboardList.innerHTML = "";
+        let rank = 0;
+
+        // Hide loading indicator when data arrives
+        loadingIndicator.style.display = "none";
+
+        snapshot.forEach((doc) => {
+          rank++;
+          const data = doc.data();
+          const li = document.createElement("li");
+          li.className = "leaderboard-item";
+
+          let bgColor = "bg-gray-50 dark:bg-gray-700/30"; // الافتراضي
+          let textColor = "text-gray-800 dark:text-white";
+          let medalIcon = "";
+
+          if (rank === 1) {
+            bgColor =
+              "bg-yellow-100 dark:bg-yellow-900/30 border-l-4 border-yellow-400 dark:border-yellow-500";
+            medalIcon = `<div class="medal-glow rounded-full bg-yellow-400 dark:bg-yellow-600 text-white w-8 h-8 flex items-center justify-center font-bold text-lg mr-3">1</div>`;
+          } else if (rank === 2) {
+            bgColor =
+              "bg-gray-100 dark:bg-gray-600/30 border-l-4 border-gray-400 dark:border-gray-500";
+            medalIcon = `<div class="rounded-full bg-gray-400 dark:bg-gray-500 text-white w-8 h-8 flex items-center justify-center font-bold text-lg mr-3">2</div>`;
+          } else if (rank === 3) {
+            bgColor =
+              "bg-orange-100 dark:bg-orange-900/30 border-l-4 border-orange-400 dark:border-orange-500";
+            medalIcon = `<div class="rounded-full bg-orange-400 dark:bg-orange-500 text-white w-8 h-8 flex items-center justify-center font-bold text-lg mr-3">3</div>`;
+          } else {
+            medalIcon = `<div class="rounded-full bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-200 w-8 h-8 flex items-center justify-center font-bold text-lg mr-3">${rank}</div>`;
+          }
+
+          li.className = `flex flex-col md:flex-row md:items-center justify-between p-4 ${bgColor} ${textColor} transition-all duration-200 hover:shadow-md rounded-lg`;
+
+          const dirClass = currentLang === "ar" ? "text-right" : "text-left";
+
+          li.innerHTML = `
+          <div class="flex ${
+            currentLang === "ar" ? "flex-row-reverse" : "flex-row"
+          } items-center mb-3 md:mb-0 ${dirClass}">
+            ${medalIcon}
+            <span class="font-semibold text-lg">${data.name}</span>
+          </div>
+          <div class="text-center bg-white dark:bg-gray-800 p-3 rounded-lg shadow min-w-[90px] border border-gray-200 dark:border-gray-700">
+            <span class="font-bold text-xl text-blue-600 dark:text-blue-400">${
+              data.score
+            }</span>
+            <div class="text-xs text-gray-600 dark:text-gray-300 mt-1 books-text">${
+              translations[currentLang].booksText
+            }</div>
+          </div>
+        `;
+          leaderboardList.appendChild(li);
+        });
+
+        // Show "No players yet" message if leaderboard is empty
+        if (rank === 0) {
+          const emptyMessage = document.createElement("li");
+          emptyMessage.className =
+            "p-6 text-center text-gray-500 dark:text-gray-400 font-medium";
+          emptyMessage.innerHTML = translations[currentLang].noPlayers;
+          leaderboardList.appendChild(emptyMessage);
+        }
+      });
+    </script>
+  </body>
 </html>
