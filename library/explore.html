@@ -1219,16 +1219,16 @@
                   }, 300);
                 } else {
                   // User not found, redirect to login
-                  window.location.href = "/login";
+                  window.location.href = "/library/login";
                 }
               })
               .catch((error) => {
                 console.error("Error getting user document:", error);
-                window.location.href = "/login";
+                window.location.href = "/library/login";
               });
           } else {
             // Redirect to login if no user ID
-            window.location.href = "/login";
+            window.location.href = "/library/login";
           }
         }
 
