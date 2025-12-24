@@ -218,6 +218,14 @@ form select:focus {
     display: inline-block;
 }
 
+.los{
+    font-weight: bolder;
+    background: linear-gradient(135deg, #a64dff, #4d79ff);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    display: inline-block;
+}    
+
 .log {
     font-weight: bolder;
     background: linear-gradient(135deg, #a64dff, #4d79ff);
