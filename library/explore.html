@@ -709,12 +709,11 @@ document.addEventListener("DOMContentLoaded", () => {
   if (!firebase.apps.length) {
     firebase.initializeApp(firebaseConfig);
   }
-  
   const auth = firebase.auth();
   const db = firebase.firestore();
   const booksCollection = db.collection("Books");
-  
-  // User data storage
+
+  // User data
   let userData = {
     userId: null,
     name: "User",
@@ -722,180 +721,231 @@ document.addEventListener("DOMContentLoaded", () => {
     readCount: 0
   };
 
-  // Book list storage
-  let bookList = [];
+  let bookList = getBookList(); // ✅ تهيئة مبكرة
   let lastSearchQuery = '';
   let debouncingSearch = null;
-  
-  // Initialize user data
-  function initUserData() {
-    // Show loading state
+  let booksLoaded = false; // ✅ تتبع حالة التحميل
+
+  // Initialize app
+  function initApp() {
+    // Show loader
     document.getElementById('books-grid').innerHTML = `
       <div class="loader col-span-full">
         <div class="spinner"></div>
       </div>
     `;
-    
-    // Check for authenticated user
-    auth.onAuthStateChanged(user => {
+
+    auth.onAuthStateChanged(async (user) => {
       if (user) {
-        // User is signed in
-        fetchUserData(user);
+        try {
+          await fetchOrCreateUser(user);
+          if (!booksLoaded) {
+            loadBooks();
+          }
+        } catch (err) {
+          console.error("Auth error:", err);
+          alert("حدث خطأ في تسجيل الدخول. يرجى إعادة المحاولة.");
+          window.location.href = "/library/login";
+        }
       } else {
-        // No user is signed in, redirect to login
         window.location.href = "/library/login";
       }
     });
   }
 
-  // Fetch user data from Firestore
-  function fetchUserData(user) {
-    db.collection("Users").doc(user.uid).get()
-      .then((doc) => {
-        if (doc.exists) {
-          const data = doc.data();
-          userData = {
-            userId: user.uid,
-            name: data.name || user.displayName || "User",
-            email: data.email || user.email || "user@example.com",
-            readCount: data.readCount || 0,
-          };
-          
-          // Update UI
-          document.getElementById('user-name').textContent = userData.name;
-          document.getElementById('user-read-count').textContent = `${userData.readCount} books read`;
-          document.getElementById('user-email').textContent = userData.email;
-          
-          document.getElementById('popup-user-name').textContent = userData.name;
-          document.getElementById('popup-user-read-count').textContent = `${userData.readCount} books read`;
-          document.getElementById('popup-user-email').textContent = userData.email;
-          
-          // Show popup
-          setTimeout(() => {
-            document.getElementById('user-popup').classList.add('open');
-            document.getElementById('user-popup').classList.remove('hidden');
-          }, 300);
-          
-          // Load books after user data is ready
-          loadBooks();
-        } else {
-          // User document doesn't exist, create one
-          createNewUserDocument(user);
-        }
-      })
-      .catch((error) => {
-        console.error("Error getting user document:", error);
-        window.location.href = "/library/login";
+  async function fetchOrCreateUser(user) {
+    const userRef = db.collection("Users").doc(user.uid);
+    const doc = await userRef.get();
+
+    if (doc.exists) {
+      const data = doc.data();
+      userData = {
+        userId: user.uid,
+        name: data.name || user.displayName || "User",
+        email: data.email || user.email || "user@example.com",
+        readCount: data.readCount || 0
+      };
+    } else {
+      // Create new user
+      userData = {
+        userId: user.uid,
+        name: user.displayName || user.email.split('@')[0],
+        email: user.email,
+        readCount: 0
+      };
+      await userRef.set({
+        name: userData.name,
+        email: userData.email,
+        readCount: 0,
+        createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+        lastLogin: firebase.firestore.FieldValue.serverTimestamp()
       });
+    }
+
+    // Update UI
+    updateUIWithUserData();
+    showUserPopup();
   }
-  
-  // Create a new user document if it doesn't exist
-  function createNewUserDocument(user) {
-    const newUser = {
-      name: user.displayName || user.email.split('@')[0],
-      email: user.email,
-      readCount: 0,
-      createdAt: firebase.firestore.FieldValue.serverTimestamp(),
-      lastLogin: firebase.firestore.FieldValue.serverTimestamp()
-    };
-    
-    db.collection("Users").doc(user.uid).set(newUser)
-      .then(() => {
-        userData = {
-          userId: user.uid,
-          name: newUser.name,
-          email: newUser.email,
-          readCount: 0
-        };
-        
-        // Update UI
-        document.getElementById('user-name').textContent = userData.name;
-        document.getElementById('user-read-count').textContent = `${userData.readCount} books read`;
-        document.getElementById('user-email').textContent = userData.email;
-        
-        document.getElementById('popup-user-name').textContent = userData.name;
-        document.getElementById('popup-user-read-count').textContent = `${userData.readCount} books read`;
-        document.getElementById('popup-user-email').textContent = userData.email;
-        
-        // Show popup
-        setTimeout(() => {
-          document.getElementById('user-popup').classList.add('open');
-          document.getElementById('user-popup').classList.remove('hidden');
-        }, 300);
-        
-        // Load books after user data is ready
-        loadBooks();
-      })
-      .catch((error) => {
-        console.error("Error creating user document:", error);
-        window.location.href = "/library/login";
-      });
+
+  function updateUIWithUserData() {
+    document.getElementById('user-name').textContent = userData.name;
+    document.getElementById('user-read-count').textContent = `${userData.readCount} books read`;
+    document.getElementById('user-email').textContent = userData.email;
+    document.getElementById('popup-user-name').textContent = userData.name;
+    document.getElementById('popup-user-read-count').textContent = `${userData.readCount} books read`;
+    document.getElementById('popup-user-email').textContent = userData.email;
   }
-  
-  // Load books from Firestore
+
+  function showUserPopup() {
+    setTimeout(() => {
+      const popup = document.getElementById('user-popup');
+      popup.classList.remove('hidden');
+      // No 'open' class needed unless animated via CSS
+    }, 300);
+  }
+
   function loadBooks() {
-    booksCollection.onSnapshot(snapshot => {
-      // Clear the loading state
-      const loader = document.querySelector('.loader');
-      if (loader) {
-        loader.remove();
-      }
-      
-      // Handle changes
-      let hasBooks = false;
-      snapshot.docChanges().forEach(change => {
-        if (change.type === "added" || change.type === "modified") {
-          renderBook(change.doc);
-          hasBooks = true;
-        } else if (change.type === "removed") {
-          const el = document.querySelector(`.book-card[data-book-id="${change.doc.id}"]`);
-          if (el) el.remove();
+    booksCollection.onSnapshot(
+      (snapshot) => {
+        const booksGrid = document.getElementById('books-grid');
+        // ✅ تأكد من إزالة الـ loader مرة واحدة فقط
+        if (!booksLoaded) {
+          const loader = booksGrid.querySelector('.loader');
+          if (loader) loader.remove();
+          booksLoaded = true;
         }
-      });
-      
-      // Show empty state if no books
-      if (!hasBooks && snapshot.empty) {
-        document.getElementById("books-grid").innerHTML = `
-          <div class="text-center py-16 col-span-full fade-in">
-            <div class="inline-block mb-6">
+
+        if (snapshot.empty) {
+          booksGrid.innerHTML = `
+            <div class="text-center py-16 col-span-full fade-in">
               <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-16 h-16 mx-auto text-gray-600">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M12 6.042A8.967 8.967 0 006 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 016 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 016-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0018 18a8.987 8.987 0 00-6 2.292m0-14.25v14.25" />
               </svg>
+              <h3 class="text-xl font-bold mb-2 text-white">No books available</h3>
+              <p class="text-gray-400 mb-6 max-w-md mx-auto">Our library is currently being updated with new books. Please check back soon!</p>
+              <button class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2.5 rounded-lg font-medium transition-all duration-300 flex items-center mx-auto" onclick="location.reload()">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5 mr-2">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.702c.043-.553.11-.997.11-1.303 0-.721-.764-1.309-1.719-1.309S9.48 12.778 9.48 13.5c0 .297.07.622.11 1.066-10.088.725-10.931 9.428-10.931 9.428l.11-.001z" />
+                </svg>
+                Refresh Library
+              </button>
             </div>
-            <h3 class="text-xl font-bold mb-2 text-white">No books available</h3>
-            <p class="text-gray-400 mb-6 max-w-md mx-auto">Our library is currently being updated with new books. Please check back soon!</p>
+          `;
+          return;
+        }
+
+        // Render each book
+        snapshot.docs.forEach(doc => {
+          renderBook(doc);
+        });
+      },
+      (error) => {
+        console.error("Firestore books load error:", error);
+        document.getElementById("books-grid").innerHTML = `
+          <div class="text-center py-16 col-span-full fade-in">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-16 h-16 mx-auto text-red-500">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z" />
+            </svg>
+            <h3 class="text-xl font-bold mb-2 text-white">Connection Error</h3>
+            <p class="text-gray-400 mb-6 max-w-md mx-auto">Failed to load books. Please check your internet connection.</p>
             <button class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2.5 rounded-lg font-medium transition-all duration-300 flex items-center mx-auto" onclick="location.reload()">
               <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5 mr-2">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.702c.043-.553.11-.997.11-1.303 0-.721-.764-1.309-1.719-1.309S9.48 12.778 9.48 13.5c0 .297.07.622.11 1.066-10.088.725-10.931 9.428-10.931 9.428l.11-.001z" />
               </svg>
-              Refresh Library
+              Retry
             </button>
           </div>
         `;
       }
-    }, error => {
-      console.error("Error fetching books:", error);
-      document.getElementById("books-grid").innerHTML = `
-        <div class="text-center py-16 col-span-full fade-in">
-          <div class="inline-block mb-6">
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-16 h-16 mx-auto text-red-500">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z" />
+    );
+  }
+
+  function renderBook(doc) {
+    const data = doc.data();
+    const booksGrid = document.getElementById("books-grid");
+    const existingCard = booksGrid.querySelector(`.book-card[data-book-id="${doc.id}"]`);
+    if (existingCard) return; // ✅ تجنب التكرار
+
+    let categories = [];
+    if (Array.isArray(data.Categories)) {
+      categories = data.Categories;
+    } else if (typeof data.Categories === "string") {
+      categories = data.Categories.split(",").map(c => c.trim()).filter(Boolean);
+    }
+
+    const bookType = data.Section === "members" ? "member" : "reader";
+    const badgeClass = bookType === "member" ? "book-type-badge-member" : "book-type-badge-reader";
+    const readBooks = getReadBooks();
+    const isRead = readBooks.includes(doc.id);
+
+    const bookCard = document.createElement("div");
+    bookCard.className = "book-card relative fade-in";
+    bookCard.dataset.bookId = doc.id;
+    bookCard.dataset.title = data.Title || "Untitled";
+    bookCard.dataset.author = data.Author || "Unknown";
+    bookCard.dataset.categories = categories.join(",").toLowerCase();
+
+    bookCard.innerHTML = `
+      <div class="relative">
+        <div class="book-type-badge ${badgeClass}">${bookType}</div>
+        <div class="h-56 overflow-hidden">
+          <img src="${data.CoverURL || 'placeholder.jpg'}" alt="${data.Title}" class="w-full h-full object-cover transition-transform duration-500 hover:scale-105" />
+        </div>
+      </div>
+      <div class="p-4">
+        <h3 class="font-bold text-lg mb-1.5 line-clamp-2">${data.Title || "Untitled Book"}</h3>
+        <p class="text-gray-300 mb-3 text-sm line-clamp-1 font-medium">By ${data.Author || "Unknown"}</p>
+        <div class="flex flex-wrap gap-2 mb-4">
+          ${categories.map(c => `<span class="category-badge px-2.5 py-1 bg-gray-800/70 text-blue-300 rounded-xl text-xs font-medium">${c}</span>`).join("")}
+        </div>
+        <div class="flex gap-2">
+          <button class="btn-primary" ${isRead ? 'disabled' : ''}>
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4 inline mr-1">
+              ${isRead ? '<path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" />' : '<path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3" />'}
             </svg>
-          </div>
-          <h3 class="text-xl font-bold mb-2 text-white">Connection Error</h3>
-          <p class="text-gray-400 mb-6 max-w-md mx-auto">Failed to load books. This might be due to a network issue or server problems.</p>
-          <button class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2.5 rounded-lg font-medium transition-all duration-300 flex items-center mx-auto" onclick="location.reload()">
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5 mr-2">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.702c.043-.553.11-.997.11-1.303 0-.721-.764-1.309-1.719-1.309S9.48 12.778 9.48 13.5c0 .297.07.622.11 1.066-10.088.725-10.931 9.428-10.931 9.428l.11-.001z" />
+            ${isRead ? 'Downloaded' : 'Download'}
+          </button>
+          <button class="add-to-list w-10 h-10 rounded-xl bg-gray-800/70 flex items-center justify-center text-gray-300 hover:bg-blue-600/90 hover:text-white transition-all duration-300">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
             </svg>
-            Retry Connection
           </button>
         </div>
-      `;
+      </div>
+    `;
+
+    booksGrid.appendChild(bookCard);
+
+    // Download button
+    const downloadBtn = bookCard.querySelector(".btn-primary");
+    downloadBtn.addEventListener("click", () => {
+      handleDownload(doc.id, data.Title, downloadBtn);
+    });
+
+    // Add to list
+    const addBtn = bookCard.querySelector(".add-to-list");
+    addBtn.addEventListener("click", (e) => {
+      e.stopPropagation();
+      addToBookList({
+        id: doc.id,
+        title: data.Title,
+        author: data.Author,
+        coverURL: data.CoverURL
+      });
+      // Confetti & visual feedback (same as before)
+      addBtn.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5 animate-pulse"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" /></svg>`;
+      addBtn.classList.replace("bg-gray-800/70", "bg-green-600/90");
+      addBtn.classList.replace("text-gray-300", "text-white");
+      confetti({ particleCount: 20, spread: 70, origin: { x: e.clientX / window.innerWidth, y: e.clientY / window.innerHeight } });
+      setTimeout(() => {
+        addBtn.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" /></svg>`;
+        addBtn.classList.replace("bg-green-600/90", "bg-gray-800/70");
+        addBtn.classList.replace("text-white", "text-gray-300");
+      }, 1500);
     });
   }
 
-  // Rest of the functions remain the same as in the previous version
+  // =============== دوال المساعدة ===============
   function getBookList() {
     try {
       return JSON.parse(localStorage.getItem("bookList") || "[]");
@@ -928,15 +978,25 @@ document.addEventListener("DOMContentLoaded", () => {
     setBookList(bookList);
   }
 
+  function getReadBooks() {
+    try {
+      return JSON.parse(localStorage.getItem("readBooks") || "[]");
+    } catch {
+      return [];
+    }
+  }
+
+  function setReadBooks(books) {
+    localStorage.setItem("readBooks", JSON.stringify(books));
+  }
+
   function updateBookListUI() {
     const bookListEl = document.getElementById('book-list');
     const sidebar = document.getElementById('sidebar');
-    
     if (bookList.length === 0) {
       sidebar.classList.add('sidebar-empty');
     } else {
       sidebar.classList.remove('sidebar-empty');
-      
       bookListEl.innerHTML = bookList.map(book => `
         <div class="book-list-item fade-in">
           <div class="flex items-center">
@@ -953,8 +1013,7 @@ document.addEventListener("DOMContentLoaded", () => {
           </div>
         </div>
       `).join('');
-      
-      // Add event listeners for remove buttons
+
       document.querySelectorAll('.remove-from-list').forEach(btn => {
         btn.addEventListener('click', (e) => {
           e.stopPropagation();
@@ -970,138 +1029,71 @@ document.addEventListener("DOMContentLoaded", () => {
     const notification = document.getElementById('notification');
     notification.innerHTML = `
       <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
-        ${type === 'success' ? 
+        ${type === 'success' ?
           '<path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75l2.25 2.25 4.5-4.5m0 0l-1.5-1.5M7.5 15l1.5-1.5m3 3l1.5-1.5m-4.5 0l1.5 1.5m3-3l-1.5 1.5" />' :
           '<path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75l3 3m0 0l3-3m-3 3v-7.5M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />'}
       </svg>
       ${message}
     `;
-    
-    // Set color based on type
-    notification.className = 'notification';
-    if (type === 'success') {
-      notification.classList.add('border-green-500');
-      notification.querySelector('svg').classList.add('text-green-500');
-    } else {
-      notification.classList.add('border-blue-500');
-      notification.querySelector('svg').classList.add('text-blue-500');
-    }
-    
+    notification.className = 'notification ' + (type === 'success' ? 'border-green-500' : 'border-blue-500');
+    notification.querySelector('svg').classList.add(type === 'success' ? 'text-green-500' : 'text-blue-500');
     notification.classList.add('show');
-    
-    setTimeout(() => {
-      notification.classList.remove('show');
-    }, 3500);
-  }
-
-  function downloadBook(bookName) {
-    const fileUrl = `/library/books/${bookName}.pdf`;
-    
-    // Create a loading state
-    showNotification(`Preparing download: "${bookName}"`, 'info');
-    
-    // Check if the file exists before downloading
-    fetch(fileUrl, { method: 'HEAD' })
-      .then(response => {
-        if (response.ok) {
-          const a = document.createElement("a");
-          a.href = fileUrl;
-          a.download = `${bookName}.pdf`;
-          document.body.appendChild(a);
-          a.click();
-          document.body.removeChild(a);
-          showNotification(`Downloaded "${bookName}" successfully!`, 'success');
-          
-          // Trigger confetti animation
-          confetti({
-            particleCount: 50,
-            spread: 70,
-            origin: { y: 0.6 }
-          });
-        } else {
-          throw new Error('File not available');
-        }
-      })
-      .catch(error => {
-        console.error("Download error:", error);
-        showNotification(`Failed to download "${bookName}". Please try again later.`, 'error');
-      });
+    setTimeout(() => notification.classList.remove('show'), 3500);
   }
 
   async function handleDownload(bookId, bookName, buttonEl) {
+    if (!bookName) {
+      showNotification("Book name is missing!", 'error');
+      return;
+    }
+
+    const readBooks = getReadBooks();
+    const wasAlreadyRead = readBooks.includes(bookId);
+
     try {
       buttonEl.disabled = true;
-      buttonEl.innerHTML = `
-        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4 inline mr-1 animate-spin">
-          <path stroke-linecap="round" stroke-linejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.702c.043-.553.11-.997.11-1.303 0-.721-.764-1.309-1.719-1.309S9.48 12.778 9.48 13.5c0 .297.07.622.11 1.066-10.088.725-10.931 9.428-10.931 9.428l.11-.001z" />
-        </svg>
-        Preparing...
-      `;
-      
-      // Mark as read
-      let readBooks = getReadBooks();
-      const wasAlreadyRead = readBooks.includes(bookId);
-      
+      buttonEl.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4 inline mr-1 animate-spin"><path stroke-linecap="round" stroke-linejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.702c.043-.553.11-.997.11-1.303 0-.721-.764-1.309-1.719-1.309S9.48 12.778 9.48 13.5c0 .297.07.622.11 1.066-10.088.725-10.931 9.428-10.931 9.428l.11-.001z" /></svg>Preparing...`;
+
+      // Download file
+      const fileUrl = `/library/books/${encodeURIComponent(bookName)}.pdf`;
+      const response = await fetch(fileUrl, { method: 'HEAD' });
+      if (!response.ok) throw new Error('File not found on server');
+
+      const a = document.createElement("a");
+      a.href = fileUrl;
+      a.download = `${bookName}.pdf`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+
       if (!wasAlreadyRead) {
+        // Mark as read
         readBooks.push(bookId);
         setReadBooks(readBooks);
-        
-        // Update Firebase
-        await db.collection("Books").doc(bookId).update({ 
-          Reads: firebase.firestore.FieldValue.increment(1) 
-        });
-        
-        // Update user's read count
         userData.readCount++;
         updateReadCounterUI();
-        
-        // Update user document
+
+        // Update Firestore
+        await db.collection("Books").doc(bookId).update({ Reads: firebase.firestore.FieldValue.increment(1) });
         if (userData.userId) {
-          await db.collection("Users").doc(userData.userId).update({ 
-            readCount: firebase.firestore.FieldValue.increment(1) 
-          });
+          await db.collection("Users").doc(userData.userId).update({ readCount: firebase.firestore.FieldValue.increment(1) });
         }
       }
-      
-      // Download the book
-      downloadBook(bookName);
-      
-      // Update button state
-      setTimeout(() => {
-        buttonEl.innerHTML = `
-          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4 inline mr-1">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" />
-          </svg>
-          ${wasAlreadyRead ? 'Downloaded' : 'Download Again'}
-        `;
-        buttonEl.disabled = false;
-        buttonEl.classList.add("opacity-70", "cursor-not-allowed", "bg-green-600/90", "hover:bg-green-700");
-      }, 1000);
-      
+
+      // Update button
+      buttonEl.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4 inline mr-1"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" /></svg>${wasAlreadyRead ? 'Downloaded' : 'Download Again'}`;
+      buttonEl.classList.add("opacity-70", "cursor-not-allowed", "bg-green-600/90", "hover:bg-green-700");
+
+      showNotification(`"${bookName}" downloaded successfully!`, 'success');
+      confetti({ particleCount: 50, spread: 70, origin: { y: 0.6 } });
+
     } catch (err) {
-      console.error("Download error:", err);
-      showNotification("Failed to process download. Please try again.", 'error');
+      console.error("Download failed:", err);
+      showNotification(`Failed to download "${bookName}". Please try again.`, 'error');
       buttonEl.disabled = false;
-      buttonEl.innerHTML = `
-        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4 inline mr-1">
-          <path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3" />
-        </svg>
-        Download
-      `;
+      buttonEl.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4 inline mr-1"><path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3" /></svg>Download`;
       buttonEl.classList.remove("opacity-70", "cursor-not-allowed", "bg-green-600/90", "hover:bg-green-700");
     }
-  }
-
-  function getReadBooks() {
-    try {
-      return JSON.parse(localStorage.getItem("readBooks") || "[]");
-    } catch {
-      return [];
-    }
-  }
-
-  function setReadBooks(books) {
-    localStorage.setItem("readBooks", JSON.stringify(books));
   }
 
   function updateReadCounterUI() {
@@ -1115,433 +1107,186 @@ document.addEventListener("DOMContentLoaded", () => {
       if (query === "") {
         book.style.display = "block";
       } else {
-        const title = book.dataset.title.toLowerCase();
-        const author = book.dataset.author.toLowerCase();
-        const categories = book.dataset.categories.toLowerCase();
-        book.style.display = (title.includes(query) || author.includes(query) || categories.includes(query)) 
-          ? "block" 
-          : "none";
+        const title = (book.dataset.title || "").toLowerCase();
+        const author = (book.dataset.author || "").toLowerCase();
+        const categories = (book.dataset.categories || "").toLowerCase();
+        book.style.display = (title.includes(query) || author.includes(query) || categories.includes(query)) ? "block" : "none";
       }
     });
   }
 
   function applyFilters() {
     const activeFilter = document.querySelector('.filter-badge.active');
-    if (!activeFilter || activeFilter.textContent === 'All') {
-      document.querySelectorAll(".book-card").forEach(book => {
-        book.style.display = "block";
-      });
-      return;
-    }
-    
-    const filterName = activeFilter.textContent.toLowerCase();
+    const filterName = activeFilter ? activeFilter.textContent.trim().toLowerCase() : 'all';
     document.querySelectorAll(".book-card").forEach(book => {
-      const categories = book.dataset.categories.toLowerCase();
-      book.style.display = categories.includes(filterName) ? "block" : "none";
-    });
-  }
-
-  function renderBook(doc) {
-    const data = doc.data();
-    const booksGrid = document.getElementById("books-grid");
-
-    // Process categories
-    let categories = [];
-    if (Array.isArray(data.Categories)) {
-      categories = data.Categories;
-    } else if (typeof data.Categories === "string") {
-      categories = data.Categories.split(",").map(c => c.trim());
-    }
-    const categoriesStr = categories.join(",");
-
-    let bookEl = document.querySelector(`.book-card[data-book-id="${doc.id}"]`);
-    if (!bookEl) {
-      bookEl = document.createElement("div");
-      bookEl.className = "book-card relative fade-in";
-      bookEl.dataset.bookId = doc.id;
-      bookEl.dataset.title = data.Title;
-      bookEl.dataset.author = data.Author;
-      bookEl.dataset.categories = categoriesStr;
-      booksGrid.appendChild(bookEl);
-    }
-
-    // Determine book type
-    const bookType = data.Section === "members" ? "member" : "reader";
-    const badgeClass = bookType === "member" ? "book-type-badge-member" : "book-type-badge-reader";
-
-    bookEl.innerHTML = `
-      <div class="relative">
-        <div class="book-type-badge ${badgeClass}">${bookType}</div>
-        <div class="h-56 overflow-hidden">
-          <img src="${data.CoverURL || 'placeholder.jpg'}" alt="${data.Title}" class="w-full h-full object-cover transition-transform duration-500 hover:scale-105" />
-        </div>
-      </div>
-      <div class="p-4">
-        <h3 class="font-bold text-lg mb-1.5 line-clamp-2">${data.Title}</h3>
-        <p class="text-gray-300 mb-3 text-sm line-clamp-1 font-medium">By ${data.Author}</p>
-        <div class="flex flex-wrap gap-2 mb-4">
-          ${categories.map(c => `
-            <span class="category-badge px-2.5 py-1 bg-gray-800/70 text-blue-300 rounded-xl text-xs font-medium">${c}</span>
-          `).join("")}
-        </div>
-        <div class="flex gap-2">
-          <button class="btn-primary" 
-                  data-purchase="${data.PurchaseText}">
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4 inline">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3" />
-            </svg>
-            Download
-          </button>
-          <button class="add-to-list w-10 h-10 rounded-xl bg-gray-800/70 flex items-center justify-center text-gray-300 hover:bg-blue-600/90 hover:text-white transition-all duration-300">
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
-            </svg>
-          </button>
-        </div>
-      </div>
-    `;
-
-    const downloadBtn = bookEl.querySelector("[data-purchase]");
-    if (downloadBtn) {
-      if (getReadBooks().includes(doc.id)) {
-        downloadBtn.innerHTML = `
-          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4 inline mr-1">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" />
-          </svg>
-          Downloaded
-        `;
-        downloadBtn.disabled = true;
-        downloadBtn.classList.add("opacity-70", "cursor-not-allowed", "bg-green-600/90", "hover:bg-green-700");
+      if (filterName === 'all') {
+        book.style.display = "block";
+      } else {
+        const categories = (book.dataset.categories || "").toLowerCase();
+        book.style.display = categories.includes(filterName) ? "block" : "none";
       }
-      downloadBtn.addEventListener("click", () => {
-        handleDownload(doc.id, downloadBtn.dataset.purchase, downloadBtn);
-      });
-    }
-    
-    const addToListBtn = bookEl.querySelector(".add-to-list");
-    addToListBtn.addEventListener("click", (e) => {
-      e.stopPropagation();
-      addToBookList({
-        id: doc.id,
-        title: data.Title,
-        author: data.Author,
-        coverURL: data.CoverURL
-      });
-      addToListBtn.innerHTML = `
-        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5 animate-pulse">
-          <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" />
-        </svg>
-      `;
-      addToListBtn.classList.replace("bg-gray-800/70", "bg-green-600/90");
-      addToListBtn.classList.replace("text-gray-300", "text-white");
-      
-      // Add confetti effect
-      confetti({
-        particleCount: 20,
-        spread: 70,
-        origin: { 
-          x: e.clientX / window.innerWidth,
-          y: e.clientY / window.innerHeight
-        }
-      });
-      
-      setTimeout(() => {
-        addToListBtn.innerHTML = `
-          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
-          </svg>
-        `;
-        addToListBtn.classList.replace("bg-green-600/90", "bg-gray-800/70");
-        addToListBtn.classList.replace("text-white", "text-gray-300");
-      }, 1500);
     });
   }
 
-  // Initialize the app
-  initUserData();
-  
-  // Set up book list
-  bookList = getBookList();
-  updateBookListUI();
-  
-  // Set up read books
-  if (!localStorage.getItem("readBooks")) setReadBooks([]);
-  
-  // Rest of the event listeners remain the same as in the previous version
-  // Search functionality with debouncing
+  // =============== ربط الأحداث ===============
+  initApp();
+  updateBookListUI(); // تأكد من تحديث القائمة عند التشغيل
+
+  // Search
   const searchInput = document.getElementById("search-input");
   const searchToggle = document.getElementById("search-toggle");
-  
   searchToggle.addEventListener("click", () => {
     searchInput.classList.toggle("active");
-    if (searchInput.classList.contains("active")) {
-      searchInput.focus();
-    } else {
-      searchInput.blur();
-    }
+    if (searchInput.classList.contains("active")) searchInput.focus();
   });
-  
   searchInput.addEventListener("input", (e) => {
     clearTimeout(debouncingSearch);
     debouncingSearch = setTimeout(() => {
-      const query = e.target.value;
-      if (query !== lastSearchQuery) {
-        lastSearchQuery = query;
-        searchBooks(query);
+      if (e.target.value !== lastSearchQuery) {
+        lastSearchQuery = e.target.value;
+        searchBooks(lastSearchQuery);
       }
     }, 300);
   });
-  
-  // Close search when clicking outside
+
+  // Close search on outside click
   document.addEventListener("click", (e) => {
-    if (!searchToggle.contains(e.target) && 
-        !searchInput.contains(e.target) && 
-        !document.querySelector(".search-container").contains(e.target) && 
-        searchInput.classList.contains("active")) {
+    const container = document.querySelector(".search-container");
+    if (!container.contains(e.target) && searchInput.classList.contains("active")) {
       searchInput.classList.remove("active");
     }
   });
-  
-  // Filter functionality
+
+  // Filters
   document.querySelectorAll('.filter-badge').forEach(badge => {
-    badge.addEventListener('click', function() {
+    badge.addEventListener('click', function () {
       document.querySelectorAll('.filter-badge').forEach(b => b.classList.remove('active'));
       this.classList.add('active');
       applyFilters();
     });
   });
-  
-  // Sidebar functionality
-  document.getElementById("sidebar-toggle").addEventListener("click", () => {
-    document.getElementById("sidebar").classList.add("open");
+
+  // Sidebar
+  ["sidebar-toggle", "mobile-sidebar-toggle", "sidebar-close"].forEach(id => {
+    document.getElementById(id)?.addEventListener("click", () => {
+      document.getElementById("sidebar").classList.toggle("open", id !== "sidebar-close");
+    });
   });
-  
-  document.getElementById("sidebar-close").addEventListener("click", () => {
-    document.getElementById("sidebar").classList.remove("open");
-  });
-  
-  document.getElementById("mobile-sidebar-toggle").addEventListener("click", () => {
-    document.getElementById("sidebar").classList.add("open");
-  });
-  
-  // Close sidebar when clicking outside on mobile
+
+  // Close sidebar on outside click (mobile)
   document.addEventListener("click", (e) => {
     const sidebar = document.getElementById("sidebar");
-    if (sidebar.classList.contains("open") && 
-        !sidebar.contains(e.target) && 
-        !document.getElementById("sidebar-toggle").contains(e.target) &&
-        !document.getElementById("mobile-sidebar-toggle").contains(e.target)) {
+    if (sidebar.classList.contains("open") &&
+        !sidebar.contains(e.target) &&
+        !["sidebar-toggle", "mobile-sidebar-toggle"].some(id => document.getElementById(id)?.contains(e.target))) {
       sidebar.classList.remove("open");
     }
   });
-  
-  // Download all functionality
-  document.getElementById("download-all").addEventListener("click", async () => {
+
+  // Download all
+  document.getElementById("download-all")?.addEventListener("click", async () => {
     if (bookList.length === 0) {
       showNotification("Your reading list is empty", 'info');
       return;
     }
-    
-    showNotification(`Downloading ${bookList.length} books...`, 'info');
-    
-    // Process downloads
-    const downloadPromises = bookList.map(book => {
-      return new Promise(resolve => {
-        setTimeout(() => {
-          downloadBook(book.title);
-          resolve();
-        }, 200 * bookList.indexOf(book)); // Stagger downloads
-      });
-    });
-    
-    await Promise.all(downloadPromises);
-    
-    // Update read status for all books
+    showNotification(`Starting download of ${bookList.length} books...`, 'info');
     const readBooks = getReadBooks();
-    let newBooksAdded = 0;
-    bookList.forEach(book => {
-      if (!readBooks.includes(book.id)) {
-        readBooks.push(book.id);
-        newBooksAdded++;
+    let newBooks = 0;
+
+    for (const book of bookList) {
+      await new Promise(resolve => setTimeout(resolve, 200)); // تأخير بسيط
+      try {
+        const fileUrl = `/library/books/${encodeURIComponent(book.title)}.pdf`;
+        const res = await fetch(fileUrl, { method: 'HEAD' });
+        if (res.ok) {
+          const a = document.createElement("a");
+          a.href = fileUrl;
+          a.download = `${book.title}.pdf`;
+          document.body.appendChild(a);
+          a.click();
+          document.body.removeChild(a);
+          if (!readBooks.includes(book.id)) {
+            readBooks.push(book.id);
+            newBooks++;
+          }
+        }
+      } catch (err) {
+        console.warn(`Failed to download: ${book.title}`, err);
       }
-    });
-    
-    if (newBooksAdded > 0) {
+    }
+
+    // Update read status
+    if (newBooks > 0) {
       setReadBooks(readBooks);
-      
-      // Update Firebase for each book
-      const updatePromises = [];
-      bookList.forEach(book => {
-        updatePromises.push(
-          db.collection("Books").doc(book.id).update({ 
-            Reads: firebase.firestore.FieldValue.increment(1) 
-          }).catch(error => {
-            console.error(`Error updating reads for ${book.id}:`, error);
-          })
-        );
-      });
-      
-      await Promise.all(updatePromises);
-      
-      // Update user's read count
-      userData.readCount += newBooksAdded;
+      userData.readCount += newBooks;
       updateReadCounterUI();
-      
-      // Update user document
-      if (userData.userId) {
-        await db.collection("Users").doc(userData.userId).update({ 
-          readCount: firebase.firestore.FieldValue.increment(newBooksAdded) 
-        });
-      }
+      await db.collection("Users").doc(userData.userId).update({ readCount: firebase.firestore.FieldValue.increment(newBooks) });
     }
-    
-    // Clear the list
+
     clearBookList();
-    
-    // Show success notification
-    showNotification(`Downloaded ${bookList.length} books successfully!`, 'success');
-    
-    // Trigger confetti celebration
-    confetti({
-      particleCount: 100,
-      spread: 120,
-      origin: { y: 0.6 },
-      colors: ['#3b82f6', '#8b5cf6', '#ec4899', '#10b981']
-    });
+    showNotification(`Downloaded ${bookList.length} books!`, 'success');
+    confetti({ particleCount: 100, spread: 120, origin: { y: 0.6 } });
   });
-  
-  // Clear list functionality
-  document.getElementById("clear-list").addEventListener("click", () => {
-    if (bookList.length === 0) {
-      showNotification("Your reading list is already empty", 'info');
-      return;
+
+  // Clear list
+  document.getElementById("clear-list")?.addEventListener("click", () => {
+    if (bookList.length && confirm(`Clear ${bookList.length} books from your list?`)) {
+      clearBookList();
+      showNotification("Reading list cleared", 'info');
     }
-    
-    // Confirm before clearing
-    const confirmed = confirm(`Are you sure you want to clear your reading list with ${bookList.length} books?`);
-    if (!confirmed) return;
-    
-    clearBookList();
-    showNotification("Reading list cleared successfully", 'info');
   });
-  
+
   // Close popup
-  document.getElementById("close-popup").addEventListener("click", () => {
+  document.getElementById("close-popup")?.addEventListener("click", () => {
     document.getElementById("user-popup").classList.add("hidden");
-    document.getElementById("user-popup").classList.remove("open");
   });
-  
+
   // Language toggle
-  document.getElementById("language-toggle").addEventListener("click", () => {
-    const enText = document.querySelector('.en');
-    const arText = document.querySelector('.ar');
-    
-    if (enText.classList.contains('hidden')) {
+  document.getElementById("language-toggle")?.addEventListener("click", () => {
+    const en = document.querySelector('.en');
+    const ar = document.querySelector('.ar');
+    const isArabic = !en.classList.contains('hidden');
+    if (isArabic) {
       // Switch to English
-      enText.classList.remove('hidden');
-      arText.classList.add('hidden');
+      en.classList.remove('hidden');
+      ar.classList.add('hidden');
       document.documentElement.setAttribute('dir', 'ltr');
       document.documentElement.lang = 'en';
-      
-      // Update UI elements
+      // Update text
       document.getElementById('user-read-count').textContent = `${userData.readCount} books read`;
       document.getElementById('popup-user-read-count').textContent = `${userData.readCount} books read`;
-      document.getElementById('download-all').innerHTML = `
-        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
-          <path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3" />
-        </svg>
-        Download All
-      `;
-      document.getElementById('clear-list').innerHTML = `
-        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4 mr-2">
-          <path stroke-linecap="round" stroke-linejoin="round" d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0" />
-        </svg>
-        Clear List
-      `;
-      document.getElementById('close-popup').innerHTML = `
-        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5 mr-2">
-          <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75l3 3m0 0l3-3m-3 3v-7.5M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-        </svg>
-        Continue to Library
-      `;
     } else {
       // Switch to Arabic
-      enText.classList.add('hidden');
-      arText.classList.remove('hidden');
+      en.classList.add('hidden');
+      ar.classList.remove('hidden');
       document.documentElement.setAttribute('dir', 'rtl');
       document.documentElement.lang = 'ar';
-      
-      // Update UI elements
       document.getElementById('user-read-count').textContent = `قرأت ${userData.readCount} كتاب`;
       document.getElementById('popup-user-read-count').textContent = `قرأت ${userData.readCount} كتاب`;
-      document.getElementById('download-all').innerHTML = `
-        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
-          <path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3" />
-        </svg>
-        تنزيل الكل
-      `;
-      document.getElementById('clear-list').innerHTML = `
-        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4 mr-2">
-          <path stroke-linecap="round" stroke-linejoin="round" d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0" />
-        </svg>
-        مسح القائمة
-      `;
-      document.getElementById('close-popup').innerHTML = `
-        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5 mr-2">
-          <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75l3 3m0 0l3-3m-3 3v-7.5M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-        </svg>
-        استمرار إلى المكتبة
-      `;
     }
   });
-  
-  // Leaderboard functionality - fixed to include userId parameter
+
+  // Leaderboard
   function navigateToLeaderboard() {
     if (userData.userId) {
       window.location.href = `/library/leadboard?userId=${encodeURIComponent(userData.userId)}`;
     } else {
-      // Instead of alert, redirect to login
       window.location.href = "/library/login";
     }
   }
-  
-  document.getElementById("leaderboard-toggle").addEventListener("click", navigateToLeaderboard);
-  document.getElementById("mobile-leaderboard-toggle").addEventListener("click", navigateToLeaderboard);
-  
-  // Handle keyboard navigation
+  ["leaderboard-toggle", "mobile-leaderboard-toggle"].forEach(id => {
+    document.getElementById(id)?.addEventListener("click", navigateToLeaderboard);
+  });
+
+  // Keyboard
   document.addEventListener('keydown', (e) => {
     if (e.key === 'Escape') {
-      // Close sidebar if open
-      document.getElementById("sidebar").classList.remove("open");
-      // Close popup if visible
-      document.getElementById("user-popup").classList.add("hidden");
-      document.getElementById("user-popup").classList.remove("open");
-      // Close search if active
-      document.getElementById("search-input").classList.remove("active");
-    }
-  });
-  
-  // Handle window resize for responsive design
-  let resizeTimer;
-  window.addEventListener('resize', () => {
-    clearTimeout(resizeTimer);
-    resizeTimer = setTimeout(() => {
-      // Close sidebar on desktop view
-      if (window.innerWidth >= 768 && document.getElementById("sidebar").classList.contains("open")) {
-        document.getElementById("sidebar").classList.remove("open");
-      }
-    }, 250);
-  });
-  
-  // Handle page visibility changes
-  document.addEventListener('visibilitychange', () => {
-    if (document.visibilityState === 'visible') {
-      // Refresh data when tab/window becomes visible again
-      console.log('Page is visible again, refreshing data...');
+      document.getElementById("sidebar")?.classList.remove("open");
+      document.getElementById("user-popup")?.classList.add("hidden");
+      document.getElementById("search-input")?.classList.remove("active");
     }
   });
 });
 </script>
-
 </body>
 </html>
