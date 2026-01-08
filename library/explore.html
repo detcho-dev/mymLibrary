@@ -19,6 +19,7 @@
       --accent: #38b2ac;
       --success: #4cd560;
       --error: #e53e3e;
+      --hover: rgba(107, 70, 193, 0.1);
     }
 
     * {
@@ -120,6 +121,7 @@
       margin-bottom: 30px;
       color: var(--primary);
       position: relative;
+      font-weight: 700;
     }
 
     .section-title::after {
@@ -150,11 +152,15 @@
       border: none;
       cursor: pointer;
       transition: all 0.3s ease;
+      font-weight: 500;
+      letter-spacing: 0.5px;
     }
 
     .filter-btn:hover, .filter-btn.active {
       background-color: var(--primary);
       color: white;
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(107, 70, 193, 0.3);
     }
 
     .books-grid {
@@ -171,11 +177,13 @@
       transition: transform 0.3s ease, box-shadow 0.3s ease;
       position: relative;
       box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+      border: 1px solid rgba(255, 255, 255, 0.05);
     }
 
     .book-card:hover {
-      transform: translateY(-5px);
+      transform: translateY(-5px) scale(1.02);
       box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4);
+      border: 1px solid rgba(107, 70, 193, 0.3);
     }
 
     .book-type-badge {
@@ -187,6 +195,8 @@
       font-size: 0.75rem;
       font-weight: bold;
       z-index: 10;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
     }
 
     .book-type-badge.free {
@@ -202,6 +212,7 @@
     .book-image {
       height: 250px;
       overflow: hidden;
+      position: relative;
     }
 
     .book-image img {
@@ -228,6 +239,12 @@
       -webkit-line-clamp: 2;
       -webkit-box-orient: vertical;
       overflow: hidden;
+      color: var(--light);
+      transition: color 0.3s ease;
+    }
+
+    .book-card:hover .book-title {
+      color: var(--primary);
     }
 
     .book-author {
@@ -238,13 +255,14 @@
       -webkit-line-clamp: 1;
       -webkit-box-orient: vertical;
       overflow: hidden;
+      font-weight: 500;
     }
 
     .categories {
       display: flex;
       flex-wrap: wrap;
       gap: 5px;
-      margin-bottom: 15px;
+      margin-bottom: 10px;
     }
 
     .category-badge {
@@ -254,13 +272,24 @@
       color: var(--primary);
       font-size: 0.75rem;
       font-weight: 500;
+      transition: all 0.3s ease;
+    }
+
+    .category-badge:hover {
+      background-color: var(--primary);
+      color: white;
+      transform: translateY(-1px);
     }
 
     .reads-info {
       font-size: 0.875rem;
       color: #9ca3af;
-      margin-bottom: 10px;
+      margin-bottom: 15px;
       text-align: center;
+      padding: 8px;
+      background-color: rgba(255, 255, 255, 0.05);
+      border-radius: 8px;
+      font-weight: 500;
     }
 
     .book-actions {
@@ -282,10 +311,12 @@
       gap: 5px;
       transition: all 0.3s ease;
       flex-grow: 1;
+      font-weight: 500;
     }
 
     .btn-primary:hover {
       background-color: #553c9a;
+      transform: translateY(-1px);
     }
 
     .btn-primary:disabled {
@@ -311,6 +342,7 @@
     .add-to-list:hover {
       background-color: var(--primary);
       color: white;
+      transform: translateY(-1px);
     }
 
     .loading {
@@ -318,6 +350,7 @@
       justify-content: center;
       align-items: center;
       height: 300px;
+      padding: 40px;
     }
 
     .spinner {
@@ -346,6 +379,7 @@
       box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
       transform: translateX(100%);
       transition: transform 0.3s ease;
+      font-weight: 500;
     }
 
     .notification.show {
@@ -378,6 +412,10 @@
         padding: 6px 12px;
         font-size: 0.875rem;
       }
+      
+      .book-title {
+        font-size: 1rem;
+      }
     }
 
     @media (max-width: 480px) {
@@ -387,6 +425,11 @@
       
       .section-title {
         font-size: 1.5rem;
+      }
+      
+      .filter-btn {
+        padding: 8px 12px;
+        font-size: 0.8rem;
       }
     }
   </style>
@@ -429,8 +472,8 @@
       
       <div class="filters" id="filters">
         <button class="filter-btn active" data-filter="all">All</button>
-        <button class="filter-btn" data-filter="Members">Members</button>
-        <button class="filter-btn" data-filter="Readers Only">Readers Only</button>
+        <button class="filter-btn" data-filter="members">Members</button>
+        <button class="filter-btn" data-filter="readers">Readers Only</button>
       </div>
       
       <div id="books-container" class="books-grid">
@@ -499,7 +542,8 @@
         downloadFailed: "Failed to download",
         tryAgain: ". Please try again.",
         preparing: "Preparing...",
-        addToLibrary: "Add to Library"
+        addToLibrary: "Add to Library",
+        categories: "Categories"
       },
       ar: {
         title: "مكتبة MYM",
@@ -521,7 +565,8 @@
         downloadFailed: "فشل تحميل",
         tryAgain: ". يرجى المحاولة مرة أخرى.",
         preparing: "جاري التحضير...",
-        addToLibrary: "إضافة إلى المكتبة"
+        addToLibrary: "إضافة إلى المكتبة",
+        categories: "الفئات"
       },
       es: {
         title: "Biblioteca MYM",
@@ -543,7 +588,8 @@
         downloadFailed: "Falló la descarga",
         tryAgain: ". Por favor, inténtelo de nuevo.",
         preparing: "Preparando...",
-        addToLibrary: "Agregar a la biblioteca"
+        addToLibrary: "Agregar a la biblioteca",
+        categories: "Categorías"
       },
       fr: {
         title: "Bibliothèque MYM",
@@ -565,7 +611,8 @@
         downloadFailed: "Échec du téléchargement",
         tryAgain: ". Veuillez réessayer.",
         preparing: "Préparation...",
-        addToLibrary: "Ajouter à la bibliothèque"
+        addToLibrary: "Ajouter à la bibliothèque",
+        categories: "Catégories"
       },
       de: {
         title: "MYM Bibliothek",
@@ -587,7 +634,8 @@
         downloadFailed: "Herunterladen fehlgeschlagen",
         tryAgain: ". Bitte versuchen Sie es erneut.",
         preparing: "Vorbereitung...",
-        addToLibrary: "Zur Bibliothek hinzufügen"
+        addToLibrary: "Zur Bibliothek hinzufügen",
+        categories: "Kategorien"
       }
     };
 
@@ -625,10 +673,20 @@
         
         snapshot.forEach(doc => {
           const data = doc.data();
+          
+          // Handle categories field - convert string to array if needed
+          let categories = [];
+          if (typeof data.Categories === 'string') {
+            // Split by comma and trim whitespace
+            categories = data.Categories.split(',').map(cat => cat.trim());
+          } else if (Array.isArray(data.Categories)) {
+            categories = data.Categories;
+          }
+          
           booksData.push({
             id: doc.id,
             ...data,
-            categories: Array.isArray(data.Categories) ? data.Categories : [],
+            categories: categories,
             section: data.Section || 'general',
             reads: data.Reads || 0
           });
@@ -658,11 +716,11 @@
         const bookType = book.PurchaseText && book.PurchaseText.includes('FREE') ? 'FREE' : 'PREMIUM';
         
         // Create categories HTML
-        const categoriesHTML = Array.isArray(book.categories) 
+        const categoriesHTML = book.categories && book.categories.length > 0 
           ? book.categories.map(category => 
               `<span class="category-badge">${category}</span>`
             ).join('')
-          : '';
+          : '<span class="category-badge">Uncategorized</span>';
         
         return `
           <div class="book-card" data-book-id="${book.id}" data-title="${book.Title || 'Untitled'}" data-author="${book.Author || 'Unknown'}" data-section="${book.section.toLowerCase()}">
@@ -900,8 +958,8 @@
       filterButtons.forEach(button => {
         const filter = button.dataset.filter;
         if (filter === 'all') button.textContent = translations[currentLang].all;
-        else if (filter === 'Members') button.textContent = translations[currentLang].members;
-        else if (filter === 'Readers Only') button.textContent = translations[currentLang].readers;
+        else if (filter === 'members') button.textContent = translations[currentLang].members;
+        else if (filter === 'readers') button.textContent = translations[currentLang].readers;
       });
       
       // Re-render books to update text
