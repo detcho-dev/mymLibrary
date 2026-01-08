@@ -429,13 +429,8 @@
       
       <div class="filters" id="filters">
         <button class="filter-btn active" data-filter="all">All</button>
-        <button class="filter-btn" data-filter="fiction">Fiction</button>
-        <button class="filter-btn" data-filter="non-fiction">Non-Fiction</button>
-        <button class="filter-btn" data-filter="biography">Biography</button>
-        <button class="filter-btn" data-filter="science">Science</button>
-        <button class="filter-btn" data-filter="history">History</button>
-        <button class="filter-btn" data-filter="technology">Technology</button>
-        <button class="filter-btn" data-filter="philosophy">Philosophy</button>
+        <button class="filter-btn" data-filter="Members">Members</button>
+        <button class="filter-btn" data-filter="Readers Only">Readers Only</button>
       </div>
       
       <div id="books-container" class="books-grid">
@@ -488,13 +483,8 @@
         title: "MYM Library",
         explore: "Explore Our Collection",
         all: "All",
-        fiction: "Fiction",
-        nonFiction: "Non-Fiction",
-        biography: "Biography",
-        science: "Science",
-        history: "History",
-        technology: "Technology",
-        philosophy: "Philosophy",
+        members: "Members",
+        readers: "Readers Only",
         download: "Download",
         downloaded: "Downloaded",
         downloadAgain: "Download Again",
@@ -515,13 +505,8 @@
         title: "مكتبة MYM",
         explore: "استكشف مجموعتنا",
         all: "الكل",
-        fiction: "خيالي",
-        nonFiction: "غير خيالي",
-        biography: "سيرة ذاتية",
-        science: "علم",
-        history: "تاريخ",
-        technology: "تقنية",
-        philosophy: "فلسفة",
+        members: "أعضاء",
+        readers: "قُرّاء فقط",
         download: "تحميل",
         downloaded: "تم التحميل",
         downloadAgain: "تحميل مرة أخرى",
@@ -542,13 +527,8 @@
         title: "Biblioteca MYM",
         explore: "Explora Nuestra Colección",
         all: "Todo",
-        fiction: "Ficción",
-        nonFiction: "No Ficción",
-        biography: "Biografía",
-        science: "Ciencia",
-        history: "Historia",
-        technology: "Tecnología",
-        philosophy: "Filosofía",
+        members: "Miembros",
+        readers: "Solo lectores",
         download: "Descargar",
         downloaded: "Descargado",
         downloadAgain: "Descargar de nuevo",
@@ -569,13 +549,8 @@
         title: "Bibliothèque MYM",
         explore: "Explorez Notre Collection",
         all: "Tout",
-        fiction: "Fiction",
-        nonFiction: "Non-Fiction",
-        biography: "Biographie",
-        science: "Science",
-        history: "Histoire",
-        technology: "Technologie",
-        philosophy: "Philosophie",
+        members: "Membres",
+        readers: "Lecteurs seulement",
         download: "Télécharger",
         downloaded: "Téléchargé",
         downloadAgain: "Télécharger à nouveau",
@@ -596,13 +571,8 @@
         title: "MYM Bibliothek",
         explore: "Entdecken Sie unsere Sammlung",
         all: "Alle",
-        fiction: "Fiktion",
-        nonFiction: "Nicht-Fiktion",
-        biography: "Biografie",
-        science: "Wissenschaft",
-        history: "Geschichte",
-        technology: "Technologie",
-        philosophy: "Philosophie",
+        members: "Mitglieder",
+        readers: "Nur Leser",
         download: "Herunterladen",
         downloaded: "Heruntergeladen",
         downloadAgain: "Erneut herunterladen",
@@ -658,7 +628,7 @@
           booksData.push({
             id: doc.id,
             ...data,
-            categories: data.Categories || [],
+            categories: Array.isArray(data.Categories) ? data.Categories : [],
             section: data.Section || 'general',
             reads: data.Reads || 0
           });
@@ -687,12 +657,15 @@
         const badgeClass = book.PurchaseText && book.PurchaseText.includes('FREE') ? 'free' : 'premium';
         const bookType = book.PurchaseText && book.PurchaseText.includes('FREE') ? 'FREE' : 'PREMIUM';
         
-        const categoriesHTML = book.categories.map(category => 
-          `<span class="category-badge">${category}</span>`
-        ).join('');
+        // Create categories HTML
+        const categoriesHTML = Array.isArray(book.categories) 
+          ? book.categories.map(category => 
+              `<span class="category-badge">${category}</span>`
+            ).join('')
+          : '';
         
         return `
-          <div class="book-card" data-book-id="${book.id}" data-title="${book.Title || 'Untitled'}" data-author="${book.Author || 'Unknown'}" data-categories="${book.categories.join(',').toLowerCase()}">
+          <div class="book-card" data-book-id="${book.id}" data-title="${book.Title || 'Untitled'}" data-author="${book.Author || 'Unknown'}" data-section="${book.section.toLowerCase()}">
             <div class="relative">
               <div class="book-type-badge ${badgeClass}">${bookType}</div>
               <div class="book-image">
@@ -870,8 +843,7 @@
         filteredBooks = [...booksData];
       } else {
         filteredBooks = booksData.filter(book => {
-          return book.categories.some(cat => cat.toLowerCase().includes(filter.toLowerCase())) ||
-                 book.section.toLowerCase().includes(filter.toLowerCase());
+          return book.section.toLowerCase().includes(filter.toLowerCase());
         });
       }
       
@@ -928,13 +900,8 @@
       filterButtons.forEach(button => {
         const filter = button.dataset.filter;
         if (filter === 'all') button.textContent = translations[currentLang].all;
-        else if (filter === 'fiction') button.textContent = translations[currentLang].fiction;
-        else if (filter === 'non-fiction') button.textContent = translations[currentLang].nonFiction;
-        else if (filter === 'biography') button.textContent = translations[currentLang].biography;
-        else if (filter === 'science') button.textContent = translations[currentLang].science;
-        else if (filter === 'history') button.textContent = translations[currentLang].history;
-        else if (filter === 'technology') button.textContent = translations[currentLang].technology;
-        else if (filter === 'philosophy') button.textContent = translations[currentLang].philosophy;
+        else if (filter === 'Members') button.textContent = translations[currentLang].members;
+        else if (filter === 'Readers Only') button.textContent = translations[currentLang].readers;
       });
       
       // Re-render books to update text
