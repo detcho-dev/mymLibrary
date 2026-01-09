@@ -370,3 +370,11 @@ section#contact {
         display: none;
     }
 }
+
+    .dev{
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 30px;
+            width: 150px;
+        }
