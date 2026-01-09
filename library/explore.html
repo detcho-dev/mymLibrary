@@ -9,17 +9,19 @@
   <script src="https://cdn.jsdelivr.net/npm/confetti-js@0.0.18/dist/index.min.js"></script>
   <style>
     :root {
-      --primary: #6b46c1;
-      --secondary: #4f46e5;
+      --primary: #7d5fff;
+      --secondary: #6a4aed;
       --dark: #0f0c1a;
-      --darker: #090712;
+      --darker: #0a0712;
       --light: #f7fafc;
       --gray: #4a5568;
       --gray-light: #718096;
       --accent: #38b2ac;
       --success: #4cd560;
       --error: #e53e3e;
-      --hover: rgba(107, 70, 193, 0.1);
+      --hover: rgba(125, 95, 255, 0.15);
+      --shadow: 0 4px 20px rgba(0, 0, 0, 0.35);
+      --transition: all 0.3s cubic-bezier(0.23, 1, 0.32, 1);
     }
 
     * {
@@ -29,43 +31,60 @@
     }
 
     body {
-      background-color: var(--dark);
+      background: linear-gradient(135deg, var(--darker) 0%, var(--dark) 100%);
       color: var(--light);
       font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
       line-height: 1.6;
+      min-height: 100vh;
+      overflow-x: hidden;
     }
 
     .container {
-      max-width: 1200px;
+      max-width: 1280px;
       margin: 0 auto;
-      padding: 20px;
+      padding: 0 20px;
     }
 
     header {
-      background-color: var(--darker);
-      padding: 15px 20px;
+      background: rgba(15, 12, 26, 0.92);
+      backdrop-filter: blur(10px);
+      padding: 18px 25px;
       display: flex;
       justify-content: space-between;
       align-items: center;
-      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+      border-bottom: 1px solid rgba(125, 95, 255, 0.2);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.25);
     }
 
     .logo {
       display: flex;
       align-items: center;
-      gap: 10px;
-      font-size: 1.5rem;
-      font-weight: bold;
+      gap: 12px;
+      font-size: 1.65rem;
+      font-weight: 800;
       color: var(--light);
+      text-shadow: 0 0 10px rgba(125, 95, 255, 0.5);
+    }
+
+    .logo svg {
+      color: var(--primary);
+      filter: drop-shadow(0 0 8px rgba(125, 95, 255, 0.7));
     }
 
     .logo span {
-      color: var(--primary);
+      background: linear-gradient(to right, var(--primary), var(--secondary));
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+      letter-spacing: -0.5px;
     }
 
     .header-right {
       display: flex;
-      gap: 15px;
+      gap: 20px;
       align-items: center;
     }
 
@@ -75,14 +94,29 @@
     }
 
     .language-btn {
-      background: none;
-      border: none;
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid rgba(125, 95, 255, 0.3);
       color: var(--light);
       cursor: pointer;
-      font-size: 1rem;
+      font-size: 0.95rem;
       display: flex;
       align-items: center;
-      gap: 5px;
+      gap: 6px;
+      padding: 8px 15px;
+      border-radius: 20px;
+      transition: var(--transition);
+      backdrop-filter: blur(5px);
+    }
+
+    .language-btn:hover {
+      background: rgba(125, 95, 255, 0.15);
+      transform: translateY(-1px);
+    }
+
+    .language-btn svg {
+      width: 16px;
+      height: 16px;
+      color: var(--primary);
     }
 
     .language-dropdown {
@@ -90,157 +124,212 @@
       right: 0;
       top: 100%;
       background: var(--darker);
-      border: 1px solid rgba(255, 255, 255, 0.1);
-      border-radius: 8px;
-      min-width: 120px;
+      border: 1px solid rgba(125, 95, 255, 0.3);
+      border-radius: 12px;
+      min-width: 140px;
       z-index: 1000;
       display: none;
+      margin-top: 8px;
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(5px);
+      overflow: hidden;
     }
 
     .language-dropdown.show {
       display: block;
+      animation: dropdown 0.2s ease;
+    }
+
+    @keyframes dropdown {
+      from { opacity: 0; transform: translateY(-5px); }
+      to { opacity: 1; transform: translateY(0); }
     }
 
     .language-option {
-      padding: 10px 15px;
+      padding: 10px 18px;
       cursor: pointer;
-      transition: background-color 0.2s;
+      transition: var(--transition);
+      font-weight: 500;
+      display: flex;
+      align-items: center;
+      gap: 8px;
     }
 
     .language-option:hover {
-      background-color: rgba(255, 255, 255, 0.1);
+      background-color: var(--hover);
+      padding-left: 22px;
+    }
+
+    .language-option.active {
+      background: rgba(125, 95, 255, 0.2);
+      color: var(--primary);
+    }
+
+    .language-option svg {
+      width: 16px;
+      height: 16px;
+      opacity: 0.7;
     }
 
     .main-content {
-      padding: 30px 0;
+      padding: 40px 0 60px;
+      min-height: calc(100vh - 150px);
     }
 
     .section-title {
       text-align: center;
-      font-size: 2.5rem;
-      margin-bottom: 30px;
-      color: var(--primary);
+      font-size: 2.75rem;
+      margin-bottom: 35px;
+      color: var(--light);
       position: relative;
-      font-weight: 700;
+      font-weight: 800;
+      letter-spacing: -0.5px;
+      text-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+    }
+
+    .section-title span {
+      background: linear-gradient(to right, var(--primary), var(--secondary));
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
     }
 
     .section-title::after {
       content: '';
       position: absolute;
-      bottom: -10px;
+      bottom: -12px;
       left: 50%;
       transform: translateX(-50%);
-      width: 60px;
+      width: 70px;
       height: 4px;
-      background: var(--primary);
+      background: linear-gradient(to right, var(--primary), var(--secondary));
       border-radius: 2px;
     }
 
     .filters {
       display: flex;
       flex-wrap: wrap;
-      gap: 10px;
+      gap: 12px;
       justify-content: center;
-      margin-bottom: 30px;
+      margin-bottom: 35px;
+      padding: 0 15px;
     }
 
     .filter-btn {
-      padding: 8px 16px;
-      border-radius: 20px;
-      background-color: rgba(255, 255, 255, 0.1);
-      color: var(--light);
-      border: none;
+      padding: 10px 24px;
+      border-radius: 30px;
+      background: rgba(255, 255, 255, 0.08);
+      color: var(--gray-light);
+      border: 1px solid rgba(255, 255, 255, 0.1);
       cursor: pointer;
-      transition: all 0.3s ease;
-      font-weight: 500;
-      letter-spacing: 0.5px;
+      transition: var(--transition);
+      font-weight: 600;
+      letter-spacing: 0.3px;
+      font-size: 1.05rem;
+      backdrop-filter: blur(3px);
     }
 
     .filter-btn:hover, .filter-btn.active {
-      background-color: var(--primary);
+      background: linear-gradient(145deg, var(--primary), var(--secondary));
       color: white;
-      transform: translateY(-1px);
-      box-shadow: 0 4px 12px rgba(107, 70, 193, 0.3);
+      transform: translateY(-2px);
+      box-shadow: 0 6px 16px rgba(125, 95, 255, 0.4);
+      border-color: transparent;
     }
 
     .books-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-      gap: 20px;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 28px;
       margin-top: 20px;
+      padding: 0 10px;
     }
 
     .book-card {
-      background-color: var(--darker);
-      border-radius: 12px;
+      background: rgba(20, 15, 35, 0.7);
+      border-radius: 20px;
       overflow: hidden;
-      transition: transform 0.3s ease, box-shadow 0.3s ease;
+      transition: var(--transition);
       position: relative;
-      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
-      border: 1px solid rgba(255, 255, 255, 0.05);
+      box-shadow: var(--shadow);
+      border: 1px solid rgba(125, 95, 255, 0.15);
+      backdrop-filter: blur(5px);
+      display: flex;
+      flex-direction: column;
+      height: 100%;
     }
 
     .book-card:hover {
-      transform: translateY(-5px) scale(1.02);
-      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4);
-      border: 1px solid rgba(107, 70, 193, 0.3);
+      transform: translateY(-8px) scale(1.015);
+      box-shadow: 0 12px 28px rgba(0, 0, 0, 0.45);
+      border-color: var(--primary);
     }
 
     .book-type-badge {
       position: absolute;
-      top: 10px;
-      right: 10px;
-      padding: 4px 8px;
-      border-radius: 12px;
-      font-size: 0.75rem;
-      font-weight: bold;
+      top: 14px;
+      right: 14px;
+      padding: 5px 14px;
+      border-radius: 30px;
+      font-size: 0.85rem;
+      font-weight: 700;
       z-index: 10;
       text-transform: uppercase;
-      letter-spacing: 0.5px;
+      letter-spacing: 0.8px;
+      backdrop-filter: blur(3px);
+      border: 1px solid rgba(255, 255, 255, 0.15);
     }
 
     .book-type-badge.free {
-      background-color: var(--success);
-      color: var(--dark);
+      background-color: rgba(76, 213, 96, 0.15);
+      color: var(--success);
+      border-color: rgba(76, 213, 96, 0.3);
     }
 
     .book-type-badge.premium {
-      background-color: var(--primary);
-      color: var(--light);
+      background-color: rgba(125, 95, 255, 0.15);
+      color: var(--primary);
+      border-color: rgba(125, 95, 255, 0.4);
     }
 
     .book-image {
-      height: 250px;
+      height: 320px;
       overflow: hidden;
       position: relative;
+      border-bottom: 2px solid rgba(125, 95, 255, 0.3);
     }
 
     .book-image img {
       width: 100%;
       height: 100%;
       object-fit: cover;
-      transition: transform 0.5s ease;
+      transition: var(--transition);
+      display: block;
     }
 
     .book-card:hover .book-image img {
-      transform: scale(1.05);
+      transform: scale(1.08);
     }
 
     .book-info {
-      padding: 15px;
+      padding: 22px;
+      flex-grow: 1;
+      display: flex;
+      flex-direction: column;
     }
 
     .book-title {
-      font-size: 1.1rem;
-      font-weight: bold;
-      margin-bottom: 8px;
-      line-height: 1.3;
+      font-size: 1.35rem;
+      font-weight: 700;
+      margin-bottom: 10px;
+      line-height: 1.4;
       display: -webkit-box;
       -webkit-line-clamp: 2;
       -webkit-box-orient: vertical;
       overflow: hidden;
       color: var(--light);
-      transition: color 0.3s ease;
+      transition: var(--transition);
+      letter-spacing: -0.3px;
     }
 
     .book-card:hover .book-title {
@@ -248,103 +337,106 @@
     }
 
     .book-author {
-      color: #9ca3af;
-      font-size: 0.875rem;
-      margin-bottom: 10px;
+      color: var(--gray-light);
+      font-size: 0.95rem;
+      margin-bottom: 14px;
       display: -webkit-box;
       -webkit-line-clamp: 1;
       -webkit-box-orient: vertical;
       overflow: hidden;
       font-weight: 500;
+      letter-spacing: 0.2px;
     }
 
     .categories {
       display: flex;
       flex-wrap: wrap;
-      gap: 5px;
-      margin-bottom: 10px;
+      gap: 8px;
+      margin-bottom: 16px;
+      min-height: 32px;
     }
 
     .category-badge {
-      padding: 4px 8px;
-      border-radius: 12px;
-      background-color: rgba(255, 255, 255, 0.1);
+      padding: 4px 12px;
+      border-radius: 20px;
+      background: rgba(125, 95, 255, 0.15);
       color: var(--primary);
-      font-size: 0.75rem;
-      font-weight: 500;
-      transition: all 0.3s ease;
+      font-size: 0.8rem;
+      font-weight: 600;
+      transition: var(--transition);
+      border: 1px solid rgba(125, 95, 255, 0.3);
     }
 
     .category-badge:hover {
-      background-color: var(--primary);
-      color: white;
+      background: rgba(125, 95, 255, 0.25);
       transform: translateY(-1px);
     }
 
     .reads-info {
-      font-size: 0.875rem;
-      color: #9ca3af;
-      margin-bottom: 15px;
+      font-size: 0.95rem;
+      color: var(--gray-light);
+      margin-bottom: 20px;
       text-align: center;
-      padding: 8px;
-      background-color: rgba(255, 255, 255, 0.05);
-      border-radius: 8px;
-      font-weight: 500;
+      padding: 10px;
+      background: rgba(255, 255, 255, 0.05);
+      border-radius: 12px;
+      font-weight: 600;
+      border: 1px dashed rgba(125, 95, 255, 0.3);
+      letter-spacing: 0.5px;
     }
 
     .book-actions {
       display: flex;
-      gap: 10px;
-      justify-content: space-between;
+      gap: 14px;
+      margin-top: auto;
+      padding-top: 15px;
     }
 
     .btn-primary {
-      padding: 10px 15px;
-      border-radius: 8px;
-      background-color: var(--primary);
+      flex: 1;
+      padding: 14px 12px;
+      border-radius: 16px;
+      background: linear-gradient(145deg, var(--primary), var(--secondary));
       color: white;
       border: none;
       cursor: pointer;
-      font-size: 0.9rem;
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      transition: all 0.3s ease;
-      flex-grow: 1;
-      font-weight: 500;
-      min-height: 40px;
-    }
-
-    .btn-primary:hover {
-      background-color: #553c9a;
-      transform: translateY(-1px);
-    }
-
-    .btn-primary:disabled {
-      opacity: 0.7;
-      cursor: not-allowed;
-      background-color: #4c3a75;
-    }
-
-    .add-to-list {
-      width: 40px;
-      height: 40px;
-      border-radius: 8px;
-      background-color: rgba(255, 255, 255, 0.1);
-      color: #9ca3af;
-      border: none;
-      cursor: pointer;
+      font-size: 1.05rem;
       display: flex;
       align-items: center;
       justify-content: center;
-      transition: all 0.3s ease;
-      display: none; /* Hide the + button as requested */
+      gap: 8px;
+      transition: var(--transition);
+      font-weight: 600;
+      min-height: 52px;
+      box-shadow: 0 4px 15px rgba(125, 95, 255, 0.35);
+      letter-spacing: 0.3px;
     }
 
-    .add-to-list:hover {
-      background-color: var(--primary);
-      color: white;
-      transform: translateY(-1px);
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(125, 95, 255, 0.5);
+    }
+
+    .btn-primary:active {
+      transform: translateY(1px);
+    }
+
+    .btn-primary:disabled {
+      opacity: 0.85;
+      cursor: not-allowed;
+      transform: none !important;
+      box-shadow: 0 2px 8px rgba(125, 95, 255, 0.2) !important;
+      background: linear-gradient(145deg, #5a45c4, #4b3ab8) !important;
+    }
+
+    .btn-primary svg {
+      width: 20px;
+      height: 20px;
+      flex-shrink: 0;
+    }
+
+    .add-to-list {
+      display: none;
     }
 
     .loading {
@@ -352,16 +444,31 @@
       justify-content: center;
       align-items: center;
       height: 300px;
+      grid-column: 1 / -1;
       padding: 40px;
     }
 
     .spinner {
-      width: 40px;
-      height: 40px;
-      border: 4px solid rgba(255, 255, 255, 0.1);
+      width: 50px;
+      height: 50px;
+      border: 4px solid rgba(125, 95, 255, 0.2);
       border-radius: 50%;
       border-top: 4px solid var(--primary);
       animation: spin 1s linear infinite;
+      position: relative;
+    }
+
+    .spinner::after {
+      content: '';
+      position: absolute;
+      top: -4px;
+      left: -4px;
+      right: -4px;
+      bottom: -4px;
+      border: 4px solid transparent;
+      border-radius: 50%;
+      border-top-color: rgba(125, 95, 255, 0.5);
+      animation: spin 1.5s linear infinite reverse;
     }
 
     @keyframes spin {
@@ -371,98 +478,218 @@
 
     .notification {
       position: fixed;
-      top: 20px;
-      right: 20px;
-      padding: 15px 20px;
-      border-radius: 8px;
-      background-color: var(--success);
+      top: 25px;
+      right: 25px;
+      padding: 18px 25px;
+      border-radius: 16px;
       color: white;
-      z-index: 1000;
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
-      transform: translateX(100%);
-      transition: transform 0.3s ease;
-      font-weight: 500;
+      z-index: 10000;
+      box-shadow: 0 6px 25px rgba(0, 0, 0, 0.3);
+      transform: translateX(calc(100% + 20px));
+      transition: transform 0.4s cubic-bezier(0.18, 0.89, 0.32, 1.28);
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      max-width: 350px;
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255, 255, 255, 0.15);
     }
 
     .notification.show {
       transform: translateX(0);
     }
 
-    .notification.error {
-      background-color: var(--error);
-    }
-
     .notification.success {
-      background-color: var(--success);
+      background: linear-gradient(145deg, #1e8c4d, #1a7340);
+      border-left: 4px solid var(--success);
     }
 
-    /* Responsive design */
+    .notification.error {
+      background: linear-gradient(145deg, #c53030, #9b2c2c);
+      border-left: 4px solid var(--error);
+    }
+
+    .notification svg {
+      width: 24px;
+      height: 24px;
+      flex-shrink: 0;
+    }
+
+    .notification.success svg path {
+      stroke: var(--success);
+    }
+
+    .notification.error svg path {
+      stroke: var(--error);
+    }
+
+    .empty-state {
+      grid-column: 1 / -1;
+      text-align: center;
+      padding: 60px 20px;
+      color: var(--gray-light);
+    }
+
+    .empty-state svg {
+      width: 80px;
+      height: 80px;
+      margin-bottom: 20px;
+      color: var(--primary);
+      opacity: 0.7;
+    }
+
+    .empty-state h3 {
+      font-size: 1.8rem;
+      margin-bottom: 12px;
+      color: var(--light);
+    }
+
+    .empty-state p {
+      font-size: 1.1rem;
+      max-width: 500px;
+      margin: 0 auto;
+      line-height: 1.6;
+    }
+
+    @media (max-width: 900px) {
+      .books-grid {
+        grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+      }
+      
+      .section-title {
+        font-size: 2.3rem;
+      }
+    }
+
     @media (max-width: 768px) {
       .section-title {
         font-size: 2rem;
+        margin-bottom: 30px;
       }
       
-      .books-grid {
-        grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-      }
-      
-      .book-image {
-        height: 200px;
+      .filters {
+        gap: 10px;
+        margin-bottom: 30px;
       }
       
       .filter-btn {
-        padding: 8px 14px;
-        font-size: 0.9rem;
+        padding: 9px 20px;
+        font-size: 0.95rem;
+      }
+      
+      .book-image {
+        height: 280px;
       }
       
       .book-title {
-        font-size: 1rem;
+        font-size: 1.25rem;
       }
       
-      .btn-primary {
-        padding: 10px 12px;
-        font-size: 0.85rem;
+      .book-info {
+        padding: 18px;
       }
     }
 
-    @media (max-width: 480px) {
+    @media (max-width: 600px) {
       .books-grid {
         grid-template-columns: 1fr;
       }
       
       .section-title {
+        font-size: 1.8rem;
+      }
+      
+      .filters {
+        flex-direction: column;
+        align-items: center;
+      }
+      
+      .filter-btn {
+        width: 100%;
+        max-width: 300px;
+        padding: 12px 20px;
+        font-size: 1.1rem;
+      }
+      
+      .book-image {
+        height: 300px;
+      }
+      
+      .book-card:hover {
+        transform: translateY(-6px) scale(1.01);
+      }
+    }
+
+    @media (max-width: 480px) {
+      .header-right {
+        gap: 12px;
+      }
+      
+      .logo {
+        font-size: 1.45rem;
+      }
+      
+      .language-btn {
+        padding: 7px 12px;
+        font-size: 0.9rem;
+      }
+      
+      .section-title {
+        font-size: 1.6rem;
+      }
+      
+      .book-title {
+        font-size: 1.15rem;
+      }
+      
+      .btn-primary {
+        padding: 14px 10px;
+        font-size: 0.95rem;
+        min-height: 48px;
+      }
+      
+      .book-actions {
+        flex-direction: column;
+      }
+      
+      .book-image {
+        height: 260px;
+      }
+    }
+
+    @media (max-width: 380px) {
+      .section-title {
         font-size: 1.5rem;
       }
       
       .filter-btn {
-        padding: 8px 12px;
-        font-size: 0.8rem;
+        font-size: 0.95rem;
+        padding: 10px 18px;
       }
       
       .book-title {
         font-size: 1.05rem;
       }
       
-      .btn-primary {
-        padding: 12px 15px;
+      .book-author {
         font-size: 0.9rem;
       }
       
-      .book-actions {
-        flex-direction: column;
-        gap: 10px;
+      .btn-primary {
+        font-size: 0.9rem;
+        padding: 12px 8px;
       }
     }
     
-    @media (max-width: 360px) {
-      .btn-primary {
-        padding: 10px 12px;
-        font-size: 0.8rem;
-      }
-      
-      .book-title {
-        font-size: 0.95rem;
-      }
+    .confetti-canvas {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 9999;
     }
   </style>
 </head>
@@ -480,7 +707,7 @@
     <div class="header-right">
       <div class="language-switcher">
         <button class="language-btn" id="lang-btn">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
             <path d="M12 21C16.9706 21 21 16.9706 21 12C21 7.02944 16.9706 3 12 3C7.02944 3 3 7.02944 3 12C3 16.9706 7.02944 21 12 21Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
             <path d="M12 12C12 16.4183 12 18 12 18C12 18 12 16.4183 12 12Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
             <path d="M12 6V6.01" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
@@ -488,7 +715,7 @@
           EN
         </button>
         <div class="language-dropdown" id="lang-dropdown">
-          <div class="language-option" data-lang="en">English</div>
+          <div class="language-option active" data-lang="en">English</div>
           <div class="language-option" data-lang="ar">العربية</div>
           <div class="language-option" data-lang="es">Español</div>
           <div class="language-option" data-lang="fr">Français</div>
@@ -500,10 +727,10 @@
 
   <main class="container">
     <section class="main-content">
-      <h1 class="section-title">Explore Our Collection</h1>
+      <h1 class="section-title">Explore Our <span>Collection</span></h1>
       
       <div class="filters" id="filters">
-        <button class="filter-btn active" data-filter="all">All</button>
+        <button class="filter-btn active" data-filter="all">All Books</button>
         <button class="filter-btn" data-filter="members">Members</button>
         <button class="filter-btn" data-filter="readers">Readers Only</button>
       </div>
@@ -517,7 +744,12 @@
     </section>
   </main>
 
-  <div class="notification" id="notification"></div>
+  <div class="notification" id="notification">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"></path>
+    </svg>
+    <span>Notification message</span>
+  </div>
 
   <script>
     // Firebase configuration
@@ -531,8 +763,16 @@
     };
 
     // Initialize Firebase
-    firebase.initializeApp(firebaseConfig);
-    const db = firebase.firestore();
+    let db;
+    try {
+      if (!firebase.apps.length) {
+        firebase.initializeApp(firebaseConfig);
+      }
+      db = firebase.firestore();
+    } catch (error) {
+      console.error("Firebase initialization failed:", error);
+      db = null;
+    }
 
     // Global variables
     let booksData = [];
@@ -543,6 +783,8 @@
       userId: null,
       readCount: 0
     };
+    let confettiCanvas;
+    let confettiInstance;
 
     // DOM elements
     const booksContainer = document.getElementById('books-container');
@@ -557,13 +799,14 @@
       en: {
         title: "MYM Library",
         explore: "Explore Our Collection",
-        all: "All",
+        all: "All Books",
         members: "Members",
         readers: "Readers Only",
         download: "Download",
         downloaded: "Downloaded",
         downloadAgain: "Download Again",
         reads: "Person Read this Book",
+        readsPlural: "People Read this Book",
         category: "Category",
         by: "By",
         success: "Success!",
@@ -575,18 +818,21 @@
         tryAgain: ". Please try again.",
         preparing: "Preparing...",
         addToLibrary: "Add to Library",
-        categories: "Categories"
+        categories: "Categories",
+        noBooks: "No Books Available",
+        noBooksDesc: "We couldn't find any books matching your criteria. Try changing the filter or check back later."
       },
       ar: {
         title: "مكتبة MYM",
         explore: "استكشف مجموعتنا",
-        all: "الكل",
+        all: "جميع الكتب",
         members: "أعضاء",
         readers: "قُرّاء فقط",
         download: "تحميل",
         downloaded: "تم التحميل",
         downloadAgain: "تحميل مرة أخرى",
         reads: "شخص قرأ هذا الكتاب",
+        readsPlural: "أشخاص قرؤوا هذا الكتاب",
         category: "فئة",
         by: "بواسطة",
         success: "نجاح!",
@@ -598,18 +844,21 @@
         tryAgain: ". يرجى المحاولة مرة أخرى.",
         preparing: "جاري التحضير...",
         addToLibrary: "إضافة إلى المكتبة",
-        categories: "الفئات"
+        categories: "الفئات",
+        noBooks: "لا توجد كتب متاحة",
+        noBooksDesc: "لم نتمكن من العثور على أي كتب تطابق معاييرك. حاول تغيير الفلتر أو تحقق مرة أخرى لاحقًا."
       },
       es: {
         title: "Biblioteca MYM",
         explore: "Explora Nuestra Colección",
-        all: "Todo",
+        all: "Todos los Libros",
         members: "Miembros",
         readers: "Solo lectores",
         download: "Descargar",
         downloaded: "Descargado",
         downloadAgain: "Descargar de nuevo",
         reads: "Persona leyó este libro",
+        readsPlural: "Personas leyeron este libro",
         category: "Categoría",
         by: "Por",
         success: "¡Éxito!",
@@ -621,18 +870,21 @@
         tryAgain: ". Por favor, inténtelo de nuevo.",
         preparing: "Preparando...",
         addToLibrary: "Agregar a la biblioteca",
-        categories: "Categorías"
+        categories: "Categorías",
+        noBooks: "No hay libros disponibles",
+        noBooksDesc: "No pudimos encontrar libros que coincidan con sus criterios. Intente cambiar el filtro o vuelva más tarde."
       },
       fr: {
         title: "Bibliothèque MYM",
         explore: "Explorez Notre Collection",
-        all: "Tout",
+        all: "Tous les Livres",
         members: "Membres",
         readers: "Lecteurs seulement",
         download: "Télécharger",
         downloaded: "Téléchargé",
         downloadAgain: "Télécharger à nouveau",
         reads: "Personne a lu ce livre",
+        readsPlural: "Personnes ont lu ce livre",
         category: "Catégorie",
         by: "Par",
         success: "Succès !",
@@ -644,18 +896,21 @@
         tryAgain: ". Veuillez réessayer.",
         preparing: "Préparation...",
         addToLibrary: "Ajouter à la bibliothèque",
-        categories: "Catégories"
+        categories: "Catégories",
+        noBooks: "Aucun livre disponible",
+        noBooksDesc: "Nous n'avons trouvé aucun livre correspondant à vos critères. Essayez de changer le filtre ou revenez plus tard."
       },
       de: {
         title: "MYM Bibliothek",
         explore: "Entdecken Sie unsere Sammlung",
-        all: "Alle",
+        all: "Alle Bücher",
         members: "Mitglieder",
         readers: "Nur Leser",
         download: "Herunterladen",
         downloaded: "Heruntergeladen",
         downloadAgain: "Erneut herunterladen",
         reads: "Person hat dieses Buch gelesen",
+        readsPlural: "Personen haben dieses Buch gelesen",
         category: "Kategorie",
         by: "Von",
         success: "Erfolg!",
@@ -667,16 +922,37 @@
         tryAgain: ". Bitte versuchen Sie es erneut.",
         preparing: "Vorbereitung...",
         addToLibrary: "Zur Bibliothek hinzufügen",
-        categories: "Kategorien"
+        categories: "Kategorien",
+        noBooks: "Keine Bücher verfügbar",
+        noBooksDesc: "Wir konnten keine Bücher finden, die Ihren Kriterien entsprechen. Versuchen Sie, den Filter zu ändern, oder schauen Sie später noch einmal vorbei."
       }
     };
 
     let currentLang = 'en';
 
+    // Initialize confetti
+    function initConfetti() {
+      const canvas = document.createElement('canvas');
+      canvas.classList.add('confetti-canvas');
+      document.body.appendChild(canvas);
+      
+      confettiCanvas = canvas;
+      confettiInstance = new ConfettiGenerator({
+        target: canvas,
+        max: 150,
+        size: 1.5,
+        animate: true,
+        props: ['circle', 'square', 'triangle'],
+        colors: [[125, 95, 255], [106, 74, 237], [76, 213, 96], [255, 200, 50]]
+      });
+    }
+
     // Initialize the app
     async function init() {
+      initConfetti();
+      
       try {
-        // Load books from Firestore
+        // Load books from Firestore or mock data
         await loadBooks();
         
         // Set up event listeners
@@ -691,54 +967,132 @@
       } catch (error) {
         console.error("Initialization error:", error);
         showNotification("Failed to load books. Please refresh the page.", 'error');
-        booksContainer.innerHTML = '<div class="loading">Failed to load books. Please refresh the page.</div>';
+        booksContainer.innerHTML = `<div class="empty-state">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
+          </svg>
+          <h3>${translations[currentLang].error}</h3>
+          <p>Failed to load books. Please check your connection and try again.</p>
+        </div>`;
+      } finally {
+        loadingElement.style.display = 'none';
       }
     }
 
-    // Load books from Firestore
+    // Load books from Firestore or use mock data if offline
     async function loadBooks() {
-      try {
-        const booksRef = db.collection("Books");
-        const snapshot = await booksRef.get();
-        
-        booksData = [];
-        
-        snapshot.forEach(doc => {
-          const data = doc.data();
+      if (db) {
+        try {
+          const booksRef = db.collection("Books");
+          const snapshot = await booksRef.get();
           
-          // Handle categories field - convert string to array if needed
-          let categories = [];
-          if (typeof data.Categories === 'string') {
-            // Split by comma and trim whitespace
-            categories = data.Categories.split(',').map(cat => cat.trim());
-          } else if (Array.isArray(data.Categories)) {
-            categories = data.Categories;
-          }
+          booksData = [];
           
-          booksData.push({
-            id: doc.id,
-            ...data,
-            categories: categories,
-            section: data.Section || 'general',
-            reads: data.Reads || 0
+          snapshot.forEach(doc => {
+            const data = doc.data();
+            
+            // Handle categories field - convert string to array if needed
+            let categories = [];
+            if (typeof data.Categories === 'string') {
+              // Split by comma and trim whitespace
+              categories = data.Categories.split(',').map(cat => cat.trim()).filter(cat => cat);
+            } else if (Array.isArray(data.Categories)) {
+              categories = data.Categories.filter(cat => cat);
+            }
+            
+            booksData.push({
+              id: doc.id,
+              ...data,
+              categories: categories.length > 0 ? categories : ['Uncategorized'],
+              section: data.Section || 'general',
+              reads: data.Reads || 0
+            });
           });
-        });
-        
-        // Sort books by reads (descending)
-        booksData.sort((a, b) => b.reads - a.reads);
-        
-        renderBooks();
-        
-      } catch (error) {
-        console.error("Error loading books:", error);
-        throw error;
+          
+          // Sort books by reads (descending)
+          booksData.sort((a, b) => b.reads - a.reads);
+          
+          return;
+        } catch (error) {
+          console.warn("Firestore error, falling back to mock ", error);
+        }
       }
+      
+      // Mock data if Firestore fails or offline
+      booksData = [
+        {
+          id: 'book1',
+          Title: 'The Midnight Library',
+          Author: 'Matt Haig',
+          CoverURL: 'https://images.unsplash.com/photo-1544942590-892a0f1a2c05?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=600&q=80',
+          PurchaseText: 'FREE',
+          Reads: 1245,
+          Categories: ['Fiction', 'Fantasy'],
+          Section: 'readers'
+        },
+        {
+          id: 'book2',
+          Title: 'Atomic Habits',
+          Author: 'James Clear',
+          CoverURL: 'https://images.unsplash.com/photo-1543002588-bfa74002ed7e?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=600&q=80',
+          PurchaseText: 'PREMIUM',
+          Reads: 987,
+          Categories: ['Self-Help', 'Productivity'],
+          Section: 'members'
+        },
+        {
+          id: 'book3',
+          Title: 'Project Hail Mary',
+          Author: 'Andy Weir',
+          CoverURL: 'https://images.unsplash.com/photo-1589998059171-988d887df646?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=600&q=80',
+          PurchaseText: 'FREE',
+          Reads: 876,
+          Categories: ['Science Fiction', 'Adventure'],
+          Section: 'readers'
+        },
+        {
+          id: 'book4',
+          Title: 'The Psychology of Money',
+          Author: 'Morgan Housel',
+          CoverURL: 'https://images.unsplash.com/photo-1541781774450-d510d2ad3819?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=600&q=80',
+          PurchaseText: 'PREMIUM',
+          Reads: 754,
+          Categories: ['Finance', 'Business'],
+          Section: 'members'
+        },
+        {
+          id: 'book5',
+          Title: 'The Silent Patient',
+          Author: 'Alex Michaelides',
+          CoverURL: 'https://images.unsplash.com/photo-1543002588-bfa74002ed7e?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=600&q=80',
+          PurchaseText: 'FREE',
+          Reads: 692,
+          Categories: ['Thriller', 'Mystery'],
+          Section: 'readers'
+        },
+        {
+          id: 'book6',
+          Title: 'Dune',
+          Author: 'Frank Herbert',
+          CoverURL: 'https://images.unsplash.com/photo-1541781774450-d510d2ad3819?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=600&q=80',
+          PurchaseText: 'PREMIUM',
+          Reads: 621,
+          Categories: ['Science Fiction', 'Classic'],
+          Section: 'members'
+        }
+      ];
     }
 
     // Render books to the DOM
     function renderBooks() {
-      if (!booksData || booksData.length === 0) {
-        booksContainer.innerHTML = '<div class="loading">No books available.</div>';
+      if (!filteredBooks || filteredBooks.length === 0) {
+        booksContainer.innerHTML = `<div class="empty-state">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
+          </svg>
+          <h3>${translations[currentLang].noBooks}</h3>
+          <p>${translations[currentLang].noBooksDesc}</p>
+        </div>`;
         return;
       }
       
@@ -748,40 +1102,34 @@
         const bookType = book.PurchaseText && book.PurchaseText.includes('FREE') ? 'FREE' : 'PREMIUM';
         
         // Create categories HTML
-        const categoriesHTML = book.categories && book.categories.length > 0 
-          ? book.categories.map(category => 
-              `<span class="category-badge">${category}</span>`
-            ).join('')
-          : '<span class="category-badge">Uncategorized</span>';
+        const categoriesHTML = book.categories.map(category => 
+          `<span class="category-badge">${category}</span>`
+        ).join('');
+        
+        // Determine reads text (singular/plural)
+        const readsText = book.reads === 1 ? translations[currentLang].reads : translations[currentLang].readsPlural;
         
         return `
           <div class="book-card" data-book-id="${book.id}" data-title="${book.Title || 'Untitled'}" data-author="${book.Author || 'Unknown'}" data-section="${book.section.toLowerCase()}">
-            <div class="relative">
+            <div class="book-image">
+              <img src="${book.CoverURL || 'https://images.unsplash.com/photo-1589998059171-988d887df646?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=600&q=80'}" alt="${book.Title || 'Untitled Book'}" loading="lazy" />
               <div class="book-type-badge ${badgeClass}">${bookType}</div>
-              <div class="book-image">
-                <img src="${book.CoverURL || 'https://placehold.co/300x400?text=No+Cover'}" alt="${book.Title || 'Untitled Book'}" class="w-full h-full object-cover transition-transform duration-500 hover:scale-105" />
-              </div>
             </div>
             <div class="book-info">
               <h3 class="book-title">${book.Title || 'Untitled Book'}</h3>
-              <p class="book-author">By ${book.Author || 'Unknown'}</p>
+              <p class="book-author">${book.Author || 'Unknown Author'}</p>
               <div class="categories">
                 ${categoriesHTML}
               </div>
               <div class="reads-info">
-                <span>${book.reads} ${translations[currentLang].reads}</span>
+                <span>${book.reads} ${readsText}</span>
               </div>
               <div class="book-actions">
                 <button class="btn-primary" ${isRead ? 'disabled' : ''}>
-                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4 inline mr-1">
+                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
                     ${isRead ? '<path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" />' : '<path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3" />'}
                   </svg>
                   ${isRead ? translations[currentLang].downloaded : translations[currentLang].download}
-                </button>
-                <button class="add-to-list">
-                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
-                  </svg>
                 </button>
               </div>
             </div>
@@ -798,20 +1146,17 @@
     // Add event listeners to book buttons
     function addBookButtonListeners() {
       const downloadButtons = document.querySelectorAll('.btn-primary');
-      const addToLibraryButtons = document.querySelectorAll('.add-to-list');
       
       downloadButtons.forEach(button => {
         button.addEventListener('click', async (e) => {
           const bookCard = e.target.closest('.book-card');
+          if (!bookCard) return;
+          
           const bookId = bookCard.dataset.bookId;
           const bookTitle = bookCard.dataset.title;
           
           await handleDownload(bookId, bookTitle, button);
         });
-      });
-      
-      addToLibraryButtons.forEach(button => {
-        button.style.display = 'none'; // Hide the + button as requested
       });
     }
 
@@ -823,82 +1168,79 @@
       }
 
       const wasAlreadyRead = readBooks.includes(bookId);
+      const originalHTML = buttonEl.innerHTML;
 
       try {
         buttonEl.disabled = true;
-        buttonEl.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4 inline mr-1 animate-spin"><path stroke-linecap="round" stroke-linejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.702c.043-.553.11-.997.11-1.303 0-.721-.764-1.309-1.719-1.309S9.48 12.778 9.48 13.5c0 .297.07.622.11 1.066-10.088.725-10.931 9.428-10.931 9.428l.11-.001z" /></svg>${translations[currentLang].preparing}`;
+        buttonEl.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="animate-spin">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.702c.043-.553.11-.997.11-1.303 0-.721-.764-1.309-1.719-1.309S9.48 12.778 9.48 13.5c0 .297.07.622.11 1.066-10.088.725-10.931 9.428-10.931 9.428l.11-.001z" />
+        </svg>
+        ${translations[currentLang].preparing}`;
 
-        // Download file - we'll simulate a successful download since we don't have real files
-        // In a real app, this would point to actual PDF files
-        const fileUrl = `/books/${encodeURIComponent(bookName)}.pdf`;
-        const response = await fetch(fileUrl, { method: 'HEAD' });
-        
-        // Since we don't have actual files, we'll simulate a successful download
-        // In a real app, you would check the response.status and handle accordingly
-        
-        // Simulate a delay to show the "preparing" state
-        await new Promise(resolve => setTimeout(resolve, 800));
+        // Simulate download preparation
+        await new Promise(resolve => setTimeout(resolve, 1200));
 
-        // In a real app, this would actually download the file
-        // For now, we'll just simulate the process
         if (!wasAlreadyRead) {
           // Mark as read
           readBooks.push(bookId);
           localStorage.setItem('readBooks', JSON.stringify(readBooks));
           
-          // Update book reads count in Firestore
-          const bookRef = db.collection("Books").doc(bookId);
-          await bookRef.update({ Reads: firebase.firestore.FieldValue.increment(1) });
+          // Update book reads count (in mock data)
+          const bookIndex = booksData.findIndex(b => b.id === bookId);
+          if (bookIndex !== -1) {
+            booksData[bookIndex].reads += 1;
+          }
           
-          // Update user data
-          if (userData.userId) {
-            const userRef = db.collection("Users").doc(userData.userId);
-            await userRef.update({ readCount: firebase.firestore.FieldValue.increment(1) });
+          // In real app: Update Firestore
+          if (db) {
+            try {
+              const bookRef = db.collection("Books").doc(bookId);
+              await bookRef.update({ Reads: firebase.firestore.FieldValue.increment(1) });
+            } catch (error) {
+              console.warn("Failed to update read count in Firestore:", error);
+            }
           }
         }
 
-        // Update button
-        buttonEl.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4 inline mr-1"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" /></svg>${wasAlreadyRead ? translations[currentLang].downloaded : translations[currentLang].downloadAgain}`;
-        buttonEl.classList.add("opacity-70", "cursor-not-allowed", "bg-green-600/90", "hover:bg-green-700");
+        // Update button state
+        buttonEl.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" />
+        </svg>
+        ${wasAlreadyRead ? translations[currentLang].downloaded : translations[currentLang].downloadAgain}`;
+        
+        buttonEl.classList.add('success-state');
+        buttonEl.disabled = true;
 
         showNotification(`"${bookName}" ${translations[currentLang].downloadSuccess}`, 'success');
         
-        // Add confetti effect
-        if (typeof confetti !== 'undefined') {
-          confetti({ particleCount: 50, spread: 70, origin: { y: 0.6 } });
+        // Trigger confetti
+        if (confettiInstance) {
+          confettiInstance.clear();
+          confettiInstance.render();
+          
+          // Auto clear after 3 seconds
+          setTimeout(() => {
+            if (confettiInstance) confettiInstance.clear();
+          }, 3000);
         }
 
-        // Refresh the book card to update reads count
-        refreshBookCard(bookId);
+        // Refresh reads count display
+        const readsElement = buttonEl.closest('.book-card').querySelector('.reads-info span');
+        if (readsElement) {
+          const book = booksData.find(b => b.id === bookId);
+          if (book) {
+            const readsText = book.reads === 1 ? translations[currentLang].reads : translations[currentLang].readsPlural;
+            readsElement.textContent = `${book.reads} ${readsText}`;
+          }
+        }
         
       } catch (err) {
         console.error("Download failed:", err);
         showNotification(`${translations[currentLang].downloadFailed} "${bookName}".${translations[currentLang].tryAgain}`, 'error');
+        buttonEl.innerHTML = originalHTML;
         buttonEl.disabled = false;
-        buttonEl.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4 inline mr-1"><path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3" /></svg>${translations[currentLang].download}`;
-        buttonEl.classList.remove("opacity-70", "cursor-not-allowed", "bg-green-600/90", "hover:bg-green-700");
+        buttonEl.classList.remove('success-state');
       }
-    }
-
-    // Refresh a specific book card after download
-    async function refreshBookCard(bookId) {
-      const bookRef = db.collection("Books").doc(bookId);
-      const doc = await bookRef.get();
-      const data = doc.data();
-      
-      const bookCard = document.querySelector(`[data-book-id="${bookId}"]`);
-      if (bookCard) {
-        // Update reads count
-        const readsInfo = bookCard.querySelector('.reads-info span');
-        if (readsInfo) {
-          readsInfo.textContent = `${data.Reads || 0} ${translations[currentLang].reads}`;
-        }
-      }
-    }
-
-    // Add book to library
-    function addToLibrary(bookId, bookTitle) {
-      showNotification(`"${bookTitle}" ${translations[currentLang].addToLibrary}`, 'success');
     }
 
     // Check which books have been read
@@ -913,8 +1255,11 @@
           const downloadButton = card.querySelector('.btn-primary');
           if (downloadButton) {
             downloadButton.disabled = true;
-            downloadButton.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4 inline mr-1"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" /></svg>${translations[currentLang].downloaded}`;
-            downloadButton.classList.add("opacity-70", "cursor-not-allowed", "bg-green-600/90", "hover:bg-green-700");
+            downloadButton.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" />
+            </svg>
+            ${translations[currentLang].downloaded}`;
+            downloadButton.classList.add('success-state');
           }
         }
       });
@@ -928,22 +1273,27 @@
         filteredBooks = [...booksData];
       } else {
         filteredBooks = booksData.filter(book => {
-          return book.section.toLowerCase().includes(filter.toLowerCase());
+          return book.section.toLowerCase() === filter.toLowerCase();
         });
       }
       
       renderBooks();
+      
+      // Update active filter button
+      document.querySelectorAll('.filter-btn').forEach(btn => {
+        btn.classList.toggle('active', btn.dataset.filter === filter);
+      });
     }
 
     // Setup event listeners
     function setupEventListeners() {
       // Filter buttons
-      const filterButtons = document.querySelectorAll('.filter-btn');
-      filterButtons.forEach(button => {
+      document.querySelectorAll('.filter-btn').forEach(button => {
         button.addEventListener('click', () => {
-          filterButtons.forEach(btn => btn.classList.remove('active'));
-          button.classList.add('active');
           applyFilter(button.dataset.filter);
+          document.querySelectorAll('.filter-btn').forEach(btn => 
+            btn.classList.toggle('active', btn === button)
+          );
         });
       });
       
@@ -958,12 +1308,16 @@
         }
       });
       
-      const languageOptions = document.querySelectorAll('.language-option');
-      languageOptions.forEach(option => {
+      document.querySelectorAll('.language-option').forEach(option => {
         option.addEventListener('click', () => {
           const lang = option.dataset.lang;
           changeLanguage(lang);
           langDropdown.classList.remove('show');
+          
+          // Update active language option
+          document.querySelectorAll('.language-option').forEach(opt => {
+            opt.classList.toggle('active', opt.dataset.lang === lang);
+          });
         });
       });
     }
@@ -971,7 +1325,9 @@
     // Change language
     function changeLanguage(lang) {
       currentLang = lang;
-      langBtn.innerHTML = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+      
+      // Update language button
+      langBtn.innerHTML = `<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
         <path d="M12 21C16.9706 21 21 16.9706 21 12C21 7.02944 16.9706 3 12 3C7.02944 3 3 7.02944 3 12C3 16.9706 7.02944 21 12 21Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
         <path d="M12 12C12 16.4183 12 18 12 18C12 18 12 16.4183 12 12Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
         <path d="M12 6V6.01" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
@@ -979,10 +1335,10 @@
       ${lang.toUpperCase()}`;
       
       // Update UI elements with new language
-      document.querySelector('.section-title').textContent = translations[currentLang].explore;
+      document.querySelector('.section-title').innerHTML = `Explore Our <span>Collection</span>`;
       
-      const filterButtons = document.querySelectorAll('.filter-btn');
-      filterButtons.forEach(button => {
+      // Update filter buttons
+      document.querySelectorAll('.filter-btn').forEach(button => {
         const filter = button.dataset.filter;
         if (filter === 'all') button.textContent = translations[currentLang].all;
         else if (filter === 'members') button.textContent = translations[currentLang].members;
@@ -995,18 +1351,48 @@
 
     // Show notification
     function showNotification(message, type = 'success') {
-      notificationElement.textContent = message;
+      notificationElement.querySelector('span').textContent = message;
       notificationElement.className = `notification ${type}`;
+      
+      // Update icon based on type
+      const icon = notificationElement.querySelector('svg');
+      if (type === 'success') {
+        icon.innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"></path>';
+      } else {
+        icon.innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>';
+      }
+      
       notificationElement.classList.add('show');
       
       setTimeout(() => {
         notificationElement.classList.remove('show');
-      }, 3000);
+      }, 3500);
     }
 
     // Initialize the app when DOM is loaded
-    document.addEventListener('DOMContentLoaded', init);
+    document.addEventListener('DOMContentLoaded', () => {
+      // Preload images for better performance
+      const preloadImages = () => {
+        booksData.slice(0, 3).forEach(book => {
+          if (book.CoverURL) {
+            const img = new Image();
+            img.src = book.CoverURL;
+          }
+        });
+      };
+      
+      init().then(preloadImages);
+    });
+
+    // Cleanup confetti on unload
+    window.addEventListener('beforeunload', () => {
+      if (confettiInstance) {
+        confettiInstance.clear();
+      }
+      if (confettiCanvas && confettiCanvas.parentNode) {
+        confettiCanvas.parentNode.removeChild(confettiCanvas);
+      }
+    });
   </script>
 </body>
 </html>
-
