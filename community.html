@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>مجتمع القراء</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+    body {
+      background-color: #f9f7f0;
+      color: #333;
+      line-height: 1.6;
+      padding: 20px;
+      max-width: 800px;
+      margin: 0 auto;
+    }
+    header {
+      text-align: center;
+      margin-bottom: 25px;
+      padding-bottom: 15px;
+      border-bottom: 2px solid #e0d8c5;
+    }
+    h1 {
+      color: #5a4a3f;
+      font-size: 2.2rem;
+    }
+    .auth-buttons {
+      text-align: center;
+      margin: 20px 0;
+    }
+    button {
+      background-color: #5d4037;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 1rem;
+      margin: 5px;
+      transition: background 0.3s;
+    }
+    button:hover {
+      background-color: #4e342e;
+    }
+    #postForm {
+      background: white;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+      margin-bottom: 30px;
+      display: none;
+    }
+    #postForm textarea {
+      width: 100%;
+      height: 100px;
+      padding: 12px;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      resize: vertical;
+      font-size: 1rem;
+    }
+    .post {
+      background: white;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+      margin-bottom: 25px;
+    }
+    .post-header {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 10px;
+    }
+    .post-author {
+      font-weight: bold;
+      color: #5d4037;
+      font-size: 1.1rem;
+    }
+    .post-time {
+      color: #888;
+      font-size: 0.9rem;
+    }
+    .post-content {
+      margin: 12px 0;
+      line-height: 1.7;
+    }
+    .mention {
+      background-color: #e8f5e9;
+      padding: 2px 6px;
+      border-radius: 4px;
+      color: #2e7d32;
+      font-weight: bold;
+    }
+    .comment-section {
+      margin-top: 15px;
+      padding-top: 15px;
+      border-top: 1px dashed #eee;
+    }
+    .comment-input {
+      display: flex;
+      gap: 8px;
+      margin-top: 10px;
+    }
+    .comment-input input {
+      flex: 1;
+      padding: 8px 12px;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      font-size: 0.95rem;
+    }
+    .comments-list {
+      margin-top: 12px;
+    }
+    .comment-item {
+      background: #f8f6f2;
+      padding: 8px 12px;
+      border-radius: 6px;
+      margin-top: 6px;
+      font-size: 0.95rem;
+    }
+    .toast {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      background: #4caf50;
+      color: white;
+      padding: 12px 20px;
+      border-radius: 6px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+      z-index: 1000;
+      opacity: 0;
+      transform: translateY(20px);
+      transition: all 0.3s;
+    }
+    .toast.show {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <h1>📚 مجتمع القراء</h1>
+    <p>شارك أفكارك، اقرأ آراء الآخرين، وانضم للحوار الأدبي!</p>
+  </header>
+
+  <div class="auth-buttons">
+    <button id="loginBtn">تسجيل الدخول بـ Google</button>
+    <button id="logoutBtn" style="display:none;">تسجيل الخروج</button>
+  </div>
+
+  <!-- نموذج النشر -->
+  <div id="postForm">
+    <h3>اكتب منشورًا جديدًا</h3>
+    <textarea id="postContent" placeholder="شارك فكرتك... يمكنك استخدام @اسم لذكر مستخدم"></textarea>
+    <br><br>
+    <button id="submitPost">نشر</button>
+  </div>
+
+  <!-- عرض المنشورات -->
+  <div id="postsContainer">
+    <p>يرجى تسجيل الدخول لرؤية المنشورات.</p>
+  </div>
+
+  <!-- تنبيه داخلي -->
+  <div id="toast" class="toast"></div>
+
+  <!-- Firebase SDKs (بدون Messaging) -->
+  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+
+  <script>
+    // 🔑 ضع هنا config مشروعك من Firebase Console
+    const firebaseConfig = {
+        apiKey: "AIzaSyBAYrfz5i_aKOEHexo5ihPpeo4U6emUUUU",
+        authDomain: "community-89f5e.firebaseapp.com",
+        projectId: "community-89f5e",
+        storageBucket: "community-89f5e.firebasestorage.app",
+        messagingSenderId: "1007651115554",
+        appId: "1:1007651115554:web:1e4ea88d88d780fdfab07b",
+      };
+
+    firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth();
+    const db = firebase.firestore();
+
+    // تنبيه قصير داخل الصفحة
+    function showToast(message) {
+      const toast = document.getElementById("toast");
+      toast.innerText = message;
+      toast.classList.add("show");
+      setTimeout(() => toast.classList.remove("show"), 3000);
+    }
+
+    // حساب الوقت المنقضي
+    function timeAgo(timestamp) {
+      if (!timestamp?.toDate) return "الآن";
+      const now = new Date();
+      const postTime = timestamp.toDate();
+      const diffMs = now - postTime;
+      const diffMin = Math.floor(diffMs / 60000);
+      const diffHr = Math.floor(diffMin / 60);
+      const diffDay = Math.floor(diffHr / 24);
+
+      if (diffDay > 0) return `قبل ${diffDay} يوم${diffDay === 1 ? '' : 'ين'}`;
+      if (diffHr > 0) return `قبل ${diffHr} ساعة${diffHr === 1 ? '' : 'ين'}`;
+      if (diffMin > 0) return `قبل ${diffMin} دقيقة${diffMin === 1 ? '' : 'ين'}`;
+      return "الآن";
+    }
+
+    // جلب اسم المستخدم
+    async function getUserName(uid) {
+      const doc = await db.collection("users").doc(uid).get();
+      return doc.exists ? doc.data().displayName || "قارئ" : "قارئ";
+    }
+
+    // البحث عن مستخدم حسب الاسم (لـ mention)
+    async function findUserByDisplayName(name) {
+      const snapshot = await db.collection("users")
+        .where("displayName", "==", name)
+        .limit(1)
+        .get();
+      return snapshot.empty ? null : { uid: snapshot.docs[0].id };
+    }
+
+    // تحويل @اسم إلى span مميز
+    async function parseMentions(text) {
+      const mentionRegex = /@([^\s@]+)/g;
+      let result = text;
+      let match;
+      while ((match = mentionRegex.exec(text)) !== null) {
+        const username = match[1];
+        const user = await findUserByDisplayName(username);
+        if (user) {
+          result = result.replace(
+            `@${username}`,
+            `<span class="mention">@${username}</span>`
+          );
+        }
+      }
+      return result;
+    }
+
+    // تحميل وعرض المنشورات
+    async function loadPosts() {
+      const container = document.getElementById("postsContainer");
+      container.innerHTML = "<p>جارٍ التحميل...</p>";
+
+      const postsSnap = await db.collection("posts")
+        .orderBy("createdAt", "desc")
+        .limit(30)
+        .get();
+
+      let html = "";
+      for (const postDoc of postsSnap.docs) {
+        const data = postDoc.data();
+        const authorName = await getUserName(data.authorId);
+        const timeText = timeAgo(data.createdAt);
+        const postId = postDoc.id;
+
+        // جلب التعليقات
+        const commentsSnap = await postDoc.ref.collection("comments")
+          .orderBy("createdAt")
+          .get();
+
+        let commentsHtml = "";
+        commentsSnap.forEach(c => {
+          commentsHtml += `<div class="comment-item">• ${c.data().text}</div>`;
+        });
+
+        const parsedContent = await parseMentions(data.content);
+
+        html += `
+          <div class="post" data-post-id="${postId}">
+            <div class="post-header">
+              <span class="post-author">${authorName}</span>
+              <span class="post-time">${timeText}</span>
+            </div>
+            <div class="post-content">${parsedContent.replace(/\n/g, '<br>')}</div>
+            
+            <div class="comment-section">
+              <div><b>التعليقات (${commentsSnap.size})</b></div>
+              <div class="comments-list">${commentsHtml || '<div style="color:#999;">لا توجد تعليقات بعد.</div>'}</div>
+              
+              <div class="comment-input">
+                <input type="text" placeholder="اكتب تعليقًا..." maxlength="200" class="comment-field">
+                <button class="add-comment-btn">أضف</button>
+              </div>
+            </div>
+          </div>
+        `;
+      }
+
+      container.innerHTML = html || "<p>لا توجد منشورات بعد. كن أول من ينشر!</p>";
+
+      // ربط أزرار التعليق
+      document.querySelectorAll(".add-comment-btn").forEach(btn => {
+        btn.addEventListener("click", async (e) => {
+          const postEl = e.target.closest(".post");
+          const postId = postEl.dataset.postId;
+          const input = postEl.querySelector(".comment-field");
+          const text = input.value.trim();
+
+          if (!text) return showToast("التعليق لا يمكن أن يكون فارغًا!");
+          if (!auth.currentUser) return showToast("يجب تسجيل الدخول!");
+
+          try {
+            await db.collection("posts").doc(postId).collection("comments").add({
+              text,
+              authorId: auth.currentUser.uid,
+              createdAt: firebase.firestore.FieldValue.serverTimestamp()
+            });
+            input.value = "";
+            showToast("تم إضافة التعليق!");
+            loadPosts(); // تحديث القائمة
+          } catch (err) {
+            console.error(err);
+            showToast("حدث خطأ!");
+          }
+        });
+      });
+    }
+
+    // نشر منشور جديد
+    document.getElementById("submitPost").onclick = async () => {
+      const content = document.getElementById("postContent").value.trim();
+      if (!content) return showToast("المنشور لا يمكن أن يكون فارغًا!");
+      if (!auth.currentUser) return showToast("يجب تسجيل الدخول أولًا!");
+
+      // البحث عن mentions (لعرضها فقط — مش للإشعارات)
+      const parsedContent = await parseMentions(content);
+
+      try {
+        await db.collection("posts").add({
+          content,
+          authorId: auth.currentUser.uid,
+          createdAt: firebase.firestore.FieldValue.serverTimestamp()
+        });
+        document.getElementById("postContent").value = "";
+        showToast("تم نشر المنشور!");
+        loadPosts();
+      } catch (err) {
+        console.error(err);
+        showToast("فشل النشر!");
+      }
+    };
+
+    // تسجيل الدخول
+    document.getElementById("loginBtn").onclick = async () => {
+      const provider = new firebase.auth.GoogleAuthProvider();
+      try {
+        const result = await auth.signInWithPopup(provider);
+        const user = result.user;
+        await db.collection("(users").doc(user.uid).set({
+          displayName: user.displayName,
+          photoURL: user.photoURL,
+          email: user.email
+        }, { merge: true });
+        updateUI();
+      } catch (err) {
+        console.error(err);
+        showToast("فشل تسجيل الدخول");
+      }
+    };
+
+    // تسجيل الخروج
+    document.getElementById("logoutBtn").onclick = () => {
+      auth.signOut().then(updateUI);
+    };
+
+    // تحديث الواجهة حسب حالة المستخدم
+    function updateUI() {
+      auth.onAuthStateChanged(user => {
+        const form = document.getElementById("postForm");
+        if (user) {
+          document.getElementById("loginBtn").style.display = "none";
+          document.getElementById("logoutBtn").style.display = "inline-block";
+          form.style.display = "block";
+          loadPosts();
+        } else {
+          document.getElementById("loginBtn").style.display = "inline-block";
+          document.getElementById("logoutBtn").style.display = "none";
+          form.style.display = "none";
+          document.getElementById("postsContainer").innerHTML = "<p>يرجى تسجيل الدخول لرؤية المنشورات.</p>";
+        }
+      });
+    }
+
+    updateUI();
+  </script>
+</body>
+</html>
