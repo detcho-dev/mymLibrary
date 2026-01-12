@@ -177,82 +177,133 @@
   <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
 
   <script>
-    // 🔑 ضع هنا config مشروعك من Firebase Console
-    const firebaseConfig = {
-        apiKey: "AIzaSyBAYrfz5i_aKOEHexo5ihPpeo4U6emUUUU",
-        authDomain: "community-89f5e.firebaseapp.com",
-        projectId: "community-89f5e",
-        storageBucket: "community-89f5e.firebasestorage.app",
-        messagingSenderId: "1007651115554",
-        appId: "1:1007651115554:web:1e4ea88d88d780fdfab07b",
-      };
+  // 🔑 ضع هنا config مشروعك من Firebase Console
+  const firebaseConfig = {
+    apiKey: "AIzaSyBAYrfz5i_aKOEHexo5ihPpeo4U6emUUUU",
+    authDomain: "community-89f5e.firebaseapp.com",
+    projectId: "community-89f5e",
+    storageBucket: "community-89f5e.firebasestorage.app",
+    messagingSenderId: "1007651115554",
+    appId: "1:1007651115554:web:1e4ea88d88d780fdfab07b",
+  };
 
-    firebase.initializeApp(firebaseConfig);
-    const auth = firebase.auth();
-    const db = firebase.firestore();
+  firebase.initializeApp(firebaseConfig);
+  const auth = firebase.auth();
+  const db = firebase.firestore();
 
-    // تنبيه قصير داخل الصفحة
-    function showToast(message) {
-      const toast = document.getElementById("toast");
-      toast.innerText = message;
-      toast.classList.add("show");
-      setTimeout(() => toast.classList.remove("show"), 3000);
+  // تنبيه قصير داخل الصفحة
+  function showToast(message) {
+    const toast = document.getElementById("toast");
+    toast.innerText = message;
+    toast.classList.add("show");
+    setTimeout(() => toast.classList.remove("show"), 3000);
+  }
+
+  // حساب الوقت المنقضي
+  function timeAgo(timestamp) {
+    if (!timestamp?.toDate) return "الآن";
+    const now = new Date();
+    const postTime = timestamp.toDate();
+    const diffMs = now - postTime;
+    const diffMin = Math.floor(diffMs / 60000);
+    const diffHr = Math.floor(diffMin / 60);
+    const diffDay = Math.floor(diffHr / 24);
+
+    if (diffDay > 0) return `قبل ${diffDay} يوم${diffDay === 1 ? '' : 'ين'}`;
+    if (diffHr > 0) return `قبل ${diffHr} ساعة${diffHr === 1 ? '' : 'ين'}`;
+    if (diffMin > 0) return `قبل ${diffMin} دقيقة${diffMin === 1 ? '' : 'ين'}`;
+    return "الآن";
+  }
+
+  // تحليل اسم المستخدم للحصول على الاسم الحقيقي والـ tag
+  function parseDisplayName(displayName) {
+    let cleanName = displayName;
+    let tag = null;
+    let tagClass = "";
+
+    if (displayName.startsWith("++")) {
+      cleanName = displayName.substring(2).trim();
+      tag = "قارئ نهائي";
+      tagClass = "tag-ultimate";
+    } else if (displayName.startsWith("+")) {
+      cleanName = displayName.substring(1).trim();
+      tag = "قارئ مميز";
+      tagClass = "tag-premium";
+    } else if (displayName.startsWith("$")) {
+      cleanName = displayName.substring(1).trim();
+      tag = "عضو MYM";
+      tagClass = "tag-mym";
     }
 
-    // حساب الوقت المنقضي
-    function timeAgo(timestamp) {
-      if (!timestamp?.toDate) return "الآن";
-      const now = new Date();
-      const postTime = timestamp.toDate();
-      const diffMs = now - postTime;
-      const diffMin = Math.floor(diffMs / 60000);
-      const diffHr = Math.floor(diffMin / 60);
-      const diffDay = Math.floor(diffHr / 24);
+    return { cleanName, tag, tagClass };
+  }
 
-      if (diffDay > 0) return `قبل ${diffDay} يوم${diffDay === 1 ? '' : 'ين'}`;
-      if (diffHr > 0) return `قبل ${diffHr} ساعة${diffHr === 1 ? '' : 'ين'}`;
-      if (diffMin > 0) return `قبل ${diffMin} دقيقة${diffMin === 1 ? '' : 'ين'}`;
-      return "الآن";
-    }
+  // جلب اسم المستخدم (من localStorage أولاً، ثم من DB)
+  async function getUserName(uid) {
+    const cached = localStorage.getItem(`userName_${uid}`);
+    if (cached) return cached;
 
-    // جلب اسم المستخدم
-    async function getUserName(uid) {
-      const doc = await db.collection("users").doc(uid).get();
-      return doc.exists ? doc.data().displayName || "قارئ" : "قارئ";
-    }
+    const doc = await db.collection("users").doc(uid).get();
+    let name = doc.exists ? doc.data().displayName || "قارئ" : "قارئ";
+    localStorage.setItem(`userName_${uid}`, name);
+    return name;
+  }
 
-    // البحث عن مستخدم حسب الاسم (لـ mention)
-    async function findUserByDisplayName(name) {
-      const snapshot = await db.collection("users")
-        .where("displayName", "==", name)
-        .limit(1)
-        .get();
-      return snapshot.empty ? null : { uid: snapshot.docs[0].id };
-    }
+  // البحث عن مستخدم حسب الاسم (لـ mention)
+  async function findUserByDisplayName(name) {
+    const snapshot = await db.collection("users")
+      .where("displayName", "==", name)
+      .limit(1)
+      .get();
+    return snapshot.empty ? null : { uid: snapshot.docs[0].id };
+  }
 
-    // تحويل @اسم إلى span مميز
-    async function parseMentions(text) {
-      const mentionRegex = /@([^\s@]+)/g;
-      let result = text;
-      let match;
-      while ((match = mentionRegex.exec(text)) !== null) {
-        const username = match[1];
-        const user = await findUserByDisplayName(username);
-        if (user) {
-          result = result.replace(
-            `@${username}`,
-            `<span class="mention">@${username}</span>`
-          );
-        }
+  // تحويل @اسم إلى span مميز
+  async function parseMentions(text) {
+    const mentionRegex = /@([^\s@]+)/g;
+    let result = text;
+    let match;
+    while ((match = mentionRegex.exec(text)) !== null) {
+      const username = match[1];
+      const user = await findUserByDisplayName(username);
+      if (user) {
+        result = result.replace(
+          `@${username}`,
+          `<span class="mention">@${username}</span>`
+        );
       }
-      return result;
+    }
+    return result;
+  }
+
+  // طلب اسم مخصص بعد تسجيل الدخول
+  async function promptCustomName(user) {
+    const savedName = localStorage.getItem(`userName_${user.uid}`);
+    if (savedName) return;
+
+    let defaultName = user.displayName || "قارئ";
+    // إزالة أي prefix سابق إن وجد
+    if (["+", "$"].includes(defaultName[0]) || defaultName.startsWith("++")) {
+      defaultName = defaultName.replace(/^(\+{1,2}|\$)/, "").trim();
     }
 
-    // تحميل وعرض المنشورات
-    async function loadPosts() {
-      const container = document.getElementById("postsContainer");
-      container.innerHTML = "<p>جارٍ التحميل...</p>";
+    const customName = prompt("اختر اسم عرضك (يمكنك استخدام + أو ++ أو $ في البداية):", defaultName);
+    if (customName && customName.trim()) {
+      const finalName = customName.trim();
+      localStorage.setItem(`userName_${user.uid}`, finalName);
+      await db.collection("users").doc(user.uid).set({ displayName: finalName }, { merge: true });
+    } else {
+      localStorage.setItem(`userName_${user.uid}`, defaultName);
+      await db.collection("users").doc(user.uid).set({ displayName: defaultName }, { merge: true });
+    }
+  }
 
+  // تحميل وعرض المنشورات
+  async function loadPosts() {
+    const container = document.getElementById("postsContainer");
+    container.innerHTML = "<p>جارٍ التحميل...</p>";
+
+    try {
       const postsSnap = await db.collection("posts")
         .orderBy("createdAt", "desc")
         .limit(30)
@@ -261,18 +312,29 @@
       let html = "";
       for (const postDoc of postsSnap.docs) {
         const data = postDoc.data();
-        const authorName = await getUserName(data.authorId);
+        const authorNameRaw = await getUserName(data.authorId);
+        const { cleanName, tag, tagClass } = parseDisplayName(authorNameRaw);
         const timeText = timeAgo(data.createdAt);
         const postId = postDoc.id;
 
-        // جلب التعليقات
+        // جلب عدد الإعجابات
+        const likesSnap = await postDoc.ref.collection("likes").get();
+        const likeCount = likesSnap.size;
+        const likedByMe = likesSnap.docs.some(doc => doc.id === auth.currentUser?.uid);
+
+        // جلب أول 2 تعليقات فقط
         const commentsSnap = await postDoc.ref.collection("comments")
           .orderBy("createdAt")
+          .limit(2)
           .get();
+
+        const totalComments = (await postDoc.ref.collection("comments").count().get()).data().count;
 
         let commentsHtml = "";
         commentsSnap.forEach(c => {
-          commentsHtml += `<div class="comment-item">• ${c.data().text}</div>`;
+          const commentData = c.data();
+          const commenterName = commentData.commenterName || "مجهول";
+          commentsHtml += `<div class="comment-item">• <b>${commenterName}:</b> ${commentData.text}</div>`;
         });
 
         const parsedContent = await parseMentions(data.content);
@@ -280,15 +342,28 @@
         html += `
           <div class="post" data-post-id="${postId}">
             <div class="post-header">
-              <span class="post-author">${authorName}</span>
+              <div>
+                <span class="post-author">${cleanName}</span>
+                ${tag ? `<span class="user-tag ${tagClass}">${tag}</span>` : ''}
+              </div>
               <span class="post-time">${timeText}</span>
             </div>
             <div class="post-content">${parsedContent.replace(/\n/g, '<br>')}</div>
-            
+
+            <!-- زر الإعجاب -->
+            <div class="post-actions">
+              <button class="like-btn ${likedByMe ? 'liked' : ''}" data-post-id="${postId}">
+                ❤️ <span>${likeCount}</span>
+              </button>
+            </div>
+
+            <!-- التعليقات -->
             <div class="comment-section">
-              <div><b>التعليقات (${commentsSnap.size})</b></div>
+              <div><b>التعليقات (${totalComments})</b></div>
               <div class="comments-list">${commentsHtml || '<div style="color:#999;">لا توجد تعليقات بعد.</div>'}</div>
               
+              ${totalComments > 2 ? `<button class="show-more-comments" data-post-id="${postId}">عرض المزيد</button>` : ''}
+
               <div class="comment-input">
                 <input type="text" placeholder="اكتب تعليقًا..." maxlength="200" class="comment-field">
                 <button class="add-comment-btn">أضف</button>
@@ -299,6 +374,47 @@
       }
 
       container.innerHTML = html || "<p>لا توجد منشورات بعد. كن أول من ينشر!</p>";
+
+      // ربط أزرار الإعجاب
+      document.querySelectorAll(".like-btn").forEach(btn => {
+        btn.addEventListener("click", async () => {
+          if (!auth.currentUser) return showToast("سجّل دخولك أولًا!");
+          const postId = btn.dataset.postId;
+          const postRef = db.collection("posts").doc(postId);
+          const likeRef = postRef.collection("likes").doc(auth.currentUser.uid);
+
+          const isLiked = btn.classList.contains("liked");
+          if (isLiked) {
+            await likeRef.delete();
+            btn.classList.remove("liked");
+            btn.querySelector("span").textContent = parseInt(btn.querySelector("span").textContent) - 1;
+          } else {
+            await likeRef.set({ timestamp: firebase.firestore.FieldValue.serverTimestamp() });
+            btn.classList.add("liked");
+            btn.querySelector("span").textContent = parseInt(btn.querySelector("span").textContent) + 1;
+          }
+        });
+      });
+
+      // ربط أزرار "عرض المزيد"
+      document.querySelectorAll(".show-more-comments").forEach(btn => {
+        btn.addEventListener("click", async () => {
+          const postId = btn.dataset.postId;
+          const postEl = document.querySelector(`.post[data-post-id="${postId}"]`);
+          const commentsList = postEl.querySelector(".comments-list");
+          const allCommentsSnap = await db.collection("posts").doc(postId).collection("comments")
+            .orderBy("createdAt")
+            .get();
+
+          let allCommentsHtml = "";
+          allCommentsSnap.forEach(c => {
+            const cd = c.data();
+            allCommentsHtml += `<div class="comment-item">• <b>${cd.commenterName || "مجهول"}:</b> ${cd.text}</div>`;
+          });
+          commentsList.innerHTML = allCommentsHtml;
+          btn.style.display = "none";
+        });
+      });
 
       // ربط أزرار التعليق
       document.querySelectorAll(".add-comment-btn").forEach(btn => {
@@ -311,10 +427,13 @@
           if (!text) return showToast("التعليق لا يمكن أن يكون فارغًا!");
           if (!auth.currentUser) return showToast("يجب تسجيل الدخول!");
 
+          const userName = await getUserName(auth.currentUser.uid);
+
           try {
             await db.collection("posts").doc(postId).collection("comments").add({
               text,
               authorId: auth.currentUser.uid,
+              commenterName: userName,
               createdAt: firebase.firestore.FieldValue.serverTimestamp()
             });
             input.value = "";
@@ -326,74 +445,109 @@
           }
         });
       });
+
+    } catch (err) {
+      console.error("Error loading posts:", err);
+      container.innerHTML = "<p>فشل تحميل المنشورات. تحقق من اتصالك.</p>";
     }
+  }
 
-    // نشر منشور جديد
-    document.getElementById("submitPost").onclick = async () => {
-      const content = document.getElementById("postContent").value.trim();
-      if (!content) return showToast("المنشور لا يمكن أن يكون فارغًا!");
-      if (!auth.currentUser) return showToast("يجب تسجيل الدخول أولًا!");
+  // نشر منشور جديد
+  document.getElementById("submitPost").onclick = async () => {
+    const content = document.getElementById("postContent").value.trim();
+    if (!content) return showToast("المنشور لا يمكن أن يكون فارغًا!");
+    if (!auth.currentUser) return showToast("يجب تسجيل الدخول أولًا!");
 
-      // البحث عن mentions (لعرضها فقط — مش للإشعارات)
-      const parsedContent = await parseMentions(content);
+    const parsedContent = await parseMentions(content);
+    const userName = await getUserName(auth.currentUser.uid);
 
-      try {
-        await db.collection("posts").add({
-          content,
-          authorId: auth.currentUser.uid,
-          createdAt: firebase.firestore.FieldValue.serverTimestamp()
-        });
-        document.getElementById("postContent").value = "";
-        showToast("تم نشر المنشور!");
-        loadPosts();
-      } catch (err) {
-        console.error(err);
-        showToast("فشل النشر!");
-      }
-    };
-
-    // تسجيل الدخول
-    document.getElementById("loginBtn").onclick = async () => {
-      const provider = new firebase.auth.GoogleAuthProvider();
-      try {
-        const result = await auth.signInWithPopup(provider);
-        const user = result.user;
-        await db.collection("(users").doc(user.uid).set({
-          displayName: user.displayName,
-          photoURL: user.photoURL,
-          email: user.email
-        }, { merge: true });
-        updateUI();
-      } catch (err) {
-        console.error(err);
-        showToast("فشل تسجيل الدخول");
-      }
-    };
-
-    // تسجيل الخروج
-    document.getElementById("logoutBtn").onclick = () => {
-      auth.signOut().then(updateUI);
-    };
-
-    // تحديث الواجهة حسب حالة المستخدم
-    function updateUI() {
-      auth.onAuthStateChanged(user => {
-        const form = document.getElementById("postForm");
-        if (user) {
-          document.getElementById("loginBtn").style.display = "none";
-          document.getElementById("logoutBtn").style.display = "inline-block";
-          form.style.display = "block";
-          loadPosts();
-        } else {
-          document.getElementById("loginBtn").style.display = "inline-block";
-          document.getElementById("logoutBtn").style.display = "none";
-          form.style.display = "none";
-          document.getElementById("postsContainer").innerHTML = "<p>يرجى تسجيل الدخول لرؤية المنشورات.</p>";
-        }
+    try {
+      await db.collection("posts").add({
+        content,
+        authorId: auth.currentUser.uid,
+        authorName: userName,
+        createdAt: firebase.firestore.FieldValue.serverTimestamp()
       });
+      document.getElementById("postContent").value = "";
+      showToast("تم نشر المنشور!");
+      loadPosts();
+    } catch (err) {
+      console.error(err);
+      showToast("فشل النشر!");
     }
+  };
 
-    updateUI();
-  </script>
+  // تسجيل الدخول
+  document.getElementById("loginBtn").onclick = async () => {
+    const provider = new firebase.auth.GoogleAuthProvider();
+    try {
+      const result = await auth.signInWithPopup(provider);
+      const user = result.user;
+
+      // حفظ بيانات المستخدم (مع إصلاح الخطأ!)
+      await db.collection("users").doc(user.uid).set({
+        displayName: user.displayName,
+        photoURL: user.photoURL,
+        email: user.email
+      }, { merge: true });
+
+      // طلب اسم مخصص
+      await promptCustomName(user);
+
+      updateUI();
+    } catch (err) {
+      console.error(err);
+      showToast("فشل تسجيل الدخول");
+    }
+  };
+
+  // تسجيل الخروج
+  document.getElementById("logoutBtn").onclick = () => {
+    auth.signOut().then(updateUI);
+  };
+
+  // تحديث الواجهة
+  function updateUI() {
+    auth.onAuthStateChanged(async user => {
+      const form = document.getElementById("postForm");
+      const loginBtn = document.getElementById("loginBtn");
+      const logoutBtn = document.getElementById("logoutBtn");
+
+      if (user) {
+        loginBtn.style.display = "none";
+        logoutBtn.style.display = "inline-block";
+        form.style.display = "block";
+
+        // عرض صورة المستخدم (اختياري)
+        const img = document.createElement("img");
+        img.src = user.photoURL || "https://via.placeholder.com/40?text=👤";
+        img.style.width = "40px";
+        img.style.height = "40px";
+        img.style.borderRadius = "50%";
+        img.style.objectFit = "cover";
+        img.style.margin = "0 auto 15px";
+        img.style.display = "block";
+        if (!document.getElementById("userAvatar")) {
+          img.id = "userAvatar";
+          document.querySelector(".auth-buttons").insertAdjacentElement("beforebegin", img);
+        }
+
+        loadPosts();
+      } else {
+        loginBtn.style.display = "inline-block";
+        logoutBtn.style.display = "none";
+        form.style.display = "none";
+        const avatar = document.getElementById("userAvatar");
+        if (avatar) avatar.remove();
+        document.getElementById("postsContainer").innerHTML = "<p>يرجى تسجيل الدخول لرؤية المنشورات.</p>";
+      }
+    });
+  }
+
+  // تفعيل الوضع الداكن
+  document.body.classList.add("dark-mode");
+
+  updateUI();
+</script>
 </body>
 </html>
