@@ -416,12 +416,12 @@ body.dark-mode .mention {
         const likedByMe = likesSnap.docs.some(doc => doc.id === auth.currentUser?.uid);
 
         // جلب أول 2 تعليقات فقط
-        const commentsSnap = await postDoc.ref.collection("comments")
-          .orderBy("createdAt")
-          .limit(2)
-          .get();
-
-        const totalComments = (await postDoc.ref.collection("comments").count().get()).data().count;
+        const commentsQuery = postDoc.ref.collection("comments").orderBy("createdAt");
+        const [commentsSnap, totalCommentsSnap] = await Promise.all([
+        commentsQuery.limit(2).get(),
+        commentsQuery.get()
+      ]);
+        const totalComments = totalCommentsSnap.size;
 
         let commentsHtml = "";
         commentsSnap.forEach(c => {
