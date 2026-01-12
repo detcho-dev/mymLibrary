@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>مجتمع القراء</title>
+  <title data-i18n="مجتمع القراء">مجتمع القراء</title>
   <style>
     * {
       box-sizing: border-box;
@@ -173,6 +173,10 @@
       background-color: #4a90e2;
       color: white;
     }
+    .tag-reader {
+      background-color: #9c27b0; /* بنفسجي */
+      color: white;
+    }
 
     /* أزرار التفاعل */
     .post-actions {
@@ -229,6 +233,10 @@
       direction: rtl;
       text-align: right;
     }
+    .modal-content[data-lang="en"] {
+      direction: ltr;
+      text-align: left;
+    }
     .modal-content input {
       background: #1e1e1e;
       color: #f0f0f0;
@@ -246,29 +254,29 @@
 <body>
 
   <header>
-    <h1>📚 مجتمع القراء</h1>
-    <p>شارك أفكارك، اقرأ آراء الآخرين، وانضم للحوار الأدبي!</p>
+    <h1 data-i18n="مجتمع القراء">مجتمع القراء</h1>
+    <p data-i18n="شارك أفكارك، اقرأ آراء الآخرين، وانضم للحوار الأدبي!">شارك أفكارك، اقرأ آراء الآخرين، وانضم للحوار الأدبي!</p>
   </header>
 
   <!-- زر تغيير اللغة -->
   <button id="toggleLangBtn" style="position:fixed; top:10px; left:10px; background:#5d4037; color:white; border:none; padding:6px 12px; border-radius:4px; font-size:0.9rem; z-index:999;">EN</button>
 
   <div class="auth-buttons">
-    <button id="loginBtn">تسجيل الدخول بـ Google</button>
-    <button id="logoutBtn" style="display:none;">تسجيل الخروج</button>
+    <button id="loginBtn" data-i18n="تسجيل الدخول بـ Google">تسجيل الدخول بـ Google</button>
+    <button id="logoutBtn" style="display:none;" data-i18n="تسجيل الخروج">تسجيل الخروج</button>
   </div>
 
   <!-- نموذج النشر -->
   <div id="postForm">
-    <h3>اكتب منشورًا جديدًا</h3>
+    <h3 data-i18n="اكتب منشورًا جديدًا">اكتب منشورًا جديدًا</h3>
     <textarea id="postContent" placeholder="شارك فكرتك... يمكنك استخدام @اسم لذكر مستخدم"></textarea>
     <br><br>
-    <button id="submitPost">نشر</button>
+    <button id="submitPost" data-i18n="نشر">نشر</button>
   </div>
 
   <!-- عرض المنشورات -->
   <div id="postsContainer">
-    <p>يرجى تسجيل الدخول لرؤية المنشورات.</p>
+    <p data-i18n="يرجى تسجيل الدخول لرؤية المنشورات.">يرجى تسجيل الدخول لرؤية المنشورات.</p>
   </div>
 
   <!-- تنبيه داخلي -->
@@ -276,18 +284,18 @@
 
   <!-- Modal اختيار الاسم -->
   <div id="nameModal" class="modal" style="display:none;">
-    <div class="modal-content">
-      <h3>اختر اسم عرضك</h3>
-      <p>يمكنك استخدام رموز خاصة في البداية:</p>
-      <ul style="text-align:right; margin:10px 0; font-size:0.9rem; color:#bbb;">
-        <li><code>$اسم</code> → عضو MYM</li>
-        <li><code>+اسم</code> → قارئ مميز</li>
-        <li><code>++اسم</code> → قارئ نهائي</li>
+    <div class="modal-content" id="modalContent">
+      <h3 data-i18n="اختر اسم عرضك">اختر اسم عرضك</h3>
+      <p data-i18n="يمكنك استخدام رموز خاصة في البداية:">يمكنك استخدام رموز خاصة في البداية:</p>
+      <ul id="prefixList" style="margin:10px 0; font-size:0.9rem; color:#bbb;">
+        <li><code>$name</code> → <span data-i18n="MYM Member">عضو MYM</span></li>
+        <li><code>+name</code> → <span data-i18n="Premium Reader">قارئ مميز</span></li>
+        <li><code>++name</code> → <span data-i18n="Ultimate Reader">قارئ نهائي</span></li>
       </ul>
-      <input type="text" id="customNameInput" placeholder="مثال: +أحمد" maxlength="30">
+      <input type="text" id="customNameInput" placeholder="مثال: +أحمد">
       <div>
-        <button id="saveNameBtn">حفظ</button>
-        <button id="skipNameBtn">تخطي</button>
+        <button id="saveNameBtn" data-i18n="حفظ">حفظ</button>
+        <button id="skipNameBtn" data-i18n="تخطي">تخطي</button>
       </div>
     </div>
   </div>
@@ -313,7 +321,50 @@
 
     let currentLang = 'ar';
 
+    // ترجمة الواجهة بالكامل
+    const uiTranslations = {
+      'مجتمع القراء': { en: 'Readers Community', ar: 'مجتمع القراء' },
+      'شارك أفكارك، اقرأ آراء الآخرين، وانضم للحوار الأدبي!': { 
+        en: 'Share your thoughts, read others’ opinions, and join the literary discussion!', 
+        ar: 'شارك أفكارك، اقرأ آراء الآخرين، وانضم للحوار الأدبي!' 
+      },
+      'تسجيل الدخول بـ Google': { en: 'Sign in with Google', ar: 'تسجيل الدخول بـ Google' },
+      'تسجيل الخروج': { en: 'Sign out', ar: 'تسجيل الخروج' },
+      'اكتب منشورًا جديدًا': { en: 'Write a new post', ar: 'اكتب منشورًا جديدًا' },
+      'شارك فكرتك... يمكنك استخدام @اسم لذكر مستخدم': { 
+        en: 'Share your idea... you can use @name to mention a user', 
+        ar: 'شارك فكرتك... يمكنك استخدام @اسم لذكر مستخدم' 
+      },
+      'نشر': { en: 'Post', ar: 'نشر' },
+      'يرجى تسجيل الدخول لرؤية المنشورات.': { 
+        en: 'Please sign in to view posts.', 
+        ar: 'يرجى تسجيل الدخول لرؤية المنشورات.' 
+      },
+      'جارٍ التحميل...': { en: 'Loading...', ar: 'جارٍ التحميل...' },
+      'لا توجد منشورات بعد. كن أول من ينشر!': { 
+        en: 'No posts yet. Be the first to post!', 
+        ar: 'لا توجد منشورات بعد. كن أول من ينشر!' 
+      },
+      'التعليقات': { en: 'Comments', ar: 'التعليقات' },
+      'لا توجد تعليقات بعد.': { en: 'No comments yet.', ar: 'لا توجد تعليقات بعد.' },
+      'اكتب تعليقًا...': { en: 'Write a comment...', ar: 'اكتب تعليقًا...' },
+      'أضف': { en: 'Add', ar: 'أضف' },
+      'عرض المزيد': { en: 'Show more', ar: 'عرض المزيد' },
+      'اختر اسم عرضك': { en: 'Choose your display name', ar: 'اختر اسم عرضك' },
+      'يمكنك استخدام رموز خاصة في البداية:': { 
+        en: 'You can use special prefixes:', 
+        ar: 'يمكنك استخدام رموز خاصة في البداية:' 
+      },
+      'حفظ': { en: 'Save', ar: 'حفظ' },
+      'تخطي': { en: 'Skip', ar: 'تخطي' },
+      'قارئ': { en: 'Reader', ar: 'قارئ' },
+      'MYM Member': { en: 'MYM Member', ar: 'عضو MYM' },
+      'Premium Reader': { en: 'Premium Reader', ar: 'قارئ مميز' },
+      'Ultimate Reader': { en: 'Ultimate Reader', ar: 'قارئ نهائي' }
+    };
+
     const tagTranslations = {
+      'قارئ': { en: 'Reader', ar: 'قارئ' },
       'قارئ مميز': { en: 'Premium Reader', ar: 'قارئ مميز' },
       'قارئ نهائي': { en: 'Ultimate Reader', ar: 'قارئ نهائي' },
       'عضو MYM': { en: 'MYM Member', ar: 'عضو MYM' }
@@ -324,14 +375,58 @@
       return tagTranslations[tagAr]?.[currentLang] || tagAr;
     }
 
-    function updateAllTags() {
+    function translateUI() {
+      // ترجمة العناصر ذات data-i18n
+      document.querySelectorAll('[data-i18n]').forEach(el => {
+        const key = el.dataset.i18n;
+        if (uiTranslations[key]) {
+          el.textContent = uiTranslations[key][currentLang];
+        }
+      });
+
+      // ترجمة الـ Tags
       document.querySelectorAll('.user-tag').forEach(el => {
         const originalTag = el.dataset.original;
-        if (originalTag) {
+        if (originalTag && tagTranslations[originalTag]) {
           el.textContent = getTranslatedTag(originalTag);
         }
       });
+
+      // تحديث placeholder
+      const postContent = document.getElementById('postContent');
+      if (postContent) {
+        postContent.placeholder = uiTranslations['شارك فكرتك... يمكنك استخدام @اسم لذكر مستخدم'][currentLang];
+      }
+
+      const commentFields = document.querySelectorAll('.comment-field');
+      commentFields.forEach(field => {
+        field.placeholder = uiTranslations['اكتب تعليقًا...'][currentLang];
+      });
+
+      // اتجاه الصفحة
+      document.documentElement.dir = currentLang === 'ar' ? 'rtl' : 'ltr';
+      document.documentElement.lang = currentLang;
+      document.body.className = currentLang === 'ar' ? '' : 'lang-en';
+
+      // تحديث زر اللغة
       document.getElementById('toggleLangBtn').textContent = currentLang === 'ar' ? 'EN' : 'عربي';
+
+      // تحديث اتجاه الـ Modal
+      const modalContent = document.getElementById('modalContent');
+      if (modalContent) {
+        modalContent.dir = currentLang === 'ar' ? 'rtl' : 'ltr';
+        modalContent.style.textAlign = currentLang === 'ar' ? 'right' : 'left';
+        modalContent.setAttribute('data-lang', currentLang);
+      }
+
+      // تحديث قائمة الرموز
+      const prefixList = document.getElementById('prefixList');
+      if (prefixList) {
+        const lis = prefixList.querySelectorAll('li');
+        if (lis[0]) lis[0].innerHTML = `<code>$name</code> → <span>${uiTranslations['MYM Member'][currentLang]}</span>`;
+        if (lis[1]) lis[1].innerHTML = `<code>+name</code> → <span>${uiTranslations['Premium Reader'][currentLang]}</span>`;
+        if (lis[2]) lis[2].innerHTML = `<code>++name</code> → <span>${uiTranslations['Ultimate Reader'][currentLang]}</span>`;
+      }
     }
 
     function showToast(message) {
@@ -342,7 +437,7 @@
     }
 
     function timeAgo(timestamp) {
-      if (!timestamp?.toDate) return "الآن";
+      if (!timestamp?.toDate) return currentLang === 'ar' ? "الآن" : "Now";
       const now = new Date();
       const postTime = timestamp.toDate();
       const diffMs = now - postTime;
@@ -350,10 +445,17 @@
       const diffHr = Math.floor(diffMin / 60);
       const diffDay = Math.floor(diffHr / 24);
 
-      if (diffDay > 0) return `قبل ${diffDay} يوم${diffDay === 1 ? '' : 'ين'}`;
-      if (diffHr > 0) return `قبل ${diffHr} ساعة${diffHr === 1 ? '' : 'ين'}`;
-      if (diffMin > 0) return `قبل ${diffMin} دقيقة${diffMin === 1 ? '' : 'ين'}`;
-      return "الآن";
+      if (currentLang === 'en') {
+        if (diffDay > 0) return `${diffDay} day${diffDay === 1 ? '' : 's'} ago`;
+        if (diffHr > 0) return `${diffHr} hour${diffHr === 1 ? '' : 's'} ago`;
+        if (diffMin > 0) return `${diffMin} minute${diffMin === 1 ? '' : 's'} ago`;
+        return "Now";
+      } else {
+        if (diffDay > 0) return `قبل ${diffDay} يوم${diffDay === 1 ? '' : 'ين'}`;
+        if (diffHr > 0) return `قبل ${diffHr} ساعة${diffHr === 1 ? '' : 'ين'}`;
+        if (diffMin > 0) return `قبل ${diffMin} دقيقة${diffMin === 1 ? '' : 'ين'}`;
+        return "الآن";
+      }
     }
 
     function parseDisplayName(displayName) {
@@ -373,6 +475,10 @@
         cleanName = displayName.substring(1).trim();
         tag = "عضو MYM";
         tagClass = "tag-mym";
+      } else {
+        // المستخدم العادي → "قارئ" / "Reader"
+        tag = "قارئ";
+        tagClass = "tag-reader";
       }
 
       return { cleanName, tag, tagClass };
@@ -455,7 +561,7 @@
 
     async function loadPosts() {
       const container = document.getElementById("postsContainer");
-      container.innerHTML = "<p>جارٍ التحميل...</p>";
+      container.innerHTML = `<p data-i18n="جارٍ التحميل...">${uiTranslations['جارٍ التحميل...'][currentLang]}</p>`;
 
       try {
         const postsSnap = await db.collection("posts")
@@ -485,7 +591,7 @@
           let commentsHtml = "";
           commentsSnap.forEach(c => {
             const cd = c.data();
-            const commenterNameRaw = cd.commenterName || "مجهول";
+            const commenterNameRaw = cd.commenterName || "قارئ";
             const { cleanName: commentClean, tag: commentTag, tagClass: commentTagClass } = parseDisplayName(commenterNameRaw);
             const tagSpan = commentTag ? `<span class="user-tag ${commentTagClass}" data-original="${commentTag}">${getTranslatedTag(commentTag)}</span>` : '';
             commentsHtml += `<div class="comment-item">• <b>${commentClean}</b> ${tagSpan}: ${cd.text}</div>`;
@@ -493,12 +599,16 @@
 
           const parsedContent = await parseMentions(data.content);
 
+          const commentsTitle = uiTranslations['التعليقات'][currentLang];
+          const noComments = uiTranslations['لا توجد تعليقات بعد.'][currentLang];
+          const showMoreText = uiTranslations['عرض المزيد'][currentLang];
+
           html += `
             <div class="post" data-post-id="${postId}">
               <div class="post-header">
                 <div>
                   <span class="post-author">${cleanName}</span>
-                  ${tag ? `<span class="user-tag ${tagClass}" data-original="${tag}">${getTranslatedTag(tag)}</span>` : ''}
+                  <span class="user-tag ${tagClass}" data-original="${tag}">${getTranslatedTag(tag)}</span>
                 </div>
                 <span class="post-time">${timeText}</span>
               </div>
@@ -511,26 +621,30 @@
               </div>
 
               <div class="comment-section">
-                <div><b>التعليقات (${totalComments})</b></div>
-                <div class="comments-list">${commentsHtml || '<div style="color:#999;">لا توجد تعليقات بعد.</div>'}</div>
+                <div><b>${commentsTitle} (${totalComments})</b></div>
+                <div class="comments-list">${commentsHtml || `<div style="color:#999;">${noComments}</div>`}</div>
                 
-                ${totalComments > 2 ? `<button class="show-more-comments" data-post-id="${postId}">عرض المزيد</button>` : ''}
+                ${totalComments > 2 ? `<button class="show-more-comments" data-post-id="${postId}">${showMoreText}</button>` : ''}
 
                 <div class="comment-input">
-                  <input type="text" placeholder="اكتب تعليقًا..." maxlength="200" class="comment-field">
-                  <button class="add-comment-btn">أضف</button>
+                  <input type="text" placeholder="${uiTranslations['اكتب تعليقًا...'][currentLang]}" maxlength="200" class="comment-field">
+                  <button class="add-comment-btn" data-i18n="أضف">${uiTranslations['أضف'][currentLang]}</button>
                 </div>
               </div>
             </div>
           `;
         }
 
-        container.innerHTML = html || "<p>لا توجد منشورات بعد. كن أول من ينشر!</p>";
+        const noPosts = uiTranslations['لا توجد منشورات بعد. كن أول من ينشر!'][currentLang];
+        container.innerHTML = html || `<p data-i18n="لا توجد منشورات بعد. كن أول من ينشر!">${noPosts}</p>`;
+
+        // ربط الأزرار...
+        // (نفس الكود السابق - تم حذفه للتوفير، لكنه موجود في التنفيذ الكامل)
 
         // ربط أزرار الإعجاب
         document.querySelectorAll(".like-btn").forEach(btn => {
           btn.addEventListener("click", async () => {
-            if (!auth.currentUser) return showToast("سجّل دخولك أولًا!");
+            if (!auth.currentUser) return showToast(currentLang === 'ar' ? "سجّل دخولك أولًا!" : "Please sign in first!");
             const postId = btn.dataset.postId;
             const postRef = db.collection("posts").doc(postId);
             const likeRef = postRef.collection("likes").doc(auth.currentUser.uid);
@@ -561,7 +675,7 @@
             let allCommentsHtml = "";
             allCommentsSnap.forEach(c => {
               const cd = c.data();
-              const commenterNameRaw = cd.commenterName || "مجهول";
+              const commenterNameRaw = cd.commenterName || "قارئ";
               const { cleanName: commentClean, tag: commentTag, tagClass: commentTagClass } = parseDisplayName(commenterNameRaw);
               const tagSpan = commentTag ? `<span class="user-tag ${commentTagClass}" data-original="${commentTag}">${getTranslatedTag(commentTag)}</span>` : '';
               allCommentsHtml += `<div class="comment-item">• <b>${commentClean}</b> ${tagSpan}: ${cd.text}</div>`;
@@ -579,8 +693,8 @@
             const input = postEl.querySelector(".comment-field");
             const text = input.value.trim();
 
-            if (!text) return showToast("التعليق لا يمكن أن يكون فارغًا!");
-            if (!auth.currentUser) return showToast("يجب تسجيل الدخول!");
+            if (!text) return showToast(currentLang === 'ar' ? "التعليق لا يمكن أن يكون فارغًا!" : "Comment cannot be empty!");
+            if (!auth.currentUser) return showToast(currentLang === 'ar' ? "يجب تسجيل الدخول!" : "Please sign in!");
 
             const userName = await getUserName(auth.currentUser.uid);
 
@@ -592,28 +706,25 @@
                 createdAt: firebase.firestore.FieldValue.serverTimestamp()
               });
               input.value = "";
-              showToast("تم إضافة التعليق!");
+              showToast(currentLang === 'ar' ? "تم إضافة التعليق!" : "Comment added!");
               loadPosts();
             } catch (err) {
               console.error(err);
-              showToast("حدث خطأ!");
+              showToast(currentLang === 'ar' ? "حدث خطأ!" : "An error occurred!");
             }
           });
         });
 
-        // تحديث الـ tags بعد التحميل
-        updateAllTags();
-
       } catch (err) {
         console.error("Error loading posts:", err);
-        container.innerHTML = "<p>فشل تحميل المنشورات. تحقق من اتصالك.</p>";
+        container.innerHTML = "<p data-i18n='فشل تحميل المنشورات. تحقق من اتصالك.'>فشل تحميل المنشورات. تحقق من اتصالك.</p>";
       }
     }
 
     document.getElementById("submitPost").onclick = async () => {
       const content = document.getElementById("postContent").value.trim();
-      if (!content) return showToast("المنشور لا يمكن أن يكون فارغًا!");
-      if (!auth.currentUser) return showToast("يجب تسجيل الدخول أولًا!");
+      if (!content) return showToast(currentLang === 'ar' ? "المنشور لا يمكن أن يكون فارغًا!" : "Post cannot be empty!");
+      if (!auth.currentUser) return showToast(currentLang === 'ar' ? "يجب تسجيل الدخول أولًا!" : "Please sign in first!");
 
       const parsedContent = await parseMentions(content);
       const userName = await getUserName(auth.currentUser.uid);
@@ -626,11 +737,11 @@
           createdAt: firebase.firestore.FieldValue.serverTimestamp()
         });
         document.getElementById("postContent").value = "";
-        showToast("تم نشر المنشور!");
+        showToast(currentLang === 'ar' ? "تم نشر المنشور!" : "Post published!");
         loadPosts();
       } catch (err) {
         console.error(err);
-        showToast("فشل النشر!");
+        showToast(currentLang === 'ar' ? "فشل النشر!" : "Failed to post!");
       }
     };
 
@@ -650,7 +761,7 @@
         updateUI();
       } catch (err) {
         console.error(err);
-        showToast("فشل تسجيل الدخول");
+        showToast(currentLang === 'ar' ? "فشل تسجيل الدخول" : "Sign-in failed");
       }
     };
 
@@ -685,16 +796,24 @@
           form.style.display = "none";
           const avatar = document.getElementById("userAvatar");
           if (avatar) avatar.remove();
-          document.getElementById("postsContainer").innerHTML = "<p>يرجى تسجيل الدخول لرؤية المنشورات.</p>";
+          document.getElementById("postsContainer").innerHTML = `<p data-i18n="يرجى تسجيل الدخول لرؤية المنشورات.">${uiTranslations['يرجى تسجيل الدخول لرؤية المنشورات.'][currentLang]}</p>`;
         }
       });
     }
 
     document.getElementById('toggleLangBtn').onclick = () => {
       currentLang = currentLang === 'ar' ? 'en' : 'ar';
-      updateAllTags();
+      translateUI();
+      // إعادة تحميل المنشورات لترجمة الوقت والرسائل
+      if (auth.currentUser) {
+        loadPosts();
+      } else {
+        updateUI();
+      }
     };
 
+    // التهيئة الأولى
+    translateUI();
     updateUI();
   </script>
 </body>
