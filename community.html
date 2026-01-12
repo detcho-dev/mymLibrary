@@ -311,10 +311,8 @@
     const auth = firebase.auth();
     const db = firebase.firestore();
 
-    // متغير اللغة
     let currentLang = 'ar';
 
-    // خريطة الترجمة
     const tagTranslations = {
       'قارئ مميز': { en: 'Premium Reader', ar: 'قارئ مميز' },
       'قارئ نهائي': { en: 'Ultimate Reader', ar: 'قارئ نهائي' },
@@ -487,7 +485,10 @@
           let commentsHtml = "";
           commentsSnap.forEach(c => {
             const cd = c.data();
-            commentsHtml += `<div class="comment-item">• <b>${cd.commenterName || "مجهول"}:</b> ${cd.text}</div>`;
+            const commenterNameRaw = cd.commenterName || "مجهول";
+            const { cleanName: commentClean, tag: commentTag, tagClass: commentTagClass } = parseDisplayName(commenterNameRaw);
+            const tagSpan = commentTag ? `<span class="user-tag ${commentTagClass}" data-original="${commentTag}">${getTranslatedTag(commentTag)}</span>` : '';
+            commentsHtml += `<div class="comment-item">• <b>${commentClean}</b> ${tagSpan}: ${cd.text}</div>`;
           });
 
           const parsedContent = await parseMentions(data.content);
@@ -560,7 +561,10 @@
             let allCommentsHtml = "";
             allCommentsSnap.forEach(c => {
               const cd = c.data();
-              allCommentsHtml += `<div class="comment-item">• <b>${cd.commenterName || "مجهول"}:</b> ${cd.text}</div>`;
+              const commenterNameRaw = cd.commenterName || "مجهول";
+              const { cleanName: commentClean, tag: commentTag, tagClass: commentTagClass } = parseDisplayName(commenterNameRaw);
+              const tagSpan = commentTag ? `<span class="user-tag ${commentTagClass}" data-original="${commentTag}">${getTranslatedTag(commentTag)}</span>` : '';
+              allCommentsHtml += `<div class="comment-item">• <b>${commentClean}</b> ${tagSpan}: ${cd.text}</div>`;
             });
             commentsList.innerHTML = allCommentsHtml;
             btn.style.display = "none";
@@ -596,6 +600,9 @@
             }
           });
         });
+
+        // تحديث الـ tags بعد التحميل
+        updateAllTags();
 
       } catch (err) {
         console.error("Error loading posts:", err);
@@ -683,7 +690,6 @@
       });
     }
 
-    // ربط زر تغيير اللغة
     document.getElementById('toggleLangBtn').onclick = () => {
       currentLang = currentLang === 'ar' ? 'en' : 'ar';
       updateAllTags();
