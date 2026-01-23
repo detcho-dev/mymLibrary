@@ -1171,128 +1171,109 @@
     }
 
     // Handle book download
+// Handle book download – REAL DOWNLOAD
 async function handleDownload(bookId, bookName, buttonEl) {
-    if (!bookName) {
-        showNotification(translations[currentLang].bookNameMissing, 'error');
-        return;
-    }
+  if (!bookName) {
+    showNotification(translations[currentLang].bookNameMissing, 'error');
+    return;
+  }
 
-    // --- تعديل جديد: الحصول على PurchaseText ---
-    const bookCard = buttonEl.closest('.book-card');
-    const purchaseText = bookCard.dataset.purchaseText; // نحصل على القيمة من data-attribute
+  const bookCard = buttonEl.closest('.book-card');
+  const purchaseText = bookCard.dataset.purchaseText;
 
-    if (!purchaseText) {
-        showNotification(`PurchaseText is missing for book "${bookName}"`, 'error');
-        return;
-    }
-    // --- نهاية التعديل الجديد ---
+  if (!purchaseText) {
+    showNotification("PurchaseText is missing for this book.", 'error');
+    return;
+  }
 
-    const wasAlreadyRead = readBooks.includes(bookId);
-    const originalHTML = buttonEl.innerHTML;
-    try {
-        buttonEl.disabled = true;
-        buttonEl.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="animate-spin">
-<path stroke-linecap="round" stroke-linejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.702c.043-.553.11-.997.11-1.303 0-.721-.764-1.309-1.719-1.309S9.48 12.778 9.48 13.5c0 .297.07.622.11 1.066-10.088.725-10.931 9.428-10.931 9.428l.11-.001z" />
-</svg>
-${translations[currentLang].preparing}`;
+  const wasAlreadyRead = readBooks.includes(bookId);
+  const originalHTML = buttonEl.innerHTML;
 
-        // Simulate download preparation
-        await new Promise(resolve => setTimeout(resolve, 1200));
+  try {
+    buttonEl.disabled = true;
+    buttonEl.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="animate-spin">
+      <path stroke-linecap="round" stroke-linejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.702c.043-.553.11-.997.11-1.303 0-.721-.764-1.309-1.719-1.309S9.48 12.778 9.48 13.5c0 .297.07.622.11 1.066-10.088.725-10.931 9.428-10.931 9.428l.11-.001z" />
+    </svg>
+    ${translations[currentLang].preparing}`;
 
-        if (!wasAlreadyRead) {
-            // Mark as read
-            readBooks.push(bookId);
-            localStorage.setItem('readBooks', JSON.stringify(readBooks));
-            // Update book reads count (in mock data)
-            const bookIndex = booksData.findIndex(b => b.id === bookId);
-            if (bookIndex !== -1) {
-                booksData[bookIndex].reads += 1;
-            }
-            // In real app: Update Firestore
-            if (db) {
-                try {
-                    const bookRef = db.collection("Books").doc(bookId);
-                    await bookRef.update({ Reads: firebase.firestore.FieldValue.increment(1) });
-                } catch (error) {
-                    console.warn("Failed to update read count in Firestore:", error);
-                }
-            }
+    // ✅ تحديث العدد لو مش مقروء من قبل
+    if (!wasAlreadyRead) {
+      readBooks.push(bookId);
+      localStorage.setItem('readBooks', JSON.stringify(readBooks));
+
+      // Update in-memory data
+      const bookIndex = booksData.findIndex(b => b.id === bookId);
+      if (bookIndex !== -1) {
+        booksData[bookIndex].reads += 1;
+      }
+
+      // Update Firestore if available
+      if (db) {
+        try {
+          const bookRef = db.collection("Books").doc(bookId);
+          await bookRef.update({ Reads: firebase.firestore.FieldValue.increment(1) });
+        } catch (err) {
+          console.warn("Failed to update Firestore:", err);
         }
-
-        // --- تعديل جديد: بناء رابط PDF وتنزيله ---
-        // بناء اسم الملف من PurchaseText + .pdf
-        let fileName = `${purchaseText}.pdf`;
-        // تنظيف اسم الملف من الأحرف غير المسموح بها (اختياري لكن مستحسن)
-        fileName = fileName.replace(/[<>:"\/\\|?*]/g, '_').replace(/\s+/g, '_');
-
-        // إنشاء رابط التنزيل
-        // فصل اسم الملف عن الامتداد
-        const baseName = fileName.replace(/\.pdf$/i, ''); // إزالة .pdf من النهاية (حساس لحالة الأحرف)
-        const safeBaseName = encodeURIComponent(baseName); // ترميز آمن للـ URL
-        const downloadUrl = `./books/${safeBaseName}.pdf`; // هذا الرابط يفترض أن الملفات موجودة في مجلد ./books/
-
-        // محاولة تنزيل الملف
-        const link = document.createElement('a');
-        link.href = downloadUrl;
-        link.download = fileName; // اسم الملف الذي سيتم حفظه به
-
-        // التحقق مما إذا كان الرابط صالحًا قبل النقر عليه
-        fetch(downloadUrl)
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error(`File not found: ${downloadUrl}`);
-                }
-                // إذا كان الرابط صحيحًا، ننقر على الرابط لبدء التنزيل
-                document.body.appendChild(link);
-                link.click();
-                document.body.removeChild(link);
-
-                // تحديث واجهة المستخدم بعد التنزيل الناجح
-                buttonEl.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
-<path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" />
-</svg>
-${wasAlreadyRead ? translations[currentLang].downloaded : translations[currentLang].downloadAgain}`;
-                buttonEl.classList.add('success-state');
-                buttonEl.disabled = true;
-                showNotification(`"${bookName}" ${translations[currentLang].downloadSuccess}`, 'success');
-
-                // Trigger confetti
-                if (confettiInstance) {
-                    confettiInstance.clear();
-                    confettiInstance.render();
-                    // Auto clear after 3 seconds
-                    setTimeout(() => {
-                        if (confettiInstance) confettiInstance.clear();
-                    }, 3000);
-                }
-
-                // Refresh reads count display
-                const readsElement = buttonEl.closest('.book-card').querySelector('.reads-info span');
-                if (readsElement) {
-                    const book = booksData.find(b => b.id === bookId);
-                    if (book) {
-                        const readsText = book.reads === 1 ? translations[currentLang].reads : translations[currentLang].readsPlural;
-                        readsElement.textContent = `${book.reads} ${readsText}`;
-                    }
-                }
-            })
-            .catch(err => {
-                console.error("Download failed:", err);
-                showNotification(`${translations[currentLang].downloadFailed} "${bookName}".${translations[currentLang].tryAgain}`, 'error');
-                buttonEl.innerHTML = originalHTML;
-                buttonEl.disabled = false;
-                buttonEl.classList.remove('success-state');
-            });
-
-        // --- نهاية التعديل الجديد ---
-
-    } catch (err) {
-        console.error("Download failed:", err);
-        showNotification(`${translations[currentLang].downloadFailed} "${bookName}".${translations[currentLang].tryAgain}`, 'error');
-        buttonEl.innerHTML = originalHTML;
-        buttonEl.disabled = false;
-        buttonEl.classList.remove('success-state');
+      }
     }
+
+    // ✅ بناء اسم الملف الآمن
+    let baseName = purchaseText.trim().replace(/\.pdf$/i, '');
+    // تجنب الأحرف الخطرة (خاصة للسيرفرات)
+    baseName = baseName.replace(/[<>:"\/\\|?*]/g, '_').replace(/\s+/g, '_');
+    // ترميز URL آمن
+    const encodedName = encodeURIComponent(baseName);
+    const downloadUrl = `./books/${encodedName}.pdf`;
+
+    // ✅ محاولة التنزيل الفعلي
+    const response = await fetch(downloadUrl, { method: 'HEAD' });
+    if (!response.ok) {
+      throw new Error('File not found on server');
+    }
+
+    // ✅ بدء التنزيل
+    const link = document.createElement('a');
+    link.href = downloadUrl;
+    link.download = `${baseName}.pdf`; // الاسم اللي يظهر عند الحفظ
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+
+    // ✅ تحديث واجهة المستخدم بعد التنزيل
+    buttonEl.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+      <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" />
+    </svg>
+    ${wasAlreadyRead ? translations[currentLang].downloaded : translations[currentLang].downloadAgain}`;
+    buttonEl.classList.add('success-state');
+    buttonEl.disabled = true;
+
+    showNotification(`"${bookName}" ${translations[currentLang].downloadSuccess}`, 'success');
+
+    // Confetti
+    if (confettiInstance) {
+      confettiInstance.clear();
+      confettiInstance.render();
+      setTimeout(() => confettiInstance?.clear(), 3000);
+    }
+
+    // تحديث عدد القراء
+    const readsEl = buttonEl.closest('.book-card').querySelector('.reads-info span');
+    if (readsEl) {
+      const book = booksData.find(b => b.id === bookId);
+      if (book) {
+        const txt = book.reads === 1 ? translations[currentLang].reads : translations[currentLang].readsPlural;
+        readsEl.textContent = `${book.reads} ${txt}`;
+      }
+    }
+
+  } catch (err) {
+    console.error("Real download failed:", err);
+    showNotification(`${translations[currentLang].downloadFailed} "${bookName}". ${translations[currentLang].fileNotFound}`, 'error');
+    buttonEl.innerHTML = originalHTML;
+    buttonEl.disabled = false;
+    buttonEl.classList.remove('success-state');
+  }
 }
     // Check which books have been read
     function checkReadBooks() {
