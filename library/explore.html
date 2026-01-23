@@ -1226,7 +1226,10 @@ ${translations[currentLang].preparing}`;
         fileName = fileName.replace(/[<>:"\/\\|?*]/g, '_').replace(/\s+/g, '_');
 
         // إنشاء رابط التنزيل
-        const downloadUrl = `./books/${fileName}`; // هذا الرابط يفترض أن الملفات موجودة في مجلد ./books/
+        // فصل اسم الملف عن الامتداد
+        const baseName = fileName.replace(/\.pdf$/i, ''); // إزالة .pdf من النهاية (حساس لحالة الأحرف)
+        const safeBaseName = encodeURIComponent(baseName); // ترميز آمن للـ URL
+        const downloadUrl = `./books/${safeBaseName}.pdf`; // هذا الرابط يفترض أن الملفات موجودة في مجلد ./books/
 
         // محاولة تنزيل الملف
         const link = document.createElement('a');
