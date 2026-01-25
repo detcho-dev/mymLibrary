@@ -1,1430 +1,1252 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>MYM Library</title>
-  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/confetti-js@0.0.18/dist/index.min.js"></script>
-  <style>
-    :root {
-      --primary: #7d5fff;
-      --secondary: #6a4aed;
-      --dark: #0f0c1a;
-      --darker: #0a0712;
-      --light: #f7fafc;
-      --gray: #4a5568;
-      --gray-light: #718096;
-      --accent: #38b2ac;
-      --success: #4cd560;
-      --error: #e53e3e;
-      --hover: rgba(125, 95, 255, 0.15);
-      --shadow: 0 4px 20px rgba(0, 0, 0, 0.35);
-      --transition: all 0.3s cubic-bezier(0.23, 1, 0.32, 1);
-    }
-
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
-
-    body {
-      background: linear-gradient(135deg, var(--darker) 0%, var(--dark) 100%);
-      color: var(--light);
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      line-height: 1.6;
-      min-height: 100vh;
-      overflow-x: hidden;
-    }
-
-    .container {
-      max-width: 1280px;
-      margin: 0 auto;
-      padding: 0 20px;
-    }
-
-    header {
-      background: rgba(15, 12, 26, 0.92);
-      backdrop-filter: blur(10px);
-      padding: 18px 25px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      border-bottom: 1px solid rgba(125, 95, 255, 0.2);
-      position: sticky;
-      top: 0;
-      z-index: 100;
-      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.25);
-    }
-
-    .logo {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      font-size: 1.65rem;
-      font-weight: 800;
-      color: var(--light);
-      text-shadow: 0 0 10px rgba(125, 95, 255, 0.5);
-    }
-
-    .logo svg {
-      color: var(--primary);
-      filter: drop-shadow(0 0 8px rgba(125, 95, 255, 0.7));
-    }
-
-    .logo span {
-      background: linear-gradient(to right, var(--primary), var(--secondary));
-      -webkit-background-clip: text;
-      background-clip: text;
-      color: transparent;
-      letter-spacing: -0.5px;
-    }
-
-    .header-right {
-      display: flex;
-      gap: 20px;
-      align-items: center;
-    }
-
-    .language-switcher {
-      position: relative;
-      display: inline-block;
-    }
-
-    .language-btn {
-      background: rgba(255, 255, 255, 0.08);
-      border: 1px solid rgba(125, 95, 255, 0.3);
-      color: var(--light);
-      cursor: pointer;
-      font-size: 0.95rem;
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      padding: 8px 15px;
-      border-radius: 20px;
-      transition: var(--transition);
-      backdrop-filter: blur(5px);
-    }
-
-    .language-btn:hover {
-      background: rgba(125, 95, 255, 0.15);
-      transform: translateY(-1px);
-    }
-
-    .language-btn svg {
-      width: 16px;
-      height: 16px;
-      color: var(--primary);
-    }
-
-    .language-dropdown {
-      position: absolute;
-      right: 0;
-      top: 100%;
-      background: var(--darker);
-      border: 1px solid rgba(125, 95, 255, 0.3);
-      border-radius: 12px;
-      min-width: 140px;
-      z-index: 1000;
-      display: none;
-      margin-top: 8px;
-      box-shadow: var(--shadow);
-      backdrop-filter: blur(5px);
-      overflow: hidden;
-    }
-
-    .language-dropdown.show {
-      display: block;
-      animation: dropdown 0.2s ease;
-    }
-
-    @keyframes dropdown {
-      from { opacity: 0; transform: translateY(-5px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
-
-    .language-option {
-      padding: 10px 18px;
-      cursor: pointer;
-      transition: var(--transition);
-      font-weight: 500;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-
-    .language-option:hover {
-      background-color: var(--hover);
-      padding-left: 22px;
-    }
-
-    .language-option.active {
-      background: rgba(125, 95, 255, 0.2);
-      color: var(--primary);
-    }
-
-    .language-option svg {
-      width: 16px;
-      height: 16px;
-      opacity: 0.7;
-    }
-
-    .main-content {
-      padding: 40px 0 60px;
-      min-height: calc(100vh - 150px);
-    }
-
-    .section-title {
-      text-align: center;
-      font-size: 2.75rem;
-      margin-bottom: 35px;
-      color: var(--light);
-      position: relative;
-      font-weight: 800;
-      letter-spacing: -0.5px;
-      text-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
-    }
-
-    .section-title span {
-      background: linear-gradient(to right, var(--primary), var(--secondary));
-      -webkit-background-clip: text;
-      background-clip: text;
-      color: transparent;
-    }
-
-    .section-title::after {
-      content: '';
-      position: absolute;
-      bottom: -12px;
-      left: 50%;
-      transform: translateX(-50%);
-      width: 70px;
-      height: 4px;
-      background: linear-gradient(to right, var(--primary), var(--secondary));
-      border-radius: 2px;
-    }
-
-    .filters {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 12px;
-      justify-content: center;
-      margin-bottom: 35px;
-      padding: 0 15px;
-    }
-
-    .filter-btn {
-      padding: 10px 24px;
-      border-radius: 30px;
-      background: rgba(255, 255, 255, 0.08);
-      color: var(--gray-light);
-      border: 1px solid rgba(255, 255, 255, 0.1);
-      cursor: pointer;
-      transition: var(--transition);
-      font-weight: 600;
-      letter-spacing: 0.3px;
-      font-size: 1.05rem;
-      backdrop-filter: blur(3px);
-    }
-
-    .filter-btn:hover, .filter-btn.active {
-      background: linear-gradient(145deg, var(--primary), var(--secondary));
-      color: white;
-      transform: translateY(-2px);
-      box-shadow: 0 6px 16px rgba(125, 95, 255, 0.4);
-      border-color: transparent;
-    }
-
-    .books-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-      gap: 28px;
-      margin-top: 20px;
-      padding: 0 10px;
-    }
-
-    .book-card {
-      background: rgba(20, 15, 35, 0.7);
-      border-radius: 20px;
-      overflow: hidden;
-      transition: var(--transition);
-      position: relative;
-      box-shadow: var(--shadow);
-      border: 1px solid rgba(125, 95, 255, 0.15);
-      backdrop-filter: blur(5px);
-      display: flex;
-      flex-direction: column;
-      height: 100%;
-    }
-
-    .book-card:hover {
-      transform: translateY(-8px) scale(1.015);
-      box-shadow: 0 12px 28px rgba(0, 0, 0, 0.45);
-      border-color: var(--primary);
-    }
-
-    .book-type-badge {
-      position: absolute;
-      top: 14px;
-      right: 14px;
-      padding: 5px 14px;
-      border-radius: 30px;
-      font-size: 0.85rem;
-      font-weight: 700;
-      z-index: 10;
-      text-transform: uppercase;
-      letter-spacing: 0.8px;
-      backdrop-filter: blur(3px);
-      border: 1px solid rgba(255, 255, 255, 0.15);
-    }
-
-    .book-type-badge.free {
-      background-color: rgba(76, 213, 96, 0.15);
-      color: var(--success);
-      border-color: rgba(76, 213, 96, 0.3);
-    }
-
-    .book-type-badge.premium {
-      background-color: rgba(125, 95, 255, 0.15);
-      color: var(--primary);
-      border-color: rgba(125, 95, 255, 0.4);
-    }
-
-    .book-image {
-      height: 320px;
-      overflow: hidden;
-      position: relative;
-      border-bottom: 2px solid rgba(125, 95, 255, 0.3);
-    }
-
-    .book-image img {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-      transition: var(--transition);
-      display: block;
-    }
-
-    .book-card:hover .book-image img {
-      transform: scale(1.08);
-    }
-
-    .book-info {
-      padding: 22px;
-      flex-grow: 1;
-      display: flex;
-      flex-direction: column;
-    }
-
-    .book-title {
-      font-size: 1.35rem;
-      font-weight: 700;
-      margin-bottom: 10px;
-      line-height: 1.4;
-      display: -webkit-box;
-      -webkit-line-clamp: 2;
-      -webkit-box-orient: vertical;
-      overflow: hidden;
-      color: var(--light);
-      transition: var(--transition);
-      letter-spacing: -0.3px;
-    }
-
-    .book-card:hover .book-title {
-      color: var(--primary);
-    }
-
-    .book-author {
-      color: var(--gray-light);
-      font-size: 0.95rem;
-      margin-bottom: 14px;
-      display: -webkit-box;
-      -webkit-line-clamp: 1;
-      -webkit-box-orient: vertical;
-      overflow: hidden;
-      font-weight: 500;
-      letter-spacing: 0.2px;
-    }
-
-    .categories {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 8px;
-      margin-bottom: 16px;
-      min-height: 32px;
-    }
-
-    .category-badge {
-      padding: 4px 12px;
-      border-radius: 20px;
-      background: rgba(125, 95, 255, 0.15);
-      color: var(--primary);
-      font-size: 0.8rem;
-      font-weight: 600;
-      transition: var(--transition);
-      border: 1px solid rgba(125, 95, 255, 0.3);
-    }
-
-    .category-badge:hover {
-      background: rgba(125, 95, 255, 0.25);
-      transform: translateY(-1px);
-    }
-
-    .reads-info {
-      font-size: 0.95rem;
-      color: var(--gray-light);
-      margin-bottom: 20px;
-      text-align: center;
-      padding: 10px;
-      background: rgba(255, 255, 255, 0.05);
-      border-radius: 12px;
-      font-weight: 600;
-      border: 1px dashed rgba(125, 95, 255, 0.3);
-      letter-spacing: 0.5px;
-    }
-
-    .book-actions {
-      display: flex;
-      gap: 14px;
-      margin-top: auto;
-      padding-top: 15px;
-    }
-
-    .btn-primary {
-      flex: 1;
-      padding: 14px 12px;
-      border-radius: 16px;
-      background: linear-gradient(145deg, var(--primary), var(--secondary));
-      color: white;
-      border: none;
-      cursor: pointer;
-      font-size: 1.05rem;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 8px;
-      transition: var(--transition);
-      font-weight: 600;
-      min-height: 52px;
-      box-shadow: 0 4px 15px rgba(125, 95, 255, 0.35);
-      letter-spacing: 0.3px;
-    }
-
-    .btn-primary:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 6px 20px rgba(125, 95, 255, 0.5);
-    }
-
-    .btn-primary:active {
-      transform: translateY(1px);
-    }
-
-    .btn-primary:disabled {
-      opacity: 0.85;
-      cursor: not-allowed;
-      transform: none !important;
-      box-shadow: 0 2px 8px rgba(125, 95, 255, 0.2) !important;
-      background: linear-gradient(145deg, #5a45c4, #4b3ab8) !important;
-    }
-
-    .btn-primary svg {
-      width: 20px;
-      height: 20px;
-      flex-shrink: 0;
-    }
-
-    .add-to-list {
-      display: none;
-    }
-
-    .loading {
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      height: 300px;
-      grid-column: 1 / -1;
-      padding: 40px;
-    }
-
-    .spinner {
-      width: 50px;
-      height: 50px;
-      border: 4px solid rgba(125, 95, 255, 0.2);
-      border-radius: 50%;
-      border-top: 4px solid var(--primary);
-      animation: spin 1s linear infinite;
-      position: relative;
-    }
-
-    .spinner::after {
-      content: '';
-      position: absolute;
-      top: -4px;
-      left: -4px;
-      right: -4px;
-      bottom: -4px;
-      border: 4px solid transparent;
-      border-radius: 50%;
-      border-top-color: rgba(125, 95, 255, 0.5);
-      animation: spin 1.5s linear infinite reverse;
-    }
-
-    @keyframes spin {
-      0% { transform: rotate(0deg); }
-      100% { transform: rotate(360deg); }
-    }
-
-    .notification {
-      position: fixed;
-      top: 25px;
-      right: 25px;
-      padding: 18px 25px;
-      border-radius: 16px;
-      color: white;
-      z-index: 10000;
-      box-shadow: 0 6px 25px rgba(0, 0, 0, 0.3);
-      transform: translateX(calc(100% + 20px));
-      transition: transform 0.4s cubic-bezier(0.18, 0.89, 0.32, 1.28);
-      font-weight: 600;
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      max-width: 350px;
-      backdrop-filter: blur(10px);
-      border: 1px solid rgba(255, 255, 255, 0.15);
-    }
-
-    .notification.show {
-      transform: translateX(0);
-    }
-
-    .notification.success {
-      background: linear-gradient(145deg, #1e8c4d, #1a7340);
-      border-left: 4px solid var(--success);
-    }
-
-    .notification.error {
-      background: linear-gradient(145deg, #c53030, #9b2c2c);
-      border-left: 4px solid var(--error);
-    }
-
-    .notification svg {
-      width: 24px;
-      height: 24px;
-      flex-shrink: 0;
-    }
-
-    .notification.success svg path {
-      stroke: var(--success);
-    }
-
-    .notification.error svg path {
-      stroke: var(--error);
-    }
-
-    .empty-state {
-      grid-column: 1 / -1;
-      text-align: center;
-      padding: 60px 20px;
-      color: var(--gray-light);
-    }
-
-    .empty-state svg {
-      width: 80px;
-      height: 80px;
-      margin-bottom: 20px;
-      color: var(--primary);
-      opacity: 0.7;
-    }
-
-    .empty-state h3 {
-      font-size: 1.8rem;
-      margin-bottom: 12px;
-      color: var(--light);
-    }
-
-    .empty-state p {
-      font-size: 1.1rem;
-      max-width: 500px;
-      margin: 0 auto;
-      line-height: 1.6;
-    }
-
-    @media (max-width: 900px) {
-      .books-grid {
-        grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-      }
-      
-      .section-title {
-        font-size: 2.3rem;
-      }
-    }
-
-    @media (max-width: 768px) {
-      .section-title {
-        font-size: 2rem;
-        margin-bottom: 30px;
-      }
-      
-      .filters {
-        gap: 10px;
-        margin-bottom: 30px;
-      }
-      
-      .filter-btn {
-        padding: 9px 20px;
-        font-size: 0.95rem;
-      }
-      
-      .book-image {
-        height: 280px;
-      }
-      
-      .book-title {
-        font-size: 1.25rem;
-      }
-      
-      .book-info {
-        padding: 18px;
-      }
-    }
-
-    @media (max-width: 600px) {
-      .books-grid {
-        grid-template-columns: 1fr;
-      }
-      
-      .section-title {
-        font-size: 1.8rem;
-      }
-      
-      .filters {
-        flex-direction: column;
-        align-items: center;
-      }
-      
-      .filter-btn {
-        width: 100%;
-        max-width: 300px;
-        padding: 12px 20px;
-        font-size: 1.1rem;
-      }
-      
-      .book-image {
-        height: 300px;
-      }
-      
-      .book-card:hover {
-        transform: translateY(-6px) scale(1.01);
-      }
-    }
-
-    @media (max-width: 480px) {
-      .header-right {
-        gap: 12px;
-      }
-      
-      .logo {
-        font-size: 1.45rem;
-      }
-      
-      .language-btn {
-        padding: 7px 12px;
-        font-size: 0.9rem;
-      }
-      
-      .section-title {
-        font-size: 1.6rem;
-      }
-      
-      .book-title {
-        font-size: 1.15rem;
-      }
-      
-      .btn-primary {
-        padding: 14px 10px;
-        font-size: 0.95rem;
-        min-height: 48px;
-      }
-      
-      .book-actions {
-        flex-direction: column;
-      }
-      
-      .book-image {
-        height: 260px;
-      }
-    }
-
-    @media (max-width: 380px) {
-      .section-title {
-        font-size: 1.5rem;
-      }
-      
-      .filter-btn {
-        font-size: 0.95rem;
-        padding: 10px 18px;
-      }
-      
-      .book-title {
-        font-size: 1.05rem;
-      }
-      
-      .book-author {
-        font-size: 0.9rem;
-      }
-      
-      .btn-primary {
-        font-size: 0.9rem;
-        padding: 12px 8px;
-      }
-    }
-    
-    .confetti-canvas {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      pointer-events: none;
-      z-index: 9999;
-    }
-  </style>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>MYM Library</title>
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/confetti-js@0.0.18/dist/index.min.js"></script>
+<style>
+:root {
+--primary: #7d5fff;
+--secondary: #6a4aed;
+--dark: #0f0c1a;
+--darker: #0a0712;
+--light: #f7fafc;
+--gray: #4a5568;
+--gray-light: #718096;
+--accent: #38b2ac;
+--success: #4cd560;
+--error: #e53e3e;
+--hover: rgba(125, 95, 255, 0.15);
+--shadow: 0 4px 20px rgba(0, 0, 0, 0.35);
+--transition: all 0.3s cubic-bezier(0.23, 1, 0.32, 1);
+}
+* {
+margin: 0;
+padding: 0;
+box-sizing: border-box;
+}
+body {
+background: linear-gradient(135deg, var(--darker) 0%, var(--dark) 100%);
+color: var(--light);
+font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+line-height: 1.6;
+min-height: 100vh;
+overflow-x: hidden;
+}
+.container {
+max-width: 1280px;
+margin: 0 auto;
+padding: 0 20px;
+}
+header {
+background: rgba(15, 12, 26, 0.92);
+backdrop-filter: blur(10px);
+padding: 18px 25px;
+display: flex;
+justify-content: space-between;
+align-items: center;
+border-bottom: 1px solid rgba(125, 95, 255, 0.2);
+position: sticky;
+top: 0;
+z-index: 100;
+box-shadow: 0 4px 15px rgba(0, 0, 0, 0.25);
+}
+.logo {
+display: flex;
+align-items: center;
+gap: 12px;
+font-size: 1.65rem;
+font-weight: 800;
+color: var(--light);
+text-shadow: 0 0 10px rgba(125, 95, 255, 0.5);
+}
+.logo svg {
+color: var(--primary);
+filter: drop-shadow(0 0 8px rgba(125, 95, 255, 0.7));
+}
+.logo span {
+background: linear-gradient(to right, var(--primary), var(--secondary));
+-webkit-background-clip: text;
+background-clip: text;
+color: transparent;
+letter-spacing: -0.5px;
+}
+.header-right {
+display: flex;
+gap: 20px;
+align-items: center;
+}
+.language-switcher {
+position: relative;
+display: inline-block;
+}
+.language-btn {
+background: rgba(255, 255, 255, 0.08);
+border: 1px solid rgba(125, 95, 255, 0.3);
+color: var(--light);
+cursor: pointer;
+font-size: 0.95rem;
+display: flex;
+align-items: center;
+gap: 6px;
+padding: 8px 15px;
+border-radius: 20px;
+transition: var(--transition);
+backdrop-filter: blur(5px);
+}
+.language-btn:hover {
+background: rgba(125, 95, 255, 0.15);
+transform: translateY(-1px);
+}
+.language-btn svg {
+width: 16px;
+height: 16px;
+color: var(--primary);
+}
+.language-dropdown {
+position: absolute;
+right: 0;
+top: 100%;
+background: var(--darker);
+border: 1px solid rgba(125, 95, 255, 0.3);
+border-radius: 12px;
+min-width: 140px;
+z-index: 1000;
+display: none;
+margin-top: 8px;
+box-shadow: var(--shadow);
+backdrop-filter: blur(5px);
+overflow: hidden;
+}
+.language-dropdown.show {
+display: block;
+animation: dropdown 0.2s ease;
+}
+@keyframes dropdown {
+from { opacity: 0; transform: translateY(-5px); }
+to { opacity: 1; transform: translateY(0); }
+}
+.language-option {
+padding: 10px 18px;
+cursor: pointer;
+transition: var(--transition);
+font-weight: 500;
+display: flex;
+align-items: center;
+gap: 8px;
+}
+.language-option:hover {
+background-color: var(--hover);
+padding-left: 22px;
+}
+.language-option.active {
+background: rgba(125, 95, 255, 0.2);
+color: var(--primary);
+}
+.language-option svg {
+width: 16px;
+height: 16px;
+opacity: 0.7;
+}
+.main-content {
+padding: 40px 0 60px;
+min-height: calc(100vh - 150px);
+}
+.section-title {
+text-align: center;
+font-size: 2.75rem;
+margin-bottom: 35px;
+color: var(--light);
+position: relative;
+font-weight: 800;
+letter-spacing: -0.5px;
+text-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+}
+.section-title span {
+background: linear-gradient(to right, var(--primary), var(--secondary));
+-webkit-background-clip: text;
+background-clip: text;
+color: transparent;
+}
+.section-title::after {
+content: '';
+position: absolute;
+bottom: -12px;
+left: 50%;
+transform: translateX(-50%);
+width: 70px;
+height: 4px;
+background: linear-gradient(to right, var(--primary), var(--secondary));
+border-radius: 2px;
+}
+.filters {
+display: flex;
+flex-wrap: wrap;
+gap: 12px;
+justify-content: center;
+margin-bottom: 35px;
+padding: 0 15px;
+}
+.filter-btn {
+padding: 10px 24px;
+border-radius: 30px;
+background: rgba(255, 255, 255, 0.08);
+color: var(--gray-light);
+border: 1px solid rgba(255, 255, 255, 0.1);
+cursor: pointer;
+transition: var(--transition);
+font-weight: 600;
+letter-spacing: 0.3px;
+font-size: 1.05rem;
+backdrop-filter: blur(3px);
+}
+.filter-btn:hover, .filter-btn.active {
+background: linear-gradient(145deg, var(--primary), var(--secondary));
+color: white;
+transform: translateY(-2px);
+box-shadow: 0 6px 16px rgba(125, 95, 255, 0.4);
+border-color: transparent;
+}
+.books-grid {
+display: grid;
+grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+gap: 28px;
+margin-top: 20px;
+padding: 0 10px;
+}
+.book-card {
+background: rgba(20, 15, 35, 0.7);
+border-radius: 20px;
+overflow: hidden;
+transition: var(--transition);
+position: relative;
+box-shadow: var(--shadow);
+border: 1px solid rgba(125, 95, 255, 0.15);
+backdrop-filter: blur(5px);
+display: flex;
+flex-direction: column;
+height: 100%;
+}
+.book-card:hover {
+transform: translateY(-8px) scale(1.015);
+box-shadow: 0 12px 28px rgba(0, 0, 0, 0.45);
+border-color: var(--primary);
+}
+.book-type-badge {
+position: absolute;
+top: 14px;
+right: 14px;
+padding: 5px 14px;
+border-radius: 30px;
+font-size: 0.85rem;
+font-weight: 700;
+z-index: 10;
+text-transform: uppercase;
+letter-spacing: 0.8px;
+backdrop-filter: blur(3px);
+border: 1px solid rgba(255, 255, 255, 0.15);
+}
+.book-type-badge.readers {
+background-color: rgba(76, 213, 96, 0.15);
+color: var(--success);
+border-color: rgba(76, 213, 96, 0.3);
+}
+.book-type-badge.members {
+background-color: rgba(125, 95, 255, 0.15);
+color: var(--primary);
+border-color: rgba(125, 95, 255, 0.4);
+}
+.book-image {
+height: 320px;
+overflow: hidden;
+position: relative;
+border-bottom: 2px solid rgba(125, 95, 255, 0.3);
+}
+.book-image img {
+width: 100%;
+height: 100%;
+object-fit: cover;
+transition: var(--transition);
+display: block;
+}
+.book-card:hover .book-image img {
+transform: scale(1.08);
+}
+.book-info {
+padding: 22px;
+flex-grow: 1;
+display: flex;
+flex-direction: column;
+}
+.book-title {
+font-size: 1.35rem;
+font-weight: 700;
+margin-bottom: 10px;
+line-height: 1.4;
+display: -webkit-box;
+-webkit-line-clamp: 2;
+-webkit-box-orient: vertical;
+overflow: hidden;
+color: var(--light);
+transition: var(--transition);
+letter-spacing: -0.3px;
+}
+.book-card:hover .book-title {
+color: var(--primary);
+}
+.book-author {
+color: var(--gray-light);
+font-size: 0.95rem;
+margin-bottom: 14px;
+display: -webkit-box;
+-webkit-line-clamp: 1;
+-webkit-box-orient: vertical;
+overflow: hidden;
+font-weight: 500;
+letter-spacing: 0.2px;
+}
+.categories {
+display: flex;
+flex-wrap: wrap;
+gap: 8px;
+margin-bottom: 16px;
+min-height: 32px;
+}
+.category-badge {
+padding: 4px 12px;
+border-radius: 20px;
+background: rgba(125, 95, 255, 0.15);
+color: var(--primary);
+font-size: 0.8rem;
+font-weight: 600;
+transition: var(--transition);
+border: 1px solid rgba(125, 95, 255, 0.3);
+}
+.category-badge:hover {
+background: rgba(125, 95, 255, 0.25);
+transform: translateY(-1px);
+}
+.reads-info {
+font-size: 0.95rem;
+color: var(--gray-light);
+margin-bottom: 20px;
+text-align: center;
+padding: 10px;
+background: rgba(255, 255, 255, 0.05);
+border-radius: 12px;
+font-weight: 600;
+border: 1px dashed rgba(125, 95, 255, 0.3);
+letter-spacing: 0.5px;
+}
+.book-actions {
+display: flex;
+gap: 14px;
+margin-top: auto;
+padding-top: 15px;
+}
+.btn-primary {
+flex: 1;
+padding: 14px 12px;
+border-radius: 16px;
+background: linear-gradient(145deg, var(--primary), var(--secondary));
+color: white;
+border: none;
+cursor: pointer;
+font-size: 1.05rem;
+display: flex;
+align-items: center;
+justify-content: center;
+gap: 8px;
+transition: var(--transition);
+font-weight: 600;
+min-height: 52px;
+box-shadow: 0 4px 15px rgba(125, 95, 255, 0.35);
+letter-spacing: 0.3px;
+}
+.btn-primary:hover {
+transform: translateY(-2px);
+box-shadow: 0 6px 20px rgba(125, 95, 255, 0.5);
+}
+.btn-primary:active {
+transform: translateY(1px);
+}
+.btn-primary:disabled {
+opacity: 0.85;
+cursor: not-allowed;
+transform: none !important;
+box-shadow: 0 2px 8px rgba(125, 95, 255, 0.2) !important;
+background: linear-gradient(145deg, #5a45c4, #4b3ab8) !important;
+}
+.btn-primary svg {
+width: 20px;
+height: 20px;
+flex-shrink: 0;
+}
+.add-to-list {
+display: none;
+}
+.loading {
+display: flex;
+justify-content: center;
+align-items: center;
+height: 300px;
+grid-column: 1 / -1;
+padding: 40px;
+}
+.spinner {
+width: 50px;
+height: 50px;
+border: 4px solid rgba(125, 95, 255, 0.2);
+border-radius: 50%;
+border-top: 4px solid var(--primary);
+animation: spin 1s linear infinite;
+position: relative;
+}
+.spinner::after {
+content: '';
+position: absolute;
+top: -4px;
+left: -4px;
+right: -4px;
+bottom: -4px;
+border: 4px solid transparent;
+border-radius: 50%;
+border-top-color: rgba(125, 95, 255, 0.5);
+animation: spin 1.5s linear infinite reverse;
+}
+@keyframes spin {
+0% { transform: rotate(0deg); }
+100% { transform: rotate(360deg); }
+}
+.notification {
+position: fixed;
+top: 25px;
+right: 25px;
+padding: 18px 25px;
+border-radius: 16px;
+color: white;
+z-index: 10000;
+box-shadow: 0 6px 25px rgba(0, 0, 0, 0.3);
+transform: translateX(calc(100% + 20px));
+transition: transform 0.4s cubic-bezier(0.18, 0.89, 0.32, 1.28);
+font-weight: 600;
+display: flex;
+align-items: center;
+gap: 12px;
+max-width: 350px;
+backdrop-filter: blur(10px);
+border: 1px solid rgba(255, 255, 255, 0.15);
+}
+.notification.show {
+transform: translateX(0);
+}
+.notification.success {
+background: linear-gradient(145deg, #1e8c4d, #1a7340);
+border-left: 4px solid var(--success);
+}
+.notification.error {
+background: linear-gradient(145deg, #c53030, #9b2c2c);
+border-left: 4px solid var(--error);
+}
+.notification svg {
+width: 24px;
+height: 24px;
+flex-shrink: 0;
+}
+.notification.success svg path {
+stroke: var(--success);
+}
+.notification.error svg path {
+stroke: var(--error);
+}
+.empty-state {
+grid-column: 1 / -1;
+text-align: center;
+padding: 60px 20px;
+color: var(--gray-light);
+}
+.empty-state svg {
+width: 80px;
+height: 80px;
+margin-bottom: 20px;
+color: var(--primary);
+opacity: 0.7;
+}
+.empty-state h3 {
+font-size: 1.8rem;
+margin-bottom: 12px;
+color: var(--light);
+}
+.empty-state p {
+font-size: 1.1rem;
+max-width: 500px;
+margin: 0 auto;
+line-height: 1.6;
+}
+@media (max-width: 900px) {
+.books-grid {
+grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+}
+.section-title {
+font-size: 2.3rem;
+}
+}
+@media (max-width: 768px) {
+.section-title {
+font-size: 2rem;
+margin-bottom: 30px;
+}
+.filters {
+gap: 10px;
+margin-bottom: 30px;
+}
+.filter-btn {
+padding: 9px 20px;
+font-size: 0.95rem;
+}
+.book-image {
+height: 280px;
+}
+.book-title {
+font-size: 1.25rem;
+}
+.book-info {
+padding: 18px;
+}
+}
+@media (max-width: 600px) {
+.books-grid {
+grid-template-columns: 1fr;
+}
+.section-title {
+font-size: 1.8rem;
+}
+.filters {
+flex-direction: column;
+align-items: center;
+}
+.filter-btn {
+width: 100%;
+max-width: 300px;
+padding: 12px 20px;
+font-size: 1.1rem;
+}
+.book-image {
+height: 300px;
+}
+.book-card:hover {
+transform: translateY(-6px) scale(1.01);
+}
+}
+@media (max-width: 480px) {
+.header-right {
+gap: 12px;
+}
+.logo {
+font-size: 1.45rem;
+}
+.language-btn {
+padding: 7px 12px;
+font-size: 0.9rem;
+}
+.section-title {
+font-size: 1.6rem;
+}
+.book-title {
+font-size: 1.15rem;
+}
+.btn-primary {
+padding: 14px 10px;
+font-size: 0.95rem;
+min-height: 48px;
+}
+.book-actions {
+flex-direction: column;
+}
+.book-image {
+height: 260px;
+}
+}
+@media (max-width: 380px) {
+.section-title {
+font-size: 1.5rem;
+}
+.filter-btn {
+font-size: 0.95rem;
+padding: 10px 18px;
+}
+.book-title {
+font-size: 1.05rem;
+}
+.book-author {
+font-size: 0.9rem;
+}
+.btn-primary {
+font-size: 0.9rem;
+padding: 12px 8px;
+}
+}
+.confetti-canvas {
+position: fixed;
+top: 0;
+left: 0;
+width: 100%;
+height: 100%;
+pointer-events: none;
+z-index: 9999;
+}
+</style>
 </head>
 <body>
-  <header>
-    <div class="logo">
-      <svg width="32" height="32" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <path d="M12 2L2 7L12 12L22 7L12 2Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-        <path d="M2 17L12 12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-        <path d="M22 17L12 12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-        <path d="M2 12L12 17L22 12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-      </svg>
-      <span>MYM</span> Library
-    </div>
-    <div class="header-right">
-      <div class="language-switcher">
-        <button class="language-btn" id="lang-btn">
-          <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M12 21C16.9706 21 21 16.9706 21 12C21 7.02944 16.9706 3 12 3C7.02944 3 3 7.02944 3 12C3 16.9706 7.02944 21 12 21Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-            <path d="M12 12C12 16.4183 12 18 12 18C12 18 12 16.4183 12 12Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-            <path d="M12 6V6.01" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-          </svg>
-          EN
-        </button>
-        <div class="language-dropdown" id="lang-dropdown">
-          <div class="language-option active" data-lang="en">English</div>
-          <div class="language-option" data-lang="ar">العربية</div>
-          <div class="language-option" data-lang="es">Español</div>
-          <div class="language-option" data-lang="fr">Français</div>
-          <div class="language-option" data-lang="de">Deutsch</div>
-        </div>
-      </div>
-    </div>
-  </header>
-
-  <main class="container">
-    <section class="main-content">
-      <h1 class="section-title">Explore Our <span>Collection</span></h1>
-      
-      <div class="filters" id="filters">
-        <button class="filter-btn active" data-filter="all">All Books</button>
-        <button class="filter-btn" data-filter="members">Members</button>
-        <button class="filter-btn" data-filter="readers">Readers</button>
-      </div>
-      
-      <div id="books-container" class="books-grid">
-        <!-- Books will be loaded here -->
-        <div class="loading" id="loading">
-          <div class="spinner"></div>
-        </div>
-      </div>
-    </section>
-  </main>
-
-  <div class="notification" id="notification">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-      <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"></path>
-    </svg>
-    <span>Notification message</span>
-  </div>
-
-  <script>
-    // Firebase configuration
-    const firebaseConfig = {
-      apiKey: "AIzaSyBlOVx-YSmPFeq3lp-gAGe576yG1RhMLYs",
-      authDomain: "mymlibraryreads.firebaseapp.com",
-      projectId: "mymlibraryreads",
-      storageBucket: "mymlibraryreads.firebasestorage.app",
-      messagingSenderId: "11947740896",
-      appId: "1:11947740896:web:87482eb72210acdba50a85"
-    };
-
-    // Initialize Firebase
-    let db;
-    try {
-      if (!firebase.apps.length) {
-        firebase.initializeApp(firebaseConfig);
-      }
-      db = firebase.firestore();
-    } catch (error) {
-      console.error("Firebase initialization failed:", error);
-      db = null;
-    }
-
-    // Global variables
-    let booksData = [];
-    let filteredBooks = [];
-    let currentFilter = 'all';
-    let readBooks = JSON.parse(localStorage.getItem('readBooks')) || [];
-    let userData = {
-      userId: null,
-      readCount: 0
-    };
-    let confettiCanvas;
-    let confettiInstance;
-
-    // DOM elements
-    const booksContainer = document.getElementById('books-container');
-    const loadingElement = document.getElementById('loading');
-    const filtersContainer = document.getElementById('filters');
-    const notificationElement = document.getElementById('notification');
-    const langBtn = document.getElementById('lang-btn');
-    const langDropdown = document.getElementById('lang-dropdown');
-
-    // Language translations
-    const translations = {
-      en: {
-        title: "MYM Library",
-        explore: "Explore Our Collection",
-        all: "All Books",
-        members: "Members",
-        readers: "Readers",
-        download: "Download",
-        downloaded: "Downloaded",
-        downloadAgain: "Download Again",
-        reads: "Person Read this Book",
-        readsPlural: "People Read this Book",
-        category: "Category",
-        by: "By",
-        success: "Success!",
-        error: "Error!",
-        bookNameMissing: "Book name is missing!",
-        fileNotFound: "File not found on server",
-        downloadSuccess: "downloaded successfully!",
-        downloadFailed: "Failed to download",
-        tryAgain: ". Please try again.",
-        preparing: "Preparing...",
-        addToLibrary: "Add to Library",
-        categories: "Categories",
-        noBooks: "No Books Available",
-        noBooksDesc: "We couldn't find any books matching your criteria. Try changing the filter or check back later."
-      },
-      ar: {
-        title: "مكتبة MYM",
-        explore: "استكشف مجموعتنا",
-        all: "جميع الكتب",
-        members: "أعضاء",
-        readers: "قُرّاء فقط",
-        download: "تحميل",
-        downloaded: "تم التحميل",
-        downloadAgain: "تحميل مرة أخرى",
-        reads: "شخص قرأ هذا الكتاب",
-        readsPlural: "أشخاص قرؤوا هذا الكتاب",
-        category: "فئة",
-        by: "بواسطة",
-        success: "نجاح!",
-        error: "خطأ!",
-        bookNameMissing: "اسم الكتاب مفقود!",
-        fileNotFound: "لم يتم العثور على الملف على الخادم",
-        downloadSuccess: "تم التحميل بنجاح!",
-        downloadFailed: "فشل تحميل",
-        tryAgain: ". يرجى المحاولة مرة أخرى.",
-        preparing: "جاري التحضير...",
-        addToLibrary: "إضافة إلى المكتبة",
-        categories: "الفئات",
-        noBooks: "لا توجد كتب متاحة",
-        noBooksDesc: "لم نتمكن من العثور على أي كتب تطابق معاييرك. حاول تغيير الفلتر أو تحقق مرة أخرى لاحقًا."
-      },
-      es: {
-        title: "Biblioteca MYM",
-        explore: "Explora Nuestra Colección",
-        all: "Todos los Libros",
-        members: "Miembros",
-        readers: "Solo lectores",
-        download: "Descargar",
-        downloaded: "Descargado",
-        downloadAgain: "Descargar de nuevo",
-        reads: "Persona leyó este libro",
-        readsPlural: "Personas leyeron este libro",
-        category: "Categoría",
-        by: "Por",
-        success: "¡Éxito!",
-        error: "¡Error!",
-        bookNameMissing: "¡Falta el nombre del libro!",
-        fileNotFound: "Archivo no encontrado en el servidor",
-        downloadSuccess: "descargado con éxito!",
-        downloadFailed: "Falló la descarga",
-        tryAgain: ". Por favor, inténtelo de nuevo.",
-        preparing: "Preparando...",
-        addToLibrary: "Agregar a la biblioteca",
-        categories: "Categorías",
-        noBooks: "No hay libros disponibles",
-        noBooksDesc: "No pudimos encontrar libros que coincidan con sus criterios. Intente cambiar el filtro o vuelva más tarde."
-      },
-      fr: {
-        title: "Bibliothèque MYM",
-        explore: "Explorez Notre Collection",
-        all: "Tous les Livres",
-        members: "Membres",
-        readers: "Lecteurs seulement",
-        download: "Télécharger",
-        downloaded: "Téléchargé",
-        downloadAgain: "Télécharger à nouveau",
-        reads: "Personne a lu ce livre",
-        readsPlural: "Personnes ont lu ce livre",
-        category: "Catégorie",
-        by: "Par",
-        success: "Succès !",
-        error: "Erreur !",
-        bookNameMissing: "Le nom du livre est manquant !",
-        fileNotFound: "Fichier introuvable sur le serveur",
-        downloadSuccess: "téléchargé avec succès !",
-        downloadFailed: "Échec du téléchargement",
-        tryAgain: ". Veuillez réessayer.",
-        preparing: "Préparation...",
-        addToLibrary: "Ajouter à la bibliothèque",
-        categories: "Catégories",
-        noBooks: "Aucun livre disponible",
-        noBooksDesc: "Nous n'avons trouvé aucun livre correspondant à vos critères. Essayez de changer le filtre ou revenez plus tard."
-      },
-      de: {
-        title: "MYM Bibliothek",
-        explore: "Entdecken Sie unsere Sammlung",
-        all: "Alle Bücher",
-        members: "Mitglieder",
-        readers: "Nur Leser",
-        download: "Herunterladen",
-        downloaded: "Heruntergeladen",
-        downloadAgain: "Erneut herunterladen",
-        reads: "Person hat dieses Buch gelesen",
-        readsPlural: "Personen haben dieses Buch gelesen",
-        category: "Kategorie",
-        by: "Von",
-        success: "Erfolg!",
-        error: "Fehler!",
-        bookNameMissing: "Buchname fehlt!",
-        fileNotFound: "Datei nicht auf dem Server gefunden",
-        downloadSuccess: "erfolgreich heruntergeladen!",
-        downloadFailed: "Herunterladen fehlgeschlagen",
-        tryAgain: ". Bitte versuchen Sie es erneut.",
-        preparing: "Vorbereitung...",
-        addToLibrary: "Zur Bibliothek hinzufügen",
-        categories: "Kategorien",
-        noBooks: "Keine Bücher verfügbar",
-        noBooksDesc: "Wir konnten keine Bücher finden, die Ihren Kriterien entsprechen. Versuchen Sie, den Filter zu ändern, oder schauen Sie später noch einmal vorbei."
-      }
-    };
-
-    let currentLang = 'en';
-
-    // Initialize confetti
-    function initConfetti() {
-      const canvas = document.createElement('canvas');
-      canvas.classList.add('confetti-canvas');
-      document.body.appendChild(canvas);
-      
-      confettiCanvas = canvas;
-      confettiInstance = new ConfettiGenerator({
-        target: canvas,
-        max: 150,
-        size: 1.5,
-        animate: true,
-        props: ['circle', 'square', 'triangle'],
-        colors: [[125, 95, 255], [106, 74, 237], [76, 213, 96], [255, 200, 50]]
-      });
-    }
-
-    // Initialize the app
-    async function init() {
-      initConfetti();
-      
-      try {
-        // Load books from Firestore or mock data
-        await loadBooks();
-        
-        // Set up event listeners
-        setupEventListeners();
-        
-        // Apply initial filter
-        applyFilter(currentFilter);
-        
-        // Check for read books
-        checkReadBooks();
-        
-      } catch (error) {
-        console.error("Initialization error:", error);
-        showNotification("Failed to load books. Please refresh the page.", 'error');
-        booksContainer.innerHTML = `<div class="empty-state">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
-          </svg>
-          <h3>${translations[currentLang].error}</h3>
-          <p>Failed to load books. Please check your connection and try again.</p>
-        </div>`;
-      } finally {
-        loadingElement.style.display = 'none';
-      }
-    }
-
-    // Load books from Firestore or use mock data if offline
-    async function loadBooks() {
-      if (db) {
-        try {
-          const booksRef = db.collection("Books");
-          const snapshot = await booksRef.get();
-          
-          booksData = [];
-          
-          snapshot.forEach(doc => {
-            const data = doc.data();
-            
-            // Handle categories field - convert string to array if needed
-            let categories = [];
-            if (typeof data.Categories === 'string') {
-              // Split by comma and trim whitespace
-              categories = data.Categories.split(',').map(cat => cat.trim()).filter(cat => cat);
-            } else if (Array.isArray(data.Categories)) {
-              categories = data.Categories.filter(cat => cat);
-            }
-            
-            booksData.push({
-              id: doc.id,
-              ...data,
-              categories: categories.length > 0 ? categories : ['Uncategorized'],
-              section: data.Section || 'general',
-              reads: data.Reads || 0
-            });
-          });
-          
-          // Sort books by reads (descending)
-          booksData.sort((a, b) => b.reads - a.reads);
-          
-          return;
-        } catch (error) {
-          console.warn("Firestore error, falling back to mock ", error);
-        }
-      }
-      
-      // Mock data if Firestore fails or offline
-      booksData = [
-        {
-          id: 'book1',
-          Title: 'The Midnight Library',
-          Author: 'Matt Haig',
-          CoverURL: 'https://images.unsplash.com/photo-1544942590-892a0f1a2c05?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=600&q=80',
-          PurchaseText: 'FREE',
-          Reads: 1245,
-          Categories: ['Fiction', 'Fantasy'],
-          Section: 'readers'
-        },
-        {
-          id: 'book2',
-          Title: 'Atomic Habits',
-          Author: 'James Clear',
-          CoverURL: 'https://images.unsplash.com/photo-1543002588-bfa74002ed7e?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=600&q=80',
-          PurchaseText: 'PREMIUM',
-          Reads: 987,
-          Categories: ['Self-Help', 'Productivity'],
-          Section: 'members'
-        },
-        {
-          id: 'book3',
-          Title: 'Project Hail Mary',
-          Author: 'Andy Weir',
-          CoverURL: 'https://images.unsplash.com/photo-1589998059171-988d887df646?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=600&q=80',
-          PurchaseText: 'FREE',
-          Reads: 876,
-          Categories: ['Science Fiction', 'Adventure'],
-          Section: 'readers'
-        },
-        {
-          id: 'book4',
-          Title: 'The Psychology of Money',
-          Author: 'Morgan Housel',
-          CoverURL: 'https://images.unsplash.com/photo-1541781774450-d510d2ad3819?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=600&q=80',
-          PurchaseText: 'PREMIUM',
-          Reads: 754,
-          Categories: ['Finance', 'Business'],
-          Section: 'members'
-        },
-        {
-          id: 'book5',
-          Title: 'The Silent Patient',
-          Author: 'Alex Michaelides',
-          CoverURL: 'https://images.unsplash.com/photo-1543002588-bfa74002ed7e?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=600&q=80',
-          PurchaseText: 'FREE',
-          Reads: 692,
-          Categories: ['Thriller', 'Mystery'],
-          Section: 'readers'
-        },
-        {
-          id: 'book6',
-          Title: 'Dune',
-          Author: 'Frank Herbert',
-          CoverURL: 'https://images.unsplash.com/photo-1541781774450-d510d2ad3819?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=600&q=80',
-          PurchaseText: 'PREMIUM',
-          Reads: 621,
-          Categories: ['Science Fiction', 'Classic'],
-          Section: 'members'
-        }
-      ];
-    }
-
-    // Render books to the DOM
-    function renderBooks() {
-      if (!filteredBooks || filteredBooks.length === 0) {
-        booksContainer.innerHTML = `<div class="empty-state">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
-          </svg>
-          <h3>${translations[currentLang].noBooks}</h3>
-          <p>${translations[currentLang].noBooksDesc}</p>
-        </div>`;
-        return;
-      }
-      
-      const booksHTML = filteredBooks.map(book => {
-        const isRead = readBooks.includes(book.id);
-        // تحديد نوع الـ badge بناءً على حقل Section
-        let badgeClass, bookType;
-        if (book.section === 'readers') {
-          badgeClass = 'free'; // نستخدم نفس الكلاس علشان الاستايل يفضل شغال
-          bookType = translations[currentLang].readers; // "Readers Only" أو الترجمة المناسبة
-        } else if (book.section === 'members') {
-          badgeClass = 'premium';
-          bookType = translations[currentLang].members; // "Members"
-        } else {
-            badgeClass = 'free';
-            bookType = 'General';
-        }
-        
-        // Create categories HTML
-        const categoriesHTML = book.categories.map(category => 
-          `<span class="category-badge">${category}</span>`
-        ).join('');
-        
-        // Determine reads text (singular/plural)
-        const readsText = book.reads === 1 ? translations[currentLang].reads : translations[currentLang].readsPlural;
-        
-        return `
-          <div class="book-card" data-book-id="${book.id}" data-title="${book.Title || 'Untitled'}" data-author="${book.Author || 'Unknown'}" data-section="${book.section.toLowerCase()}" data-purchase-text="${book.PurchaseText || ''}">
-            <div class="book-image">
-              <img src="${book.CoverURL || 'https://images.unsplash.com/photo-1589998059171-988d887df646?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=600&q=80'}" alt="${book.Title || 'Untitled Book'}" loading="lazy" />
-              <div class="book-type-badge ${badgeClass}">${bookType}</div>
-            </div>
-            <div class="book-info">
-              <h3 class="book-title">${book.Title || 'Untitled Book'}</h3>
-              <p class="book-author">${book.Author || 'Unknown Author'}</p>
-              <div class="categories">
-                ${categoriesHTML}
-              </div>
-              <div class="reads-info">
-                <span>${book.reads} ${readsText}</span>
-              </div>
-              <div class="book-actions">
-                <button class="btn-primary" ${isRead ? 'disabled' : ''}>
-                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
-                    ${isRead ? '<path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" />' : '<path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3" />'}
-                  </svg>
-                  ${isRead ? translations[currentLang].downloaded : translations[currentLang].download}
-                </button>
-              </div>
-            </div>
-          </div>
-        `;
-      }).join('');
-      
-      booksContainer.innerHTML = booksHTML;
-      
-      // Add event listeners to buttons
-      addBookButtonListeners();
-    }
-
-    // Add event listeners to book buttons
-    function addBookButtonListeners() {
-      const downloadButtons = document.querySelectorAll('.btn-primary');
-      
-      downloadButtons.forEach(button => {
-        button.addEventListener('click', async (e) => {
-          const bookCard = e.target.closest('.book-card');
-          if (!bookCard) return;
-          
-          const bookId = bookCard.dataset.bookId;
-          const bookTitle = bookCard.dataset.title;
-          
-          await handleDownload(bookId, bookTitle, button);
-        });
-      });
-    }
-
-    // Handle book download
-// Handle book download – REAL DOWNLOAD
-async function handleDownload(bookId, bookName, buttonEl) {
-  if (!bookName) {
-    showNotification(translations[currentLang].bookNameMissing, 'error');
-    return;
-  }
-
-  const bookCard = buttonEl.closest('.book-card');
-  const purchaseText = bookCard.dataset.purchaseText;
-
-  if (!purchaseText) {
-    showNotification("PurchaseText is missing for this book.", 'error');
-    return;
-  }
-
-  const wasAlreadyRead = readBooks.includes(bookId);
-  const originalHTML = buttonEl.innerHTML;
-
-  try {
-    buttonEl.disabled = true;
-    buttonEl.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="animate-spin">
-      <path stroke-linecap="round" stroke-linejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.702c.043-.553.11-.997.11-1.303 0-.721-.764-1.309-1.719-1.309S9.48 12.778 9.48 13.5c0 .297.07.622.11 1.066-10.088.725-10.931 9.428-10.931 9.428l.11-.001z" />
-    </svg>
-    ${translations[currentLang].preparing}`;
-
-    // ✅ تحديث العدد لو مش مقروء من قبل
-    if (!wasAlreadyRead) {
-      readBooks.push(bookId);
-      localStorage.setItem('readBooks', JSON.stringify(readBooks));
-
-      // Update in-memory data
-      const bookIndex = booksData.findIndex(b => b.id === bookId);
-      if (bookIndex !== -1) {
-        booksData[bookIndex].reads += 1;
-      }
-
-      // Update Firestore if available
-      if (db) {
-        try {
-          const bookRef = db.collection("Books").doc(bookId);
-          await bookRef.update({ Reads: firebase.firestore.FieldValue.increment(1) });
-        } catch (err) {
-          console.warn("Failed to update Firestore:", err);
-        }
-      }
-    }
-
-    // ✅ بناء اسم الملف الآمن
-    let baseName = purchaseText.trim().replace(/\.pdf$/i, '');
-    // تجنب الأحرف الخطرة (خاصة للسيرفرات)
-    baseName = baseName.replace(/[<>:"\/\\|?*]/g, '_').replace(/\s+/g, '_');
-    // ترميز URL آمن
-    const encodedName = encodeURIComponent(baseName);
-    const downloadUrl = `./books/${encodedName}.pdf`;
-
-    // ✅ محاولة التنزيل الفعلي
-    const response = await fetch(downloadUrl, { method: 'HEAD' });
-    if (!response.ok) {
-      throw new Error('File not found on server');
-    }
-
-    // ✅ بدء التنزيل
-    const link = document.createElement('a');
-    link.href = downloadUrl;
-    link.download = `${baseName}.pdf`; // الاسم اللي يظهر عند الحفظ
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-
-    // ✅ تحديث واجهة المستخدم بعد التنزيل
-    buttonEl.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
-      <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" />
-    </svg>
-    ${wasAlreadyRead ? translations[currentLang].downloaded : translations[currentLang].downloadAgain}`;
-    buttonEl.classList.add('success-state');
-    buttonEl.disabled = true;
-
-    showNotification(`"${bookName}" ${translations[currentLang].downloadSuccess}`, 'success');
-
-    // Confetti
-    if (confettiInstance) {
-      confettiInstance.clear();
-      confettiInstance.render();
-      setTimeout(() => confettiInstance?.clear(), 3000);
-    }
-
-    // تحديث عدد القراء
-    const readsEl = buttonEl.closest('.book-card').querySelector('.reads-info span');
-    if (readsEl) {
-      const book = booksData.find(b => b.id === bookId);
-      if (book) {
-        const txt = book.reads === 1 ? translations[currentLang].reads : translations[currentLang].readsPlural;
-        readsEl.textContent = `${book.reads} ${txt}`;
-      }
-    }
-
-  } catch (err) {
-    console.error("Real download failed:", err);
-    showNotification(`${translations[currentLang].downloadFailed} "${bookName}". ${translations[currentLang].fileNotFound}`, 'error');
-    buttonEl.innerHTML = originalHTML;
-    buttonEl.disabled = false;
-    buttonEl.classList.remove('success-state');
-  }
+<header>
+<div class="logo">
+<svg width="32" height="32" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+<path d="M12 2L2 7L12 12L22 7L12 2Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M2 17L12 12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M22 17L12 12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M2 12L12 17L22 12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>
+<span>MYM</span> Library
+</div>
+<div class="header-right">
+<div class="language-switcher">
+<button class="language-btn" id="lang-btn">
+<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+<path d="M12 21C16.9706 21 21 16.9706 21 12C21 7.02944 16.9706 3 12 3C7.02944 3 3 7.02944 3 12C3 16.9706 7.02944 21 12 21Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M12 12C12 16.4183 12 18 12 18C12 18 12 16.4183 12 12Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M12 6V6.01" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>
+EN
+</button>
+<div class="language-dropdown" id="lang-dropdown">
+<div class="language-option active" data-lang="en">English</div>
+<div class="language-option" data-lang="ar">العربية</div>
+<div class="language-option" data-lang="es">Español</div>
+<div class="language-option" data-lang="fr">Français</div>
+<div class="language-option" data-lang="de">Deutsch</div>
+</div>
+</div>
+</div>
+</header>
+<main class="container">
+<section class="main-content">
+<h1 class="section-title">Explore Our <span>Collection</span></h1>
+<div class="filters" id="filters">
+<button class="filter-btn active" data-filter="all">All Books</button>
+<button class="filter-btn" data-filter="members">Members</button>
+<button class="filter-btn" data-filter="readers">Readers Only</button>
+</div>
+<div id="books-container" class="books-grid">
+<!-- Books will be loaded here -->
+<div class="loading" id="loading">
+<div class="spinner"></div>
+</div>
+</div>
+</section>
+</main>
+<div class="notification" id="notification">
+<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+<path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"></path>
+</svg>
+<span>Notification message</span>
+</div>
+<script>
+// Firebase configuration
+const firebaseConfig = {
+apiKey: "AIzaSyBlOVx-YSmPFeq3lp-gAGe576yG1RhMLYs",
+authDomain: "mymlibraryreads.firebaseapp.com",
+projectId: "mymlibraryreads",
+storageBucket: "mymlibraryreads.firebasestorage.app",
+messagingSenderId: "11947740896",
+appId: "1:11947740896:web:87482eb72210acdba50a85"
+};
+// Initialize Firebase
+let db;
+try {
+if (!firebase.apps.length) {
+firebase.initializeApp(firebaseConfig);
 }
-    // Check which books have been read
-    function checkReadBooks() {
-      const bookCards = document.querySelectorAll('.book-card');
-      
-      bookCards.forEach(card => {
-        const bookId = card.dataset.bookId;
-        const isRead = readBooks.includes(bookId);
-        
-        if (isRead) {
-          const downloadButton = card.querySelector('.btn-primary');
-          if (downloadButton) {
-            downloadButton.disabled = true;
-            downloadButton.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" />
-            </svg>
-            ${translations[currentLang].downloaded}`;
-            downloadButton.classList.add('success-state');
-          }
-        }
-      });
-    }
-
-    // Apply filter to books
-    function applyFilter(filter) {
-      currentFilter = filter;
-      
-      if (filter === 'all') {
-        filteredBooks = [...booksData];
-      } else {
-        filteredBooks = booksData.filter(book => {
-          return book.section.toLowerCase() === filter.toLowerCase();
-        });
-      }
-      
-      renderBooks();
-      
-      // Update active filter button
-      document.querySelectorAll('.filter-btn').forEach(btn => {
-        btn.classList.toggle('active', btn.dataset.filter === filter);
-      });
-    }
-
-    // Setup event listeners
-    function setupEventListeners() {
-      // Filter buttons
-      document.querySelectorAll('.filter-btn').forEach(button => {
-        button.addEventListener('click', () => {
-          applyFilter(button.dataset.filter);
-          document.querySelectorAll('.filter-btn').forEach(btn => 
-            btn.classList.toggle('active', btn === button)
-          );
-        });
-      });
-      
-      // Language switcher
-      langBtn.addEventListener('click', () => {
-        langDropdown.classList.toggle('show');
-      });
-      
-      document.addEventListener('click', (e) => {
-        if (!e.target.closest('.language-switcher')) {
-          langDropdown.classList.remove('show');
-        }
-      });
-      
-      document.querySelectorAll('.language-option').forEach(option => {
-        option.addEventListener('click', () => {
-          const lang = option.dataset.lang;
-          changeLanguage(lang);
-          langDropdown.classList.remove('show');
-          
-          // Update active language option
-          document.querySelectorAll('.language-option').forEach(opt => {
-            opt.classList.toggle('active', opt.dataset.lang === lang);
-          });
-        });
-      });
-    }
-
-    // Change language
-    function changeLanguage(lang) {
-      currentLang = lang;
-      
-      // Update language button
-      langBtn.innerHTML = `<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <path d="M12 21C16.9706 21 21 16.9706 21 12C21 7.02944 16.9706 3 12 3C7.02944 3 3 7.02944 3 12C3 16.9706 7.02944 21 12 21Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-        <path d="M12 12C12 16.4183 12 18 12 18C12 18 12 16.4183 12 12Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-        <path d="M12 6V6.01" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-      </svg>
-      ${lang.toUpperCase()}`;
-      
-      // Update UI elements with new language
-      document.querySelector('.section-title').innerHTML = `Explore Our <span>Collection</span>`;
-      
-      // Update filter buttons
-      document.querySelectorAll('.filter-btn').forEach(button => {
-        const filter = button.dataset.filter;
-        if (filter === 'all') button.textContent = translations[currentLang].all;
-        else if (filter === 'members') button.textContent = translations[currentLang].members;
-        else if (filter === 'readers') button.textContent = translations[currentLang].readers;
-      });
-      
-      // Re-render books to update text
-      renderBooks();
-    }
-
-    // Show notification
-    function showNotification(message, type = 'success') {
-      notificationElement.querySelector('span').textContent = message;
-      notificationElement.className = `notification ${type}`;
-      
-      // Update icon based on type
-      const icon = notificationElement.querySelector('svg');
-      if (type === 'success') {
-        icon.innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"></path>';
-      } else {
-        icon.innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>';
-      }
-      
-      notificationElement.classList.add('show');
-      
-      setTimeout(() => {
-        notificationElement.classList.remove('show');
-      }, 3500);
-    }
-
-    // Initialize the app when DOM is loaded
-    document.addEventListener('DOMContentLoaded', () => {
-      // Preload images for better performance
-      const preloadImages = () => {
-        booksData.slice(0, 3).forEach(book => {
-          if (book.CoverURL) {
-            const img = new Image();
-            img.src = book.CoverURL;
-          }
-        });
-      };
-      
-      init().then(preloadImages);
-    });
-
-    // Cleanup confetti on unload
-    window.addEventListener('beforeunload', () => {
-      if (confettiInstance) {
-        confettiInstance.clear();
-      }
-      if (confettiCanvas && confettiCanvas.parentNode) {
-        confettiCanvas.parentNode.removeChild(confettiCanvas);
-      }
-    });
-  </script>
+db = firebase.firestore();
+} catch (error) {
+console.error("Firebase initialization failed:", error);
+db = null;
+}
+// Global variables
+let booksData = [];
+let filteredBooks = [];
+let currentFilter = 'all';
+let readBooks = JSON.parse(localStorage.getItem('readBooks')) || [];
+let userData = {
+userId: null,
+readCount: 0
+};
+let confettiCanvas;
+let confettiInstance;
+// DOM elements
+const booksContainer = document.getElementById('books-container');
+const loadingElement = document.getElementById('loading');
+const filtersContainer = document.getElementById('filters');
+const notificationElement = document.getElementById('notification');
+const langBtn = document.getElementById('lang-btn');
+const langDropdown = document.getElementById('lang-dropdown');
+// Language translations
+const translations = {
+en: {
+title: "MYM Library",
+explore: "Explore Our Collection",
+all: "All Books",
+members: "Members",
+readers: "Readers Only",
+download: "Download",
+downloaded: "Downloaded",
+downloadAgain: "Download Again",
+reads: "Person Read this Book",
+readsPlural: "People Read this Book",
+category: "Category",
+by: "By",
+success: "Success!",
+error: "Error!",
+bookNameMissing: "Book name is missing!",
+fileNotFound: "File not found on server",
+downloadSuccess: "downloaded successfully!",
+downloadFailed: "Failed to download",
+tryAgain: ". Please try again.",
+preparing: "Preparing...",
+addToLibrary: "Add to Library",
+categories: "Categories",
+noBooks: "No Books Available",
+noBooksDesc: "We couldn't find any books matching your criteria. Try changing the filter or check back later."
+},
+ar: {
+title: "مكتبة MYM",
+explore: "استكشف مجموعتنا",
+all: "جميع الكتب",
+members: "أعضاء",
+readers: "قُرّاء فقط",
+download: "تحميل",
+downloaded: "تم التحميل",
+downloadAgain: "تحميل مرة أخرى",
+reads: "شخص قرأ هذا الكتاب",
+readsPlural: "أشخاص قرؤوا هذا الكتاب",
+category: "فئة",
+by: "بواسطة",
+success: "نجاح!",
+error: "خطأ!",
+bookNameMissing: "اسم الكتاب مفقود!",
+fileNotFound: "لم يتم العثور على الملف على الخادم",
+downloadSuccess: "تم التحميل بنجاح!",
+downloadFailed: "فشل تحميل",
+tryAgain: ". يرجى المحاولة مرة أخرى.",
+preparing: "جاري التحضير...",
+addToLibrary: "إضافة إلى المكتبة",
+categories: "الفئات",
+noBooks: "لا توجد كتب متاحة",
+noBooksDesc: "لم نتمكن من العثور على أي كتب تطابق معاييرك. حاول تغيير الفلتر أو تحقق مرة أخرى لاحقًا."
+},
+es: {
+title: "Biblioteca MYM",
+explore: "Explora Nuestra Colección",
+all: "Todos los Libros",
+members: "Miembros",
+readers: "Solo lectores",
+download: "Descargar",
+downloaded: "Descargado",
+downloadAgain: "Descargar de nuevo",
+reads: "Persona leyó este libro",
+readsPlural: "Personas leyeron este libro",
+category: "Categoría",
+by: "Por",
+success: "¡Éxito!",
+error: "¡Error!",
+bookNameMissing: "¡Falta el nombre del libro!",
+fileNotFound: "Archivo no encontrado en el servidor",
+downloadSuccess: "descargado con éxito!",
+downloadFailed: "Falló la descarga",
+tryAgain: ". Por favor, inténtelo de nuevo.",
+preparing: "Preparando...",
+addToLibrary: "Agregar a la biblioteca",
+categories: "Categorías",
+noBooks: "No hay libros disponibles",
+noBooksDesc: "No pudimos encontrar libros que coincidan con sus criterios. Intente cambiar el filtro o vuelva más tarde."
+},
+fr: {
+title: "Bibliothèque MYM",
+explore: "Explorez Notre Collection",
+all: "Tous les Livres",
+members: "Membres",
+readers: "Lecteurs seulement",
+download: "Télécharger",
+downloaded: "Téléchargé",
+downloadAgain: "Télécharger à nouveau",
+reads: "Personne a lu ce livre",
+readsPlural: "Personnes ont lu ce livre",
+category: "Catégorie",
+by: "Par",
+success: "Succès !",
+error: "Erreur !",
+bookNameMissing: "Le nom du livre est manquant !",
+fileNotFound: "Fichier introuvable sur le serveur",
+downloadSuccess: "téléchargé avec succès !",
+downloadFailed: "Échec du téléchargement",
+tryAgain: ". Veuillez réessayer.",
+preparing: "Préparation...",
+addToLibrary: "Ajouter à la bibliothèque",
+categories: "Catégories",
+noBooks: "Aucun livre disponible",
+noBooksDesc: "Nous n'avons trouvé aucun livre correspondant à vos critères. Essayez de changer le filtre ou revenez plus tard."
+},
+de: {
+title: "MYM Bibliothek",
+explore: "Entdecken Sie unsere Sammlung",
+all: "Alle Bücher",
+members: "Mitglieder",
+readers: "Nur Leser",
+download: "Herunterladen",
+downloaded: "Heruntergeladen",
+downloadAgain: "Erneut herunterladen",
+reads: "Person hat dieses Buch gelesen",
+readsPlural: "Personen haben dieses Buch gelesen",
+category: "Kategorie",
+by: "Von",
+success: "Erfolg!",
+error: "Fehler!",
+bookNameMissing: "Buchname fehlt!",
+fileNotFound: "Datei nicht auf dem Server gefunden",
+downloadSuccess: "erfolgreich heruntergeladen!",
+downloadFailed: "Herunterladen fehlgeschlagen",
+tryAgain: ". Bitte versuchen Sie es erneut.",
+preparing: "Vorbereitung...",
+addToLibrary: "Zur Bibliothek hinzufügen",
+categories: "Kategorien",
+noBooks: "Keine Bücher verfügbar",
+noBooksDesc: "Wir konnten keine Bücher finden, die Ihren Kriterien entsprechen. Versuchen Sie, den Filter zu ändern, oder schauen Sie später noch einmal vorbei."
+}
+};
+let currentLang = 'en';
+// Initialize confetti
+function initConfetti() {
+const canvas = document.createElement('canvas');
+canvas.classList.add('confetti-canvas');
+document.body.appendChild(canvas);
+confettiCanvas = canvas;
+confettiInstance = new ConfettiGenerator({
+target: canvas,
+max: 150,
+size: 1.5,
+animate: true,
+props: ['circle', 'square', 'triangle'],
+colors: [[125, 95, 255], [106, 74, 237], [76, 213, 96], [255, 200, 50]]
+});
+}
+// Initialize the app
+async function init() {
+initConfetti();
+try {
+// Load books from Firestore or mock data
+await loadBooks();
+// Set up event listeners
+setupEventListeners();
+// Apply initial filter
+applyFilter(currentFilter);
+// Check for read books
+checkReadBooks();
+} catch (error) {
+console.error("Initialization error:", error);
+showNotification("Failed to load books. Please refresh the page.", 'error');
+booksContainer.innerHTML = `<div class="empty-state">
+<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+<path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
+</svg>
+<h3>${translations[currentLang].error}</h3>
+<p>Failed to load books. Please check your connection and try again.</p>
+</div>`;
+} finally {
+loadingElement.style.display = 'none';
+}
+}
+// Load books from Firestore or use mock data if offline
+async function loadBooks() {
+if (db) {
+try {
+const booksRef = db.collection("Books");
+const snapshot = await booksRef.get();
+booksData = [];
+snapshot.forEach(doc => {
+const data = doc.data();
+// Handle categories field - convert string to array if needed
+let categories = [];
+if (typeof data.Categories === 'string') {
+// Split by comma and trim whitespace
+categories = data.Categories.split(',').map(cat => cat.trim()).filter(cat => cat);
+} else if (Array.isArray(data.Categories)) {
+categories = data.Categories.filter(cat => cat);
+}
+booksData.push({
+id: doc.id,
+...data,
+categories: categories.length > 0 ? categories : ['Uncategorized'],
+section: data.Section || 'general',
+reads: data.Reads || 0
+});
+});
+// Sort books by reads (descending)
+booksData.sort((a, b) => b.reads - a.reads);
+return;
+} catch (error) {
+console.warn("Firestore error, falling back to mock data:", error);
+}
+}
+// Mock data if Firestore fails or offline
+booksData = [
+{
+id: 'book1',
+Title: 'The Midnight Library',
+Author: 'Matt Haig',
+CoverURL: 'https://images.unsplash.com/photo-1544942590-892a0f1a2c05?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=600&q=80',
+PurchaseText: 'https://example.com/cloudinary/The_Midnight_Library.pdf',
+Reads: 1245,
+Categories: ['Fiction', 'Fantasy'],
+Section: 'readers'
+},
+{
+id: 'book2',
+Title: 'Atomic Habits',
+Author: 'James Clear',
+CoverURL: 'https://images.unsplash.com/photo-1543002588-bfa74002ed7e?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=600&q=80',
+PurchaseText: 'https://example.com/cloudinary/Atomic_Habits.pdf',
+Reads: 987,
+Categories: ['Self-Help', 'Productivity'],
+Section: 'members'
+},
+{
+id: 'book3',
+Title: 'Project Hail Mary',
+Author: 'Andy Weir',
+CoverURL: 'https://images.unsplash.com/photo-1589998059171-988d887df646?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=600&q=80',
+PurchaseText: 'https://example.com/cloudinary/Project_Hail_Mary.pdf',
+Reads: 876,
+Categories: ['Science Fiction', 'Adventure'],
+Section: 'readers'
+},
+{
+id: 'book4',
+Title: 'The Psychology of Money',
+Author: 'Morgan Housel',
+CoverURL: 'https://images.unsplash.com/photo-1541781774450-d510d2ad3819?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=600&q=80',
+PurchaseText: 'https://example.com/cloudinary/Psychology_of_Money.pdf',
+Reads: 754,
+Categories: ['Finance', 'Business'],
+Section: 'members'
+},
+{
+id: 'book5',
+Title: 'The Silent Patient',
+Author: 'Alex Michaelides',
+CoverURL: 'https://images.unsplash.com/photo-1543002588-bfa74002ed7e?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=600&q=80',
+PurchaseText: 'https://example.com/cloudinary/The_Silent_Patient.pdf',
+Reads: 692,
+Categories: ['Thriller', 'Mystery'],
+Section: 'readers'
+},
+{
+id: 'book6',
+Title: 'Dune',
+Author: 'Frank Herbert',
+CoverURL: 'https://images.unsplash.com/photo-1541781774450-d510d2ad3819?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=600&q=80',
+PurchaseText: 'https://example.com/cloudinary/Dune.pdf',
+Reads: 621,
+Categories: ['Science Fiction', 'Classic'],
+Section: 'members'
+}
+];
+}
+// Render books to the DOM
+function renderBooks() {
+if (!filteredBooks || filteredBooks.length === 0) {
+booksContainer.innerHTML = `<div class="empty-state">
+<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+<path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
+</svg>
+<h3>${translations[currentLang].noBooks}</h3>
+<p>${translations[currentLang].noBooksDesc}</p>
+</div>`;
+return;
+}
+const booksHTML = filteredBooks.map(book => {
+const isRead = readBooks.includes(book.id);
+// --- التعديل الجديد: تحديد نوع الـ badge بناءً على حقل Section ---
+let badgeClass, bookType;
+if (book.section === 'readers') {
+badgeClass = 'readers';
+bookType = translations[currentLang].readers;
+} else if (book.section === 'members') {
+badgeClass = 'members';
+bookType = translations[currentLang].members;
+} else {
+badgeClass = 'readers';
+bookType = 'General';
+}
+// Create categories HTML
+const categoriesHTML = book.categories.map(category =>
+`<span class="category-badge">${category}</span>`
+).join('');
+// Determine reads text (singular/plural)
+const readsText = book.reads === 1 ? translations[currentLang].reads : translations[currentLang].readsPlural;
+return `
+<div class="book-card" data-book-id="${book.id}" data-title="${book.Title || 'Untitled'}" data-author="${book.Author || 'Unknown'}" data-section="${book.section.toLowerCase()}" data-purchase-text="${book.PurchaseText || ''}">
+<div class="book-image">
+<img src="${book.CoverURL || 'https://images.unsplash.com/photo-1589998059171-988d887df646?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=600&q=80'}" alt="${book.Title || 'Untitled Book'}" loading="lazy" />
+<div class="book-type-badge ${badgeClass}">${bookType}</div>
+</div>
+<div class="book-info">
+<h3 class="book-title">${book.Title || 'Untitled Book'}</h3>
+<p class="book-author">${book.Author || 'Unknown Author'}</p>
+<div class="categories">
+${categoriesHTML}
+</div>
+<div class="reads-info">
+<span>${book.reads} ${readsText}</span>
+</div>
+<div class="book-actions">
+<button class="btn-primary" ${isRead ? 'disabled' : ''}>
+<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+${isRead ? '<path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" />' : '<path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3" />'}
+</svg>
+${isRead ? translations[currentLang].downloaded : translations[currentLang].download}
+</button>
+</div>
+</div>
+</div>
+`;
+}).join('');
+booksContainer.innerHTML = booksHTML;
+// Add event listeners to buttons
+addBookButtonListeners();
+}
+// Add event listeners to book buttons
+function addBookButtonListeners() {
+const downloadButtons = document.querySelectorAll('.btn-primary');
+downloadButtons.forEach(button => {
+button.addEventListener('click', async (e) => {
+const bookCard = e.target.closest('.book-card');
+if (!bookCard) return;
+const bookId = bookCard.dataset.bookId;
+const bookTitle = bookCard.dataset.title;
+await handleDownload(bookId, bookTitle, button);
+});
+});
+}
+// Handle REAL download from Cloudinary/Firebase Storage
+async function handleDownload(bookId, bookName, buttonEl) {
+if (!bookName) {
+showNotification(translations[currentLang].bookNameMissing, 'error');
+return;
+}
+const bookCard = buttonEl.closest('.book-card');
+const purchaseText = bookCard.dataset.purchaseText;
+// ✅ التحقق: هل الرابط موجود؟
+if (!purchaseText || !purchaseText.trim().startsWith('http')) {
+showNotification(translations[currentLang].fileNotFound, 'error');
+return;
+}
+const wasAlreadyRead = readBooks.includes(bookId);
+const originalHTML = buttonEl.innerHTML;
+try {
+buttonEl.disabled = true;
+buttonEl.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="animate-spin">
+<path stroke-linecap="round" stroke-linejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.702c.043-.553.11-.997.11-1.303 0-.721-.764-1.309-1.719-1.309S9.48 12.778 9.48 13.5c0 .297.07.622.11 1.066-10.088.725-10.931 9.428-10.931 9.428l.11-.001z" />
+</svg>
+${translations[currentLang].preparing}`;
+// تحديث العدد لو مش مقروء
+if (!wasAlreadyRead) {
+readBooks.push(bookId);
+localStorage.setItem('readBooks', JSON.stringify(readBooks));
+// Update in-memory data
+const bookIndex = booksData.findIndex(b => b.id === bookId);
+if (bookIndex !== -1) booksData[bookIndex].reads += 1;
+// تحديث Firestore
+if (db) {
+try {
+const bookRef = db.collection("Books").doc(bookId);
+await bookRef.update({ Reads: firebase.firestore.FieldValue.increment(1) });
+} catch (err) {
+console.warn("Failed to update Firestore:", err);
+}
+}
+}
+// ✅ التنزيل الفعلي من الرابط الخارجي
+const downloadUrl = purchaseText.trim();
+const link = document.createElement('a');
+link.href = downloadUrl;
+link.target = '_blank';
+link.rel = 'noopener noreferrer';
+// محاولة استخراج اسم ملف افتراضي من الرابط
+const fileName = downloadUrl.split('/').pop().split('?')[0] || `${bookId}.pdf`;
+link.download = fileName;
+document.body.appendChild(link);
+link.click();
+document.body.removeChild(link);
+// تحديث واجهة المستخدم
+buttonEl.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+<path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" />
+</svg>
+${wasAlreadyRead ? translations[currentLang].downloaded : translations[currentLang].downloadAgain}`;
+buttonEl.classList.add('success-state');
+buttonEl.disabled = true;
+showNotification(`"${bookName}" ${translations[currentLang].downloadSuccess}`, 'success');
+// Confetti
+if (confettiInstance) {
+confettiInstance.clear();
+confettiInstance.render();
+setTimeout(() => confettiInstance?.clear(), 3000);
+}
+// تحديث عدد القراء
+const readsEl = buttonEl.closest('.book-card').querySelector('.reads-info span');
+if (readsEl) {
+const book = booksData.find(b => b.id === bookId);
+if (book) {
+const txt = book.reads === 1 ? translations[currentLang].reads : translations[currentLang].readsPlural;
+readsEl.textContent = `${book.reads} ${txt}`;
+}
+}
+} catch (err) {
+console.error("Download failed:", err);
+showNotification(`${translations[currentLang].downloadFailed} "${bookName}". ${translations[currentLang].tryAgain}`, 'error');
+buttonEl.innerHTML = originalHTML;
+buttonEl.disabled = false;
+buttonEl.classList.remove('success-state');
+}
+}
+// Check which books have been read
+function checkReadBooks() {
+const bookCards = document.querySelectorAll('.book-card');
+bookCards.forEach(card => {
+const bookId = card.dataset.bookId;
+const isRead = readBooks.includes(bookId);
+if (isRead) {
+const downloadButton = card.querySelector('.btn-primary');
+if (downloadButton) {
+downloadButton.disabled = true;
+downloadButton.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+<path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" />
+</svg>
+${translations[currentLang].downloaded}`;
+downloadButton.classList.add('success-state');
+}
+}
+});
+}
+// Apply filter to books
+function applyFilter(filter) {
+currentFilter = filter;
+if (filter === 'all') {
+filteredBooks = [...booksData];
+} else {
+filteredBooks = booksData.filter(book => {
+return book.section.toLowerCase() === filter.toLowerCase();
+});
+}
+renderBooks();
+// Update active filter button
+document.querySelectorAll('.filter-btn').forEach(btn => {
+btn.classList.toggle('active', btn.dataset.filter === filter);
+});
+}
+// Setup event listeners
+function setupEventListeners() {
+// Filter buttons
+document.querySelectorAll('.filter-btn').forEach(button => {
+button.addEventListener('click', () => {
+applyFilter(button.dataset.filter);
+document.querySelectorAll('.filter-btn').forEach(btn =>
+btn.classList.toggle('active', btn === button)
+);
+});
+});
+// Language switcher
+langBtn.addEventListener('click', () => {
+langDropdown.classList.toggle('show');
+});
+document.addEventListener('click', (e) => {
+if (!e.target.closest('.language-switcher')) {
+langDropdown.classList.remove('show');
+}
+});
+document.querySelectorAll('.language-option').forEach(option => {
+option.addEventListener('click', () => {
+const lang = option.dataset.lang;
+changeLanguage(lang);
+langDropdown.classList.remove('show');
+// Update active language option
+document.querySelectorAll('.language-option').forEach(opt => {
+opt.classList.toggle('active', opt.dataset.lang === lang);
+});
+});
+});
+}
+// Change language
+function changeLanguage(lang) {
+currentLang = lang;
+// Update language button
+langBtn.innerHTML = `<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+<path d="M12 21C16.9706 21 21 16.9706 21 12C21 7.02944 16.9706 3 12 3C7.02944 3 3 7.02944 3 12C3 16.9706 7.02944 21 12 21Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M12 12C12 16.4183 12 18 12 18C12 18 12 16.4183 12 12Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M12 6V6.01" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>
+${lang.toUpperCase()}`;
+// Update UI elements with new language
+document.querySelector('.section-title').innerHTML = `${translations[currentLang].explore} <span>${translations[currentLang].all}</span>`;
+// Update filter buttons
+document.querySelectorAll('.filter-btn').forEach(button => {
+const filter = button.dataset.filter;
+if (filter === 'all') button.textContent = translations[currentLang].all;
+else if (filter === 'members') button.textContent = translations[currentLang].members;
+else if (filter === 'readers') button.textContent = translations[currentLang].readers;
+});
+// Re-render books to update text
+renderBooks();
+}
+// Show notification
+function showNotification(message, type = 'success') {
+notificationElement.querySelector('span').textContent = message;
+notificationElement.className = `notification ${type}`;
+// Update icon based on type
+const icon = notificationElement.querySelector('svg');
+if (type === 'success') {
+icon.innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"></path>';
+} else {
+icon.innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>';
+}
+notificationElement.classList.add('show');
+setTimeout(() => {
+notificationElement.classList.remove('show');
+}, 3500);
+}
+// Initialize the app when DOM is loaded
+document.addEventListener('DOMContentLoaded', () => {
+// Preload images for better performance
+const preloadImages = () => {
+booksData.slice(0, 3).forEach(book => {
+if (book.CoverURL) {
+const img = new Image();
+img.src = book.CoverURL;
+}
+});
+};
+init().then(preloadImages);
+});
+// Cleanup confetti on unload
+window.addEventListener('beforeunload', () => {
+if (confettiInstance) {
+confettiInstance.clear();
+}
+if (confettiCanvas && confettiCanvas.parentNode) {
+confettiCanvas.parentNode.removeChild(confettiCanvas);
+}
+});
+</script>
 </body>
 </html>
