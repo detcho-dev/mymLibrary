@@ -637,7 +637,7 @@ EN
 <div class="filters" id="filters">
 <button class="filter-btn active" data-filter="all">All Books</button>
 <button class="filter-btn" data-filter="members">Members</button>
-<button class="filter-btn" data-filter="readers">Readers Only</button>
+<button class="filter-btn" data-filter="readers">READERS</button>
 </div>
 <div id="books-container" class="books-grid">
 <!-- Books will be loaded here -->
@@ -699,7 +699,7 @@ title: "MYM Library",
 explore: "Explore Our Collection",
 all: "All Books",
 members: "Members",
-readers: "Readers Only",
+readers: "READERS",
 download: "Download",
 downloaded: "Downloaded",
 downloadAgain: "Download Again",
@@ -751,7 +751,7 @@ title: "Biblioteca MYM",
 explore: "Explora Nuestra Colección",
 all: "Todos los Libros",
 members: "Miembros",
-readers: "Solo lectores",
+readers: "lectores",
 download: "Descargar",
 downloaded: "Descargado",
 downloadAgain: "Descargar de nuevo",
@@ -777,7 +777,7 @@ title: "Bibliothèque MYM",
 explore: "Explorez Notre Collection",
 all: "Tous les Livres",
 members: "Membres",
-readers: "Lecteurs seulement",
+readers: "Lecteurs",
 download: "Télécharger",
 downloaded: "Téléchargé",
 downloadAgain: "Télécharger à nouveau",
@@ -803,7 +803,7 @@ title: "MYM Bibliothek",
 explore: "Entdecken Sie unsere Sammlung",
 all: "Alle Bücher",
 members: "Mitglieder",
-readers: "Nur Leser",
+readers: "Leser",
 download: "Herunterladen",
 downloaded: "Heruntergeladen",
 downloadAgain: "Erneut herunterladen",
@@ -1011,12 +1011,21 @@ ${categoriesHTML}
 <span>${book.reads} ${readsText}</span>
 </div>
 <div class="book-actions">
-<button class="btn-primary" ${isRead ? 'disabled' : ''}>
-<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
-${isRead ? '<path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" />' : '<path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3" />'}
-</svg>
-${isRead ? translations[currentLang].downloaded : translations[currentLang].download}
-</button>
+${purchaseText.toLowerCase().includes('x') ? `
+  <button class="btn-primary disabled" disabled>
+    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+      <path stroke-linecap="round" stroke-linejoin="round" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636" />
+    </svg>
+    ${translations[currentLang].notAvailable || 'Not Available'}
+  </button>
+` : `
+  <button class="btn-primary" ${isRead ? 'disabled' : ''}>
+    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+      ${isRead ? '<path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" />' : '<path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3" />'}
+    </svg>
+    ${isRead ? translations[currentLang].downloaded : translations[currentLang].download}
+  </button>
+`}
 </div>
 </div>
 </div>
