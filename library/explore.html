@@ -1011,7 +1011,7 @@ ${categoriesHTML}
 <span>${book.reads} ${readsText}</span>
 </div>
 <div class="book-actions">
-${purchaseText.toLowerCase().includes('x') ? `
+${PurchaseText.toLowerCase().includes('x') ? `
   <button class="btn-primary disabled" disabled>
     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
       <path stroke-linecap="round" stroke-linejoin="round" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636" />
@@ -1055,9 +1055,9 @@ showNotification(translations[currentLang].bookNameMissing, 'error');
 return;
 }
 const bookCard = buttonEl.closest('.book-card');
-const purchaseText = bookCard.dataset.purchaseText;
+const PurchaseText = bookCard.dataset.PurchaseText;
 // ✅ التحقق: هل الرابط موجود؟
-if (!purchaseText || !purchaseText.trim().startsWith('http')) {
+if (!PurchaseText || !PurchaseText.trim().startsWith('http')) {
 showNotification(translations[currentLang].fileNotFound, 'error');
 return;
 }
@@ -1087,7 +1087,7 @@ console.warn("Failed to update Firestore:", err);
 }
 }
 // ✅ التنزيل الفعلي من الرابط الخارجي
-const downloadUrl = purchaseText.trim();
+const downloadUrl = PurchaseText.trim();
 const link = document.createElement('a');
 link.href = downloadUrl;
 link.target = '_blank';
