@@ -72,6 +72,7 @@
       border-radius: 10px;
       box-shadow: 0 2px 6px rgba(0,0,0,0.2);
       margin-bottom: 25px;
+      position: relative;
     }
     .post-header {
       display: flex;
@@ -100,6 +101,10 @@
       border-radius: 4px;
       color: #a5d6a7;
       font-weight: bold;
+    }
+    .mention:hover {
+      cursor: pointer;
+      background-color: #2e7d32;
     }
     .comment-section {
       margin-top: 15px;
@@ -249,6 +254,41 @@
     .modal-content button {
       margin: 5px;
     }
+
+    /* أزرار إدارة المنشور */
+    .post-controls {
+      position: absolute;
+      top: 10px;
+      left: 10px;
+      display: flex;
+      gap: 5px;
+    }
+    .control-btn {
+      background: #333;
+      color: #ccc;
+      border: none;
+      padding: 4px 8px;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 0.8rem;
+    }
+    .control-btn:hover {
+      background: #444;
+    }
+    .delete-btn {
+      background: #c62828;
+      color: white;
+    }
+    .delete-btn:hover {
+      background: #d32f2f;
+    }
+    .edit-btn {
+      background: #1565c0;
+      color: white;
+    }
+    .edit-btn:hover {
+      background: #1976d2;
+    }
   </style>
 </head>
 <body>
@@ -300,10 +340,22 @@
     </div>
   </div>
 
+  <!-- Modal تعديل المنشور -->
+  <div id="editPostModal" class="modal" style="display:none;">
+    <div class="modal-content" id="editModalContent">
+      <h3 data-i18n="تعديل المنشور">تعديل المنشور</h3>
+      <textarea id="editPostContent" style="width:100%; height:100px; padding:10px; margin:10px 0;"></textarea>
+      <div>
+        <button id="saveEditBtn" data-i18n="حفظ التعديل">حفظ التعديل</button>
+        <button id="cancelEditBtn" data-i18n="إلغاء">إلغاء</button>
+      </div>
+    </div>
+  </div>
+
   <!-- Firebase SDKs -->
-  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js  "></script>
+  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js  "></script>
+  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js  "></script>
 
   <script>
     const firebaseConfig = {
@@ -360,7 +412,15 @@
       'قارئ': { en: 'Reader', ar: 'قارئ' },
       'MYM Member': { en: 'MYM Member', ar: 'عضو MYM' },
       'Premium Reader': { en: 'Premium Reader', ar: 'قارئ مميز' },
-      'Ultimate Reader': { en: 'Ultimate Reader', ar: 'قارئ نهائي' }
+      'Ultimate Reader': { en: 'Ultimate Reader', ar: 'قارئ نهائي' },
+      'حذف': { en: 'Delete', ar: 'حذف' },
+      'تعديل': { en: 'Edit', ar: 'تعديل' },
+      'هل أنت متأكد من حذف هذا المنشور؟': { en: 'Are you sure you want to delete this post?', ar: 'هل أنت متأكد من حذف هذا المنشور؟' },
+      'نعم': { en: 'Yes', ar: 'نعم' },
+      'لا': { en: 'No', ar: 'لا' },
+      'تعديل المنشور': { en: 'Edit Post', ar: 'تعديل المنشور' },
+      'حفظ التعديل': { en: 'Save Edit', ar: 'حفظ التعديل' },
+      'إلغاء': { en: 'Cancel', ar: 'إلغاء' }
     };
 
     const tagTranslations = {
@@ -511,12 +571,25 @@
         const user = await findUserByDisplayName(username);
         if (user) {
           result = result.replace(
-            `@${username}`,
-            `<span class="mention">@${username}</span>`
+            new RegExp(`@${username}`, 'g'),
+            `<span class="mention" data-user="${username}">@${username}</span>`
           );
         }
       }
       return result;
+    }
+
+    async function handleMentionClick(e) {
+      if (e.target.classList.contains('mention')) {
+        const username = e.target.getAttribute('data-user');
+        if (username) {
+          const user = await findUserByDisplayName(username);
+          if (user) {
+            // هنا يمكنك توجيه المستخدم إلى صفحة المستخدم أو عرض معلوماته
+            showToast(currentLang === 'ar' ? `جارٍ البحث عن @${username}` : `Searching for @${username}`);
+          }
+        }
+      }
     }
 
     async function promptCustomName(user) {
@@ -577,6 +650,11 @@
           const timeText = timeAgo(data.createdAt);
           const postId = postDoc.id;
 
+          // التحقق مما إذا كان المستخدم الحالي هو صاحب المنشور أو عضو MYM
+          const isAuthor = auth.currentUser && auth.currentUser.uid === data.authorId;
+          const isMyM = auth.currentUser && authorNameRaw.startsWith("$");
+          const canModify = isAuthor || isMyM;
+
           const likesSnap = await postDoc.ref.collection("likes").get();
           const likeCount = likesSnap.size;
           const likedByMe = likesSnap.docs.some(doc => doc.id === auth.currentUser?.uid);
@@ -605,6 +683,13 @@
 
           html += `
             <div class="post" data-post-id="${postId}">
+              ${canModify ? `
+              <div class="post-controls">
+                <button class="control-btn edit-btn" data-post-id="${postId}">${uiTranslations['تعديل'][currentLang]}</button>
+                <button class="control-btn delete-btn" data-post-id="${postId}">${uiTranslations['حذف'][currentLang]}</button>
+              </div>
+              ` : ''}
+              
               <div class="post-header">
                 <div>
                   <span class="post-author">${cleanName}</span>
@@ -612,7 +697,7 @@
                 </div>
                 <span class="post-time">${timeText}</span>
               </div>
-              <div class="post-content">${parsedContent.replace(/\n/g, '<br>')}</div>
+              <div class="post-content" onclick="handleMentionClick(event)">${parsedContent.replace(/\n/g, '<br>')}</div>
 
               <div class="post-actions">
                 <button class="like-btn ${likedByMe ? 'liked' : ''}" data-post-id="${postId}">
@@ -638,8 +723,43 @@
         const noPosts = uiTranslations['لا توجد منشورات بعد. كن أول من ينشر!'][currentLang];
         container.innerHTML = html || `<p data-i18n="لا توجد منشورات بعد. كن أول من ينشر!">${noPosts}</p>`;
 
-        // ربط الأزرار...
-        // (نفس الكود السابق - تم حذفه للتوفير، لكنه موجود في التنفيذ الكامل)
+        // ربط أزرار الحذف
+        document.querySelectorAll(".delete-btn").forEach(btn => {
+          btn.addEventListener("click", async (e) => {
+            const postId = btn.dataset.postId;
+            if (confirm(uiTranslations['هل أنت متأكد من حذف هذا المنشور؟'][currentLang])) {
+              try {
+                await db.collection("posts").doc(postId).delete();
+                showToast(currentLang === 'ar' ? "تم حذف المنشور!" : "Post deleted!");
+                loadPosts();
+              } catch (err) {
+                console.error(err);
+                showToast(currentLang === 'ar' ? "فشل حذف المنشور!" : "Failed to delete post!");
+              }
+            }
+          });
+        });
+
+        // ربط أزرار التعديل
+        document.querySelectorAll(".edit-btn").forEach(btn => {
+          btn.addEventListener("click", async (e) => {
+            const postId = btn.dataset.postId;
+            const postDoc = await db.collection("posts").doc(postId).get();
+            const postData = postDoc.data();
+            
+            // فقط صاحب المنشور أو عضو MYM يمكنه تعديله
+            const authorNameRaw = await getUserName(postData.authorId);
+            const isMyM = auth.currentUser && authorNameRaw.startsWith("$");
+            if (!(auth.currentUser && (auth.currentUser.uid === postData.authorId || isMyM))) {
+              showToast(currentLang === 'ar' ? "لا يمكنك تعديل هذا المنشور!" : "You cannot edit this post!");
+              return;
+            }
+
+            document.getElementById("editPostContent").value = postData.content;
+            document.getElementById("editPostModal").style.display = "flex";
+            document.getElementById("saveEditBtn").dataset.postId = postId;
+          });
+        });
 
         // ربط أزرار الإعجاب
         document.querySelectorAll(".like-btn").forEach(btn => {
@@ -721,6 +841,33 @@
       }
     }
 
+    // إعداد Modal تعديل المنشور
+    document.getElementById("saveEditBtn").addEventListener("click", async () => {
+      const postId = document.getElementById("saveEditBtn").dataset.postId;
+      const newContent = document.getElementById("editPostContent").value.trim();
+      
+      if (!newContent) {
+        showToast(currentLang === 'ar' ? "المحتوى لا يمكن أن يكون فارغًا!" : "Content cannot be empty!");
+        return;
+      }
+
+      try {
+        await db.collection("posts").doc(postId).update({
+          content: newContent
+        });
+        document.getElementById("editPostModal").style.display = "none";
+        showToast(currentLang === 'ar' ? "تم تعديل المنشور!" : "Post updated!");
+        loadPosts();
+      } catch (err) {
+        console.error(err);
+        showToast(currentLang === 'ar' ? "فشل تعديل المنشور!" : "Failed to update post!");
+      }
+    });
+
+    document.getElementById("cancelEditBtn").addEventListener("click", () => {
+      document.getElementById("editPostModal").style.display = "none";
+    });
+
     document.getElementById("submitPost").onclick = async () => {
       const content = document.getElementById("postContent").value.trim();
       if (!content) return showToast(currentLang === 'ar' ? "المنشور لا يمكن أن يكون فارغًا!" : "Post cannot be empty!");
@@ -787,7 +934,7 @@
             avatar.style.cssText = "width:50px; height:50px; border-radius:50%; object-fit:cover; display:block; margin:0 auto 15px;";
             document.querySelector(".auth-buttons").insertAdjacentElement("beforebegin", avatar);
           }
-          avatar.src = user.photoURL || "https://via.placeholder.com/50?text=👤";
+          avatar.src = user.photoURL || "https://via.placeholder.com/50?text  =👤";
 
           loadPosts();
         } else {
