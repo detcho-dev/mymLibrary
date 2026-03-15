@@ -1102,41 +1102,114 @@ async function handleDownload(bookId, bookName, buttonEl) {
         } catch (fetchError) {
             console.warn("Fetch failed (likely CORS), trying direct open method...", fetchError);
             // 3. الحل البديل: فتح الرابط في نافذة جديدة (يعمل مع جوجل درايف)
-            window.open(downloadUrl, '_blank');
-            downloadSuccess = true;
-        }
-        
-        // --- نهاية كود التحميل الذكي ---
+async function handleDownload(bookId, bookName, buttonEl) {
+    if (!bookName) {
+        showNotification(translations[currentLang].bookNameMissing, 'error');
+        return;
+    }
 
-        if (downloadSuccess) {
-            // تحديث واجهة المستخدم
-            buttonEl.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" />
-            </svg>
-            ${wasAlreadyRead ? translations[currentLang].downloaded : translations[currentLang].downloadAgain}`;
-            
-            buttonEl.classList.add('success-state');
-            buttonEl.disabled = true;
-            
-            showNotification(`"${bookName}" ${translations[currentLang].downloadSuccess}`, 'success');
+    const bookCard = buttonEl.closest('.book-card');
+    let downloadUrl = bookCard.dataset.purchaseText; 
 
-            // Confetti
-            if (confettiInstance) {
-                confettiInstance.clear();
-                confettiInstance.render();
-                setTimeout(() => confettiInstance?.clear(), 3000);
+    if (!downloadUrl || !downloadUrl.trim().startsWith('http')) {
+        showNotification(translations[currentLang].fileNotFound, 'error');
+        return;
+    }
+
+    const wasAlreadyRead = readBooks.includes(bookId);
+    const originalHTML = buttonEl.innerHTML;
+
+    try {
+        buttonEl.disabled = true;
+        buttonEl.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="animate-spin">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.702c.043-.553.11-.997.11-1.303 0-.721-.764-1.309-1.719-1.309S9.48 12.778 9.48 13.5c0 .297.07.622.11 1.066-10.088.725-10.931 9.428-10.931 9.428l.11-.001z" />
+        </svg>
+        ${translations[currentLang].preparing}`;
+
+        // تحديث العدد
+        if (!wasAlreadyRead) {
+            readBooks.push(bookId);
+            localStorage.setItem('readBooks', JSON.stringify(readBooks));
+            const bookIndex = booksData.findIndex(b => b.id === bookId);
+            if (bookIndex !== -1) booksData[bookIndex].reads += 1;
+            
+            if (db) {
+                try {
+                    const bookRef = db.collection("Books").doc(bookId);
+                    await bookRef.update({ Reads: firebase.firestore.FieldValue.increment(1) });
+                } catch (err) { console.warn("Failed to update Firestore:", err); }
             }
-            // تحديث عدد القراء
-            const readsEl = buttonEl.closest('.book-card').querySelector('.reads-info span');
-            if (readsEl) {
-                const book = booksData.find(b => b.id === bookId);
-                if (book) {
-                    const txt = book.reads === 1 ? translations[currentLang].reads : translations[currentLang].readsPlural;
-                    readsEl.textContent = `${book.reads} ${txt}`;
-                }
+        }
+
+        // معالجة روابط جوجل درايف
+        if (downloadUrl.includes('drive.google.com')) {
+            // تحويل الرابط لصيغة التحميل المباشر
+            let fileId = '';
+            if (downloadUrl.includes('/d/')) {
+                fileId = downloadUrl.split('/d/')[1].split('/')[0];
+            } else if (downloadUrl.includes('id=')) {
+                fileId = downloadUrl.split('id=')[1].split('&')[0];
+            }
+            
+            if (fileId) {                // استخدام iframe للتحايل على صفحة التحذير
+                const iframe = document.createElement('iframe');
+                iframe.style.display = 'none';
+                iframe.src = `https://drive.google.com/uc?export=download&id=${fileId}`;
+                document.body.appendChild(iframe);
+                
+                // إزالة الـ iframe بعد فترة
+                setTimeout(() => {
+                    document.body.removeChild(iframe);
+                }, 5000);
+                
+                // فتح الرابط أيضاً في نافذة جديدة كاحتياط
+                setTimeout(() => {
+                    window.open(`https://drive.google.com/uc?export=download&id=${fileId}`, '_blank');
+                }, 1000);
             }
         } else {
-             throw new Error("Download mechanism failed completely");
+            // للروابط المباشرة العادية، استخدم fetch
+            const response = await fetch(downloadUrl);
+            if (!response.ok) throw new Error('Network response was not ok');
+            
+            const blob = await response.blob();
+            const blobUrl = window.URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.href = blobUrl;
+            const fileName = `${bookName.replace(/[^a-z0-9]/gi, '_').toLowerCase()}.pdf`;
+            link.download = fileName;
+            
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            window.URL.revokeObjectURL(blobUrl);
+        }
+
+        // تحديث الواجهة
+        buttonEl.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" />
+        </svg>
+        ${wasAlreadyRead ? translations[currentLang].downloaded : translations[currentLang].downloadAgain}`;
+        
+        buttonEl.classList.add('success-state');
+        buttonEl.disabled = true;
+        
+        showNotification(`"${bookName}" ${translations[currentLang].downloadSuccess}`, 'success');
+
+        // Confetti
+        if (confettiInstance) {
+            confettiInstance.clear();
+            confettiInstance.render();
+            setTimeout(() => confettiInstance?.clear(), 3000);        }
+
+        // تحديث عدد القراء
+        const readsEl = buttonEl.closest('.book-card').querySelector('.reads-info span');
+        if (readsEl) {
+            const book = booksData.find(b => b.id === bookId);
+            if (book) {
+                const txt = book.reads === 1 ? translations[currentLang].reads : translations[currentLang].readsPlural;
+                readsEl.textContent = `${book.reads} ${txt}`;
+            }
         }
 
     } catch (err) {
