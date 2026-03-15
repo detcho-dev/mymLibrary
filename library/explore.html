@@ -1056,7 +1056,7 @@ showNotification(translations[currentLang].bookNameMissing, 'error');
 return;
 }
 const bookCard = buttonEl.closest('.book-card');
-const PurchaseText = bookCard.dataset.PurchaseText;
+const PurchaseText = bookCard.dataset.purchaseText;
 // ✅ التحقق: هل الرابط موجود؟
 if (!PurchaseText || !PurchaseText.trim().startsWith('http')) {
 showNotification(translations[currentLang].fileNotFound, 'error');
