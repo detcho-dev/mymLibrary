@@ -47,8 +47,7 @@ background: rgba(15, 12, 26, 0.92);
 backdrop-filter: blur(10px);
 padding: 18px 25px;
 display: flex;
-justify-content: space-between;
-align-items: center;
+justify-content: space-between;align-items: center;
 border-bottom: 1px solid rgba(125, 95, 255, 0.2);
 position: sticky;
 top: 0;
@@ -97,8 +96,7 @@ padding: 8px 15px;
 border-radius: 20px;
 transition: var(--transition);
 backdrop-filter: blur(5px);
-}
-.language-btn:hover {
+}.language-btn:hover {
 background: rgba(125, 95, 255, 0.15);
 transform: translateY(-1px);
 }
@@ -147,8 +145,7 @@ padding-left: 22px;
 background: rgba(125, 95, 255, 0.2);
 color: var(--primary);
 }
-.language-option svg {
-width: 16px;
+.language-option svg {width: 16px;
 height: 16px;
 opacity: 0.7;
 }
@@ -197,8 +194,7 @@ border-radius: 30px;
 background: rgba(255, 255, 255, 0.08);
 color: var(--gray-light);
 border: 1px solid rgba(255, 255, 255, 0.1);
-cursor: pointer;
-transition: var(--transition);
+cursor: pointer;transition: var(--transition);
 font-weight: 600;
 letter-spacing: 0.3px;
 font-size: 1.05rem;
@@ -247,8 +243,7 @@ font-weight: 700;
 z-index: 10;
 text-transform: uppercase;
 letter-spacing: 0.8px;
-backdrop-filter: blur(3px);
-border: 1px solid rgba(255, 255, 255, 0.15);
+backdrop-filter: blur(3px);border: 1px solid rgba(255, 255, 255, 0.15);
 }
 .book-type-badge.readers {
 background-color: rgba(76, 213, 96, 0.15);
@@ -297,8 +292,7 @@ letter-spacing: -0.3px;
 }
 .book-card:hover .book-title {
 color: var(--primary);
-}
-.book-author {
+}.book-author {
 color: var(--gray-light);
 font-size: 0.95rem;
 margin-bottom: 14px;
@@ -347,8 +341,7 @@ display: flex;
 gap: 14px;
 margin-top: auto;
 padding-top: 15px;
-}
-.btn-primary {
+}.btn-primary {
 flex: 1;
 padding: 14px 12px;
 border-radius: 16px;
@@ -397,8 +390,7 @@ height: 300px;
 grid-column: 1 / -1;
 padding: 40px;
 }
-.spinner {
-width: 50px;
+.spinner {width: 50px;
 height: 50px;
 border: 4px solid rgba(125, 95, 255, 0.2);
 border-radius: 50%;
@@ -447,8 +439,7 @@ transform: translateX(0);
 .notification.success {
 background: linear-gradient(145deg, #1e8c4d, #1a7340);
 border-left: 4px solid var(--success);
-}
-.notification.error {
+}.notification.error {
 background: linear-gradient(145deg, #c53030, #9b2c2c);
 border-left: 4px solid var(--error);
 }
@@ -497,8 +488,7 @@ font-size: 2.3rem;
 }
 @media (max-width: 768px) {
 .section-title {
-font-size: 2rem;
-margin-bottom: 30px;
+font-size: 2rem;margin-bottom: 30px;
 }
 .filters {
 gap: 10px;
@@ -547,8 +537,7 @@ transform: translateY(-6px) scale(1.01);
 gap: 12px;
 }
 .logo {
-font-size: 1.45rem;
-}
+font-size: 1.45rem;}
 .language-btn {
 padding: 7px 12px;
 font-size: 0.9rem;
@@ -597,8 +586,7 @@ left: 0;
 width: 100%;
 height: 100%;
 pointer-events: none;
-z-index: 9999;
-}
+z-index: 9999;}
 </style>
 </head>
 <body>
@@ -647,8 +635,7 @@ EN
 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
 <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"></path>
 </svg>
-<span>Notification message</span>
-</div>
+<span>Notification message</span></div>
 <script>
 // Firebase configuration
 const firebaseConfig = {
@@ -697,8 +684,7 @@ const translations = {
     members: "Member",
     readers: "Reader",
     download: "Download",
-    downloaded: "Downloaded",
-    downloadAgain: "Download Again",
+    downloaded: "Downloaded",    downloadAgain: "Download Again",
     reads: "Person Read this Book",
     readsPlural: "People Read this Book",
     category: "Category",
@@ -715,7 +701,7 @@ const translations = {
     categories: "Categories",
     noBooks: "No Books Available",
     noBooksDesc: "We couldn't find any books matching your criteria. Try changing the filter or check back later.",
-    notAvailable: "Not Available" // ← الترجمة الجديدة
+    notAvailable: "Not Available"
   },
   ar: {
     title: "مكتبة MYM",
@@ -742,13 +728,12 @@ const translations = {
     categories: "الفئات",
     noBooks: "لا توجد كتب متاحة",
     noBooksDesc: "لم نتمكن من العثور على أي كتب تطابق معاييرك. حاول تغيير الفلتر أو تحقق مرة أخرى لاحقًا.",
-    notAvailable: "غير متاح" // ← الترجمة الجديدة
+    notAvailable: "غير متاح"
   },
   es: {
     title: "Biblioteca MYM",
     explore: "Explora Nuestra Colección",
-    all: "Todos los Libros",
-    members: "Miembros",
+    all: "Todos los Libros",    members: "Miembros",
     readers: "lectores",
     download: "Descargar",
     downloaded: "Descargado",
@@ -769,7 +754,7 @@ const translations = {
     categories: "Categorías",
     noBooks: "No hay libros disponibles",
     noBooksDesc: "No pudimos encontrar libros que coincidan con sus criterios. Intente cambiar el filtro o vuelva más tarde.",
-    notAvailable: "No disponible" // ← الترجمة الجديدة
+    notAvailable: "No disponible"
   },
   fr: {
     title: "Bibliothèque MYM",
@@ -796,9 +781,8 @@ const translations = {
     categories: "Catégories",
     noBooks: "Aucun livre disponible",
     noBooksDesc: "Nous n'avons trouvé aucun livre correspondant à vos critères. Essayez de changer le filtre ou revenez plus tard.",
-    notAvailable: "Non disponible" // ← الترجمة الجديدة
-  },
-  de: {
+    notAvailable: "Non disponible"
+  },  de: {
     title: "MYM Bibliothek",
     explore: "Entdecken Sie unsere Sammlung",
     all: "Alle Bücher",
@@ -823,7 +807,7 @@ const translations = {
     categories: "Kategorien",
     noBooks: "Keine Bücher verfügbar",
     noBooksDesc: "Wir konnten keine Bücher finden, die Ihren Kriterien entsprechen. Versuchen Sie, den Filter zu ändern, oder schauen Sie später noch einmal vorbei.",
-    notAvailable: "Nicht verfügbar" // ← الترجمة الجديدة
+    notAvailable: "Nicht verfügbar"
   }
 };
 let currentLang = 'en';
@@ -847,8 +831,7 @@ async function init() {
 initConfetti();
 try {
 // Load books from Firestore or mock data
-await loadBooks();
-// Set up event listeners
+await loadBooks();// Set up event listeners
 setupEventListeners();
 // Apply initial filter
 applyFilter(currentFilter);
@@ -897,8 +880,7 @@ reads: data.Reads || 0
 booksData.sort((a, b) => b.reads - a.reads);
 return;
 } catch (error) {
-console.warn("Firestore error, falling back to mock data:", error);
-}
+console.warn("Firestore error, falling back to mock data:", error);}
 }
 // Mock data if Firestore fails or offline
 booksData = [
@@ -947,8 +929,7 @@ id: 'book5',
 Title: 'The Silent Patient',
 Author: 'Alex Michaelides',
 CoverURL: 'https://images.unsplash.com/photo-1543002588-bfa74002ed7e?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=600&q=80',
-PurchaseText: 'https://example.com/cloudinary/The_Silent_Patient.pdf',
-Reads: 692,
+PurchaseText: 'https://example.com/cloudinary/The_Silent_Patient.pdf',Reads: 692,
 Categories: ['Thriller', 'Mystery'],
 Section: 'readers'
 },
@@ -997,8 +978,7 @@ const categoriesHTML = book.categories.map(category =>
 // Determine reads text (singular/plural)
 const readsText = book.reads === 1 ? translations[currentLang].reads : translations[currentLang].readsPlural;
 return `
-<div class="book-card" data-book-id="${book.id}" data-title="${book.Title || 'Untitled'}" data-author="${book.Author || 'Unknown'}" data-section="${book.section.toLowerCase()}" data-purchase-text="${book.PurchaseText || ''}">
-<div class="book-image">
+<div class="book-card" data-book-id="${book.id}" data-title="${book.Title || 'Untitled'}" data-author="${book.Author || 'Unknown'}" data-section="${book.section.toLowerCase()}" data-purchase-text="${book.PurchaseText || ''}"><div class="book-image">
 <img src="${book.CoverURL || 'https://images.unsplash.com/photo-1589998059171-988d887df646?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=600&q=80'}" alt="${book.Title || 'Untitled Book'}" loading="lazy" />
 <div class="book-type-badge ${badgeClass}">${bookType}</div>
 </div>
@@ -1047,9 +1027,7 @@ const bookId = bookCard.dataset.bookId;
 const bookTitle = bookCard.dataset.title;
 await handleDownload(bookId, bookTitle, button);
 });
-});
-}
-// Handle REAL download from Cloudinary/Firebase Storage
+});}
 // Handle REAL download from Google Drive/Firebase Storage
 async function handleDownload(bookId, bookName, buttonEl) {
     if (!bookName) {
@@ -1058,7 +1036,6 @@ async function handleDownload(bookId, bookName, buttonEl) {
     }
 
     const bookCard = buttonEl.closest('.book-card');
-    // تصحيح اسم المتغير ليكون صغيراً
     let downloadUrl = bookCard.dataset.purchaseText; 
 
     // ✅ التحقق: هل الرابط موجود؟
@@ -1092,84 +1069,84 @@ async function handleDownload(bookId, bookName, buttonEl) {
             }
         }
 
-        // --- بداية كود التحميل الذكي ---
+        // --- بداية كود التحميل الذكي المحسن ---
         
-        // 1. تحويل رابط جوجل درايف العادي لرابط تحميل مباشر إذا لزم الأمر
-        // الرابط اللي أنت بعته بالفعل مباشر (uc?export=download)، لكن هنضيف معالجة إضافية
+        // 1. معالجة روابط جوجل درايف
         if (downloadUrl.includes('drive.google.com')) {
-            // التأكد من أن الرابط بصيغة التصدير المباشر
             if (!downloadUrl.includes('uc?export=download') && !downloadUrl.includes('uc?id=')) {
                  const fileId = downloadUrl.match(/\/d\/(.+?)\//)?.[1] || downloadUrl.split('id=')[1];
                  if(fileId) {
-                     downloadUrl = `https://drive.google.com/uc?export=download&id=${fileId}`;
-                 }
+                     downloadUrl = `https://drive.google.com/uc?export=download&id=${fileId}`;                 }
             }
         }
 
-        // 2. استخدام Fetch لتحميل الملف كـ Blob (بيانات ثنائية)
-        // ده بيتحايل على صفحة المعاينة ويجبر المتصفح يعتبره ملف للتحميل
-        const response = await fetch(downloadUrl);
-        
-        if (!response.ok) throw new Error('Network response was not ok');
-        
-        const blob = await response.blob();
-        
-        // 3. إنشاء رابط مؤقت للـ Blob
-        const blobUrl = window.URL.createObjectURL(blob);
-        const link = document.createElement('a');
-        link.href = blobUrl;
-        
-        // تحديد اسم الملف (نحاول تخمينه أو نضع اسم الكتاب)
-        const fileName = `${bookName.replace(/[^a-z0-9]/gi, '_').toLowerCase()}.pdf`;
-        link.download = fileName;
-        
-        document.body.appendChild(link);
-        link.click();
-        
-        // تنظيف الذاكرة
-        document.body.removeChild(link);
-        window.URL.revokeObjectURL(blobUrl);
+        let downloadSuccess = false;
+
+        // 2. محاولة التحميل عبر Fetch (للخوادم التي تسمح بـ CORS)
+        try {
+            const response = await fetch(downloadUrl);
+            if (!response.ok) throw new Error('Network response was not ok');
+            
+            const blob = await response.blob();
+            const blobUrl = window.URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.href = blobUrl;
+            const fileName = `${bookName.replace(/[^a-z0-9]/gi, '_').toLowerCase()}.pdf`;
+            link.download = fileName;
+            
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            window.URL.revokeObjectURL(blobUrl);
+            downloadSuccess = true;
+        } catch (fetchError) {
+            console.warn("Fetch failed (likely CORS), trying direct open method...", fetchError);
+            // 3. الحل البديل: فتح الرابط في نافذة جديدة (يعمل مع جوجل درايف)
+            window.open(downloadUrl, '_blank');
+            downloadSuccess = true;
+        }
         
         // --- نهاية كود التحميل الذكي ---
 
-        // تحديث واجهة المستخدم
-        buttonEl.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
-        <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" />
-        </svg>
-        ${wasAlreadyRead ? translations[currentLang].downloaded : translations[currentLang].downloadAgain}`;
-        
-        buttonEl.classList.add('success-state');
-        buttonEl.disabled = true;
-        
-        showNotification(`"${bookName}" ${translations[currentLang].downloadSuccess}`, 'success');
+        if (downloadSuccess) {
+            // تحديث واجهة المستخدم
+            buttonEl.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" />
+            </svg>
+            ${wasAlreadyRead ? translations[currentLang].downloaded : translations[currentLang].downloadAgain}`;
+            
+            buttonEl.classList.add('success-state');
+            buttonEl.disabled = true;
+            
+            showNotification(`"${bookName}" ${translations[currentLang].downloadSuccess}`, 'success');
 
-        // Confetti
-        if (confettiInstance) {
-            confettiInstance.clear();
-            confettiInstance.render();
-            setTimeout(() => confettiInstance?.clear(), 3000);
-        }
-
-        // تحديث عدد القراء
-        const readsEl = buttonEl.closest('.book-card').querySelector('.reads-info span');
-        if (readsEl) {
-            const book = booksData.find(b => b.id === bookId);
-            if (book) {
-                const txt = book.reads === 1 ? translations[currentLang].reads : translations[currentLang].readsPlural;
-                readsEl.textContent = `${book.reads} ${txt}`;
+            // Confetti
+            if (confettiInstance) {
+                confettiInstance.clear();
+                confettiInstance.render();
+                setTimeout(() => confettiInstance?.clear(), 3000);
             }
+            // تحديث عدد القراء
+            const readsEl = buttonEl.closest('.book-card').querySelector('.reads-info span');
+            if (readsEl) {
+                const book = booksData.find(b => b.id === bookId);
+                if (book) {
+                    const txt = book.reads === 1 ? translations[currentLang].reads : translations[currentLang].readsPlural;
+                    readsEl.textContent = `${book.reads} ${txt}`;
+                }
+            }
+        } else {
+             throw new Error("Download mechanism failed completely");
         }
 
     } catch (err) {
         console.error("Download failed:", err);
-        // في حالة فشل التحميل عبر Blob (مثلاً بسبب CORS)، نرجع للطريقة القديمة كحل بديل
-        // لكن غالباً هيشتغل مع رابط uc?export=download
         showNotification(`${translations[currentLang].downloadFailed} "${bookName}". ${translations[currentLang].tryAgain}`, 'error');
         buttonEl.innerHTML = originalHTML;
         buttonEl.disabled = false;
         buttonEl.classList.remove('success-state');
     }
-            }
+}
 // Check which books have been read
 function checkReadBooks() {
 const bookCards = document.querySelectorAll('.book-card');
@@ -1197,8 +1174,7 @@ filteredBooks = [...booksData];
 } else {
 filteredBooks = booksData.filter(book => {
 return book.section.toLowerCase() === filter.toLowerCase();
-});
-}
+});}
 renderBooks();
 // Update active filter button
 document.querySelectorAll('.filter-btn').forEach(btn => {
@@ -1247,8 +1223,7 @@ langBtn.innerHTML = `<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.o
 <path d="M12 6V6.01" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
 </svg>
 ${lang.toUpperCase()}`;
-// Update UI elements with new language
-document.querySelector('.section-title').innerHTML = `${translations[currentLang].explore} <span>${translations[currentLang].all}</span>`;
+// Update UI elements with new languagedocument.querySelector('.section-title').innerHTML = `${translations[currentLang].explore} <span>${translations[currentLang].all}</span>`;
 // Update filter buttons
 document.querySelectorAll('.filter-btn').forEach(button => {
 const filter = button.dataset.filter;
@@ -1297,6 +1272,5 @@ if (confettiCanvas && confettiCanvas.parentNode) {
 confettiCanvas.parentNode.removeChild(confettiCanvas);
 }
 });
-</script>
-</body>
-</html>
+</script></body>
+ </html>
