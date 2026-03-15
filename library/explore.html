@@ -1050,86 +1050,126 @@ await handleDownload(bookId, bookTitle, button);
 });
 }
 // Handle REAL download from Cloudinary/Firebase Storage
+// Handle REAL download from Google Drive/Firebase Storage
 async function handleDownload(bookId, bookName, buttonEl) {
-if (!bookName) {
-showNotification(translations[currentLang].bookNameMissing, 'error');
-return;
-}
-const bookCard = buttonEl.closest('.book-card');
-const PurchaseText = bookCard.dataset.purchaseText;
-// ✅ التحقق: هل الرابط موجود؟
-if (!PurchaseText || !PurchaseText.trim().startsWith('http')) {
-showNotification(translations[currentLang].fileNotFound, 'error');
-return;
-}
-const wasAlreadyRead = readBooks.includes(bookId);
-const originalHTML = buttonEl.innerHTML;
-try {
-buttonEl.disabled = true;
-buttonEl.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="animate-spin">
-<path stroke-linecap="round" stroke-linejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.702c.043-.553.11-.997.11-1.303 0-.721-.764-1.309-1.719-1.309S9.48 12.778 9.48 13.5c0 .297.07.622.11 1.066-10.088.725-10.931 9.428-10.931 9.428l.11-.001z" />
-</svg>
-${translations[currentLang].preparing}`;
-// تحديث العدد لو مش مقروء
-if (!wasAlreadyRead) {
-readBooks.push(bookId);
-localStorage.setItem('readBooks', JSON.stringify(readBooks));
-// Update in-memory data
-const bookIndex = booksData.findIndex(b => b.id === bookId);
-if (bookIndex !== -1) booksData[bookIndex].reads += 1;
-// تحديث Firestore
-if (db) {
-try {
-const bookRef = db.collection("Books").doc(bookId);
-await bookRef.update({ Reads: firebase.firestore.FieldValue.increment(1) });
-} catch (err) {
-console.warn("Failed to update Firestore:", err);
-}
-}
-}
-// ✅ التنزيل الفعلي من الرابط الخارجي
-const downloadUrl = PurchaseText.trim();
-const link = document.createElement('a');
-link.href = downloadUrl;
-link.target = '_blank';
-link.rel = 'noopener noreferrer';
-// محاولة استخراج اسم ملف افتراضي من الرابط
-const fileName = downloadUrl.split('/').pop().split('?')[0] || `${bookId}.pdf`;
-link.download = fileName;
-document.body.appendChild(link);
-link.click();
-document.body.removeChild(link);
-// تحديث واجهة المستخدم
-buttonEl.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
-<path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" />
-</svg>
-${wasAlreadyRead ? translations[currentLang].downloaded : translations[currentLang].downloadAgain}`;
-buttonEl.classList.add('success-state');
-buttonEl.disabled = true;
-showNotification(`"${bookName}" ${translations[currentLang].downloadSuccess}`, 'success');
-// Confetti
-if (confettiInstance) {
-confettiInstance.clear();
-confettiInstance.render();
-setTimeout(() => confettiInstance?.clear(), 3000);
-}
-// تحديث عدد القراء
-const readsEl = buttonEl.closest('.book-card').querySelector('.reads-info span');
-if (readsEl) {
-const book = booksData.find(b => b.id === bookId);
-if (book) {
-const txt = book.reads === 1 ? translations[currentLang].reads : translations[currentLang].readsPlural;
-readsEl.textContent = `${book.reads} ${txt}`;
-}
-}
-} catch (err) {
-console.error("Download failed:", err);
-showNotification(`${translations[currentLang].downloadFailed} "${bookName}". ${translations[currentLang].tryAgain}`, 'error');
-buttonEl.innerHTML = originalHTML;
-buttonEl.disabled = false;
-buttonEl.classList.remove('success-state');
-}
-}
+    if (!bookName) {
+        showNotification(translations[currentLang].bookNameMissing, 'error');
+        return;
+    }
+
+    const bookCard = buttonEl.closest('.book-card');
+    // تصحيح اسم المتغير ليكون صغيراً
+    let downloadUrl = bookCard.dataset.purchaseText; 
+
+    // ✅ التحقق: هل الرابط موجود؟
+    if (!downloadUrl || !downloadUrl.trim().startsWith('http')) {
+        showNotification(translations[currentLang].fileNotFound, 'error');
+        return;
+    }
+
+    const wasAlreadyRead = readBooks.includes(bookId);
+    const originalHTML = buttonEl.innerHTML;
+
+    try {
+        buttonEl.disabled = true;
+        buttonEl.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="animate-spin">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.702c.043-.553.11-.997.11-1.303 0-.721-.764-1.309-1.719-1.309S9.48 12.778 9.48 13.5c0 .297.07.622.11 1.066-10.088.725-10.931 9.428-10.931 9.428l.11-.001z" />
+        </svg>
+        ${translations[currentLang].preparing}`;
+
+        // تحديث العدد لو مش مقروء
+        if (!wasAlreadyRead) {
+            readBooks.push(bookId);
+            localStorage.setItem('readBooks', JSON.stringify(readBooks));
+            const bookIndex = booksData.findIndex(b => b.id === bookId);
+            if (bookIndex !== -1) booksData[bookIndex].reads += 1;
+            
+            if (db) {
+                try {
+                    const bookRef = db.collection("Books").doc(bookId);
+                    await bookRef.update({ Reads: firebase.firestore.FieldValue.increment(1) });
+                } catch (err) { console.warn("Failed to update Firestore:", err); }
+            }
+        }
+
+        // --- بداية كود التحميل الذكي ---
+        
+        // 1. تحويل رابط جوجل درايف العادي لرابط تحميل مباشر إذا لزم الأمر
+        // الرابط اللي أنت بعته بالفعل مباشر (uc?export=download)، لكن هنضيف معالجة إضافية
+        if (downloadUrl.includes('drive.google.com')) {
+            // التأكد من أن الرابط بصيغة التصدير المباشر
+            if (!downloadUrl.includes('uc?export=download') && !downloadUrl.includes('uc?id=')) {
+                 const fileId = downloadUrl.match(/\/d\/(.+?)\//)?.[1] || downloadUrl.split('id=')[1];
+                 if(fileId) {
+                     downloadUrl = `https://drive.google.com/uc?export=download&id=${fileId}`;
+                 }
+            }
+        }
+
+        // 2. استخدام Fetch لتحميل الملف كـ Blob (بيانات ثنائية)
+        // ده بيتحايل على صفحة المعاينة ويجبر المتصفح يعتبره ملف للتحميل
+        const response = await fetch(downloadUrl);
+        
+        if (!response.ok) throw new Error('Network response was not ok');
+        
+        const blob = await response.blob();
+        
+        // 3. إنشاء رابط مؤقت للـ Blob
+        const blobUrl = window.URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = blobUrl;
+        
+        // تحديد اسم الملف (نحاول تخمينه أو نضع اسم الكتاب)
+        const fileName = `${bookName.replace(/[^a-z0-9]/gi, '_').toLowerCase()}.pdf`;
+        link.download = fileName;
+        
+        document.body.appendChild(link);
+        link.click();
+        
+        // تنظيف الذاكرة
+        document.body.removeChild(link);
+        window.URL.revokeObjectURL(blobUrl);
+        
+        // --- نهاية كود التحميل الذكي ---
+
+        // تحديث واجهة المستخدم
+        buttonEl.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" />
+        </svg>
+        ${wasAlreadyRead ? translations[currentLang].downloaded : translations[currentLang].downloadAgain}`;
+        
+        buttonEl.classList.add('success-state');
+        buttonEl.disabled = true;
+        
+        showNotification(`"${bookName}" ${translations[currentLang].downloadSuccess}`, 'success');
+
+        // Confetti
+        if (confettiInstance) {
+            confettiInstance.clear();
+            confettiInstance.render();
+            setTimeout(() => confettiInstance?.clear(), 3000);
+        }
+
+        // تحديث عدد القراء
+        const readsEl = buttonEl.closest('.book-card').querySelector('.reads-info span');
+        if (readsEl) {
+            const book = booksData.find(b => b.id === bookId);
+            if (book) {
+                const txt = book.reads === 1 ? translations[currentLang].reads : translations[currentLang].readsPlural;
+                readsEl.textContent = `${book.reads} ${txt}`;
+            }
+        }
+
+    } catch (err) {
+        console.error("Download failed:", err);
+        // في حالة فشل التحميل عبر Blob (مثلاً بسبب CORS)، نرجع للطريقة القديمة كحل بديل
+        // لكن غالباً هيشتغل مع رابط uc?export=download
+        showNotification(`${translations[currentLang].downloadFailed} "${bookName}". ${translations[currentLang].tryAgain}`, 'error');
+        buttonEl.innerHTML = originalHTML;
+        buttonEl.disabled = false;
+        buttonEl.classList.remove('success-state');
+    }
+            }
 // Check which books have been read
 function checkReadBooks() {
 const bookCards = document.querySelectorAll('.book-card');
